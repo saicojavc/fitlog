@@ -1,3 +1,4 @@
+
 [versions]
 agp = "8.13.2"
 kotlin = "2.0.21"
@@ -14,6 +15,7 @@ nl-littlerobots-catalog-update-version = "0.7.0"
 android-dagger-hilt = "2.55"
 ksp = "2.1.10-1.0.30"
 detekt-version = "1.23.6"
+hiltNavigationCompose = "1.2.0"
 
 #config
 compileSdk = "35"
@@ -35,6 +37,9 @@ androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "u
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "android-dagger-hilt" }
+hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "android-dagger-hilt" }
+androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
