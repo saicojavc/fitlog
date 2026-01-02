@@ -8,6 +8,17 @@ espressoCore = "3.5.1"
 lifecycleRuntimeKtx = "2.6.1"
 activityCompose = "1.8.0"
 composeBom = "2024.09.00"
+kt-android-plugin-version = "2.1.10"
+com-github-ben-manes-version = "0.41.0"
+nl-littlerobots-catalog-update-version = "0.7.0"
+android-dagger-hilt = "2.55"
+ksp = "2.1.10-1.0.30"
+detekt-version = "1.23.6"
+
+#config
+compileSdk = "35"
+targetSdk = "35"
+minSdk = "23"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -29,4 +40,11 @@ androidx-compose-material3 = { group = "androidx.compose.material3", name = "mat
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+com-android-library = { id = "com.android.library", version.ref = "agp" }
+org-jetbrains-kt-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kt-android-plugin-version" }
+com-github-ben-manes = { id = "com.github.ben-manes.versions", version.ref = "com-github-ben-manes-version" }
+nl-littlerobots-catalog-update = { id = "nl.littlerobots.version-catalog-update", version.ref = "nl-littlerobots-catalog-update-version" }
+com-dagger-hilt = { id = "com.google.dagger.hilt.android", version.ref = "android-dagger-hilt" }
+com-google-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt-version" }  ## for lint detekt
 
