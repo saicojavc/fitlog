@@ -1,4 +1,4 @@
-package com.saico.fitlog
+package com.saico.fitlog.ui.presentation
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel

@@ -1,4 +1,4 @@
-package com.saico.fitlog
+package com.saico.fitlog.ui.presentation
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.saico.fitlog.ui.presentation.MainActivityViewModel
 import com.saico.fitlog.ui.theme.FitlogTheme
 import dagger.hilt.android.AndroidEntryPoint
 
