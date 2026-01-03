@@ -16,4 +16,7 @@ interface GymExerciseDao {
 
     @Query("SELECT * FROM $GYM_EXERCISE_TABLE")
     fun getGymExercises(): Flow<List<GymExerciseEntity>>
+
+    @Query("SELECT * FROM $GYM_EXERCISE_TABLE WHERE dayOfWeek = :day")
+    fun getGymExercisesByDay(day: String): Flow<List<GymExerciseEntity>>
 }

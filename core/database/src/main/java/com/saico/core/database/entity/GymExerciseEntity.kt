@@ -11,10 +11,13 @@ import java.sql.Time
 @Parcelize
 class GymExerciseEntity(
    @PrimaryKey(autoGenerate = true)
+   val id: Int = 0,
    val name: String,
    val sets: Int,
    val reps: Int,
    val weightKg: Double = 0.0,
    val time: Time,
-    val calories: Int,
+   val calories: Int,
+   val date: Long,
+   val dayOfWeek: String
 ) : Parcelable

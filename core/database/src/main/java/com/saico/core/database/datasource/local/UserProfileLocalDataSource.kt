@@ -1,4 +1,4 @@
-package com.saico.core.domain.datasource.local
+package com.saico.core.database.datasource.local
 
 import com.saico.core.database.entity.UserProfileEntity
 import kotlinx.coroutines.flow.Flow

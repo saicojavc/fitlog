@@ -2,7 +2,6 @@ package com.saico.core.database.datasource.local
 
 import com.saico.core.database.dao.GymExerciseDao
 import com.saico.core.database.entity.GymExerciseEntity
-import com.saico.core.domain.datasource.local.GymExerciseLocalDataSource
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -13,5 +12,9 @@ class GymExerciseLocalDataSourceImpl @Inject constructor(
 
     override suspend fun insertGymExercise(gymExercise: GymExerciseEntity) {
         gymExerciseDao.insertGymExercise(gymExercise)
+    }
+
+    override fun getGymExercisesByDay(day: String): Flow<List<GymExerciseEntity>> {
+        return gymExerciseDao.getGymExercisesByDay(day)
     }
 }
