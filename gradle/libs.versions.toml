@@ -80,4 +80,3 @@ nl-littlerobots-catalog-update = { id = "nl.littlerobots.version-catalog-update"
 com-dagger-hilt = { id = "com.google.dagger.hilt.android", version.ref = "android-dagger-hilt" }
 com-google-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt-version" }  ## for lint detekt
-
