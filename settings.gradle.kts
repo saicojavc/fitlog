@@ -21,4 +21,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "Fitlog"
 include(":app")
- 
+include(":core")
+include(":feature")
+include(":core:ui")
