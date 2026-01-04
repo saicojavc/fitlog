@@ -1,4 +1,4 @@
-package com.saico.fitlog.ui.theme
+package com.saico.core.ui.theme
 
 import android.app.Activity
 import android.os.Build

@@ -29,6 +29,7 @@ targetSdk = "35"
 minSdk = "23"
 appcompat = "1.6.1"
 material = "1.10.0"
+materialIcons = "1.6.8"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -51,6 +52,7 @@ androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navig
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "materialIcons" }
 
 # Room
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
@@ -73,6 +75,7 @@ squareup-moshi-codegen = { group = "com.squareup.moshi", name = "moshi-kotlin-co
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 com-android-library = { id = "com.android.library", version.ref = "agp" }
 org-jetbrains-kt-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kt-android-plugin-version" }
 com-github-ben-manes = { id = "com.github.ben-manes.versions", version.ref = "com-github-ben-manes-version" }
@@ -80,3 +83,4 @@ nl-littlerobots-catalog-update = { id = "nl.littlerobots.version-catalog-update"
 com-dagger-hilt = { id = "com.google.dagger.hilt.android", version.ref = "android-dagger-hilt" }
 com-google-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt-version" }  ## for lint detekt
+
