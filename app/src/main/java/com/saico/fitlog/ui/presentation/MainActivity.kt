@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,11 +24,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.rememberNavController
+import com.saico.core.ui.navigation.Navigator
 import com.saico.core.ui.theme.FitlogTheme
+import com.saico.lfeature.ogin.navigation.loginGraph
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var navigator: Navigator
+
 
     private val viewModel: MainActivityViewModel by viewModels()
 
@@ -40,12 +50,14 @@ class MainActivity : ComponentActivity() {
             var isDarkTheme by remember { mutableStateOf(systemIsDark) }
 
             FitlogTheme(darkTheme = isDarkTheme) {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding),
-                        isDark = isDarkTheme,
-                        onThemeChange = { isDarkTheme = it }
+
+                val navController = rememberNavController()
+
+                Surface(modifier = Modifier.fillMaxSize()) {
+                    MainContainer(
+                        startDestination = viewModel.firstScreen,
+                        navigator = navigator,
+                        navController = navController
                     )
                 }
             }
@@ -54,51 +66,72 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(
-    name: String,
-    modifier: Modifier = Modifier,
-    isDark: Boolean,
-    onThemeChange: (Boolean) -> Unit
-) {
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Hello $name!"
-        )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (isDark) {
-                Text(text = "Dark Theme")
-            } else {
+private fun MainContainer(
+    startDestination: String,
+    navigator: Navigator,
+    navController: NavHostController
+){
 
-                Text(text = "Light Theme")
-            }
 
-            Switch(
-                checked = isDark,
-                onCheckedChange = onThemeChange
-            )
+
+    Column{
+        NavHost(
+            navController = navController,
+            startDestination = startDestination,
+        ){
+            loginGraph()
+
         }
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    var isDarkTheme by remember { mutableStateOf(false) }
-    FitlogTheme(darkTheme = isDarkTheme) {
-        Greeting(
-            name = "Android",
-            isDark = isDarkTheme,
-            onThemeChange = { isDarkTheme = it }
-        )
+
+    @Composable
+    fun Greeting(
+        name: String,
+        modifier: Modifier = Modifier,
+        isDark: Boolean,
+        onThemeChange: (Boolean) -> Unit
+    ) {
+        Column(
+            modifier = modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Hello $name!"
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (isDark) {
+                    Text(text = "Dark Theme")
+                } else {
+
+                    Text(text = "Light Theme")
+                }
+
+                Switch(
+                    checked = isDark,
+                    onCheckedChange = onThemeChange
+                )
+            }
+        }
     }
-}
+
+    @Preview(showBackground = true)
+    @Composable
+    fun GreetingPreview() {
+        var isDarkTheme by remember { mutableStateOf(false) }
+        FitlogTheme(darkTheme = isDarkTheme) {
+            Greeting(
+                name = "Android",
+                isDark = isDarkTheme,
+                onThemeChange = { isDarkTheme = it }
+            )
+        }
+    }
