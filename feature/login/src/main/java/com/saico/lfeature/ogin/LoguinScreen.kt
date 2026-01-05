@@ -24,12 +24,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.saico.core.ui.R
 import com.saico.core.ui.components.FitlogButton
 import com.saico.core.ui.components.FitlogIcon
 import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.components.SpacerHeight
 import com.saico.core.ui.icon.FitlogIcons
+import com.saico.core.ui.navigation.routes.dashboard.OnboardingRoute
 import com.saico.core.ui.theme.AppDim
 import com.saico.core.ui.theme.FontSizes
 import com.saico.core.ui.theme.LightBackground
@@ -38,13 +41,17 @@ import com.saico.core.ui.theme.LightSuccess
 import com.saico.core.ui.theme.PaddingDim
 
 @Composable
-fun LoginScreen(){
+fun LoginScreen(
+    viewModel: LoginViewModel = hiltViewModel(),
+    navController: NavHostController,
+    )
+{
 
-    Content()
+    Content(navController = navController)
 }
 
 @Composable
-fun Content(){
+fun Content(navController: NavHostController){
 
     val gradientColors = if (isSystemInDarkTheme()) {
         listOf(LightPrimary, LightSuccess)
@@ -68,7 +75,11 @@ fun Content(){
             modifier = Modifier
                 .padding(PaddingDim.EXTRA_HUGE)
                 .size(AppDim.LOGIN_HEADER_ICON_SIZE)
-                .border(width = 1.dp, shape = CircleShape, color = MaterialTheme.colorScheme.primary)
+                .border(
+                    width = 1.dp,
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.primary
+                )
                 .clip(CircleShape),
             contentScale = ContentScale.Crop
         )
@@ -95,8 +106,10 @@ fun Content(){
         SpacerHeight(PaddingDim.EXTRA_HUGE)
 
         FitlogButton(
-            modifier = Modifier.fillMaxWidth().padding(PaddingDim.SMALL),
-            onClick = { /*TODO*/ },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(PaddingDim.SMALL),
+            onClick = { navController.navigate(OnboardingRoute.OnboardingScreenRoute.route) },
             content = {
                 FitlogText(text = stringResource(id = R.string.get_started))
                 FitlogIcon(

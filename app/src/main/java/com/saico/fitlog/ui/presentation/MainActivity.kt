@@ -28,7 +28,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.saico.core.ui.navigation.Navigator
+import com.saico.core.ui.navigation.routes.login.LoginRoute
 import com.saico.core.ui.theme.FitlogTheme
+import com.saico.feature.onboarding.navigation.onboardingGraph
 import com.saico.lfeature.ogin.navigation.loginGraph
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -55,7 +57,7 @@ class MainActivity : ComponentActivity() {
 
                 Surface(modifier = Modifier.fillMaxSize()) {
                     MainContainer(
-                        startDestination = viewModel.firstScreen,
+                        startDestination = viewModel.firstScreen, // Set a default start destination
                         navigator = navigator,
                         navController = navController
                     )
@@ -71,16 +73,14 @@ private fun MainContainer(
     navigator: Navigator,
     navController: NavHostController
 ){
-
-
-
     Column{
         NavHost(
             navController = navController,
             startDestination = startDestination,
         ){
-            loginGraph()
+            loginGraph(navHostController = navController)
 
+            onboardingGraph()
         }
     }
 }

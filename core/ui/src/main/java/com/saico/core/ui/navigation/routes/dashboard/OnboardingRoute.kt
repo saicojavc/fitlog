@@ -1,0 +1,16 @@
+package com.saico.core.ui.navigation.routes.dashboard
+
+import com.saico.core.ui.navigation.routes.Route
+
+interface OnboardingRoute : Route {
+
+    data object RootRoute : OnboardingRoute {
+        override val analyticsTag: String = "onboarding-flow"
+        override val route: String = "onboarding"
+    }
+
+    data object OnboardingScreenRoute : OnboardingRoute {
+        override val analyticsTag: String = "onboarding-screen-flow"
+        override val route: String = "onboarding/onboarding-screen"
+    }
+}
