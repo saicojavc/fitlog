@@ -12,8 +12,10 @@ import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -24,6 +26,8 @@ import com.saico.core.ui.theme.FitlogTheme
 fun FitlogCard(
     modifier: Modifier = Modifier,
     shape: Shape = ShapeDefaults.Medium,
+    color: Color = MaterialTheme.colorScheme.surface,
+    contentColor: Color = contentColorFor(color),
     elevation: Dp = 4.dp, // Replaced ElevationDim.MEDIUM
     border: BorderStroke? = null,
     content: @Composable ColumnScope.() -> Unit,
@@ -31,8 +35,9 @@ fun FitlogCard(
     Surface(
         modifier = modifier,
         shape = shape,
+        color = color,
+        contentColor = contentColor,
         border = border,
-        contentColor = MaterialTheme.colorScheme.onSurface,
         tonalElevation = 0.dp,
         shadowElevation = elevation,
         content = {

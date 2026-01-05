@@ -11,6 +11,7 @@ val LightSurface = Color(0xFFFFFFFF)
 val LightOnPrimary = Color(0xFFFFFFFF)
 val LightOnBackground = Color(0xFF000000)
 val LightSecondaryText = Color(0xFF666666)
+val LightInfo = Color(0xFFE3F2FD) // A light blue color for info cards
 
 // Dark Mode
 val DarkPrimary = Color(0xFF004C99)
@@ -21,6 +22,7 @@ val DarkSurface = Color(0xFF1E1E1E)
 val DarkOnPrimary = Color(0xFFFFFFFF)
 val DarkOnBackground = Color(0xFFE0E0E0)
 val DarkSecondaryText = Color(0xFFAAAAAA)
+val DarkInfo = Color(0xFF2C3E50) // A dark blue-gray color for info cards
 
 // Common Colors
 val CommonError = Color(0xFFFF4444)

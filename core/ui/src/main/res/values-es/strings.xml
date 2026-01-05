@@ -3,4 +3,15 @@
     <string name="welcome_to_fitlog">¡Bienvenido a\nFitLog!</string>
     <string name="login_subtitle">Registra tus caminatas, carreras\ny gym facilmente.</string>
     <string name="get_started">Empezar</string>
+    <string name="setup_your_profile">Configura tu perfil</string>
+    <string name="personalize_your_experience">Personaliza tu experiencia en Fitlog</string>
+    <string name="age">Edad</string>
+    <string name="weight_kg">Peso (Kg)</string>
+    <string name="height_cm">Altura (Cm)</string>
+    <string name="gender">Género</string>
+    <string name="select_option">Seleccione una opción</string>
+    <string name="male">Hombre</string>
+    <string name="female">Mujer</string>
+    <string name="not_specified">No especificado</string>
+    <string name="info_calorie_calculation">Estos datos ayudan a calcular las calorias quemadas con mayor presicion.</string>
 </resources>

@@ -48,8 +48,8 @@ fun FitlogOutlinedTextField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors(),
     shape: Shape = OutlinedTextFieldDefaults.shape,
-    trailingIcon: @Composable (() -> Unit)? = {},
-    leadingIcon: @Composable (() -> Unit)? = {},
+//    trailingIcon: @Composable (() -> Unit)? = {},
+//    leadingIcon: @Composable (() -> Unit)? = {},
     textStyle: TextStyle = MaterialTheme.typography.bodyMedium,
 ) {
     Column(modifier = modifier) {
@@ -76,8 +76,8 @@ fun FitlogOutlinedTextField(
             visualTransformation = visualTransformation,
             colors = colors,
             shape = shape,
-            leadingIcon = if (errorMessage == null) leadingIcon else { { Icon(imageVector = FitlogIcons.Error, contentDescription = errorMessage) } },
-            trailingIcon = if (errorMessage == null) trailingIcon else { { Icon(imageVector = FitlogIcons.Error, contentDescription = errorMessage) } },
+//            leadingIcon = if (errorMessage == null) leadingIcon else { { Icon(imageVector = FitlogIcons.Error, contentDescription = errorMessage) } },
+//            trailingIcon = if (errorMessage == null) trailingIcon else { { Icon(imageVector = FitlogIcons.Error, contentDescription = errorMessage) } },
             textStyle = textStyle,
         )
 
@@ -142,12 +142,12 @@ fun FitlogTextFieldPassword(
         keyboardActions = keyboardActions,
         errorMessage = errorMessage,
         visualTransformation = if (passwordHidden) PasswordVisualTransformation() else VisualTransformation.None,
-        trailingIcon = {
-            IconButton(onClick = { passwordHidden = !passwordHidden }) {
-                val icon = if (passwordHidden) FitlogIcons.Visibility else FitlogIcons.VisibilityOff
-                Icon(imageVector = icon, contentDescription = if (passwordHidden) "Show password" else "Hide password")
-            }
-        },
+//        trailingIcon = {
+//            IconButton(onClick = { passwordHidden = !passwordHidden }) {
+//                val icon = if (passwordHidden) FitlogIcons.Visibility else FitlogIcons.VisibilityOff
+//                Icon(imageVector = icon, contentDescription = if (passwordHidden) "Show password" else "Hide password")
+//            }
+//        },
     )
 }
 

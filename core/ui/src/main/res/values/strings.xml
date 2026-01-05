@@ -3,4 +3,15 @@
     <string name="welcome_to_fitlog">Welcome to\nFitLog!</string>
     <string name="login_subtitle">Track your walks, runs,\nand gym sessions easily.</string>
     <string name="get_started">Get Started</string>
+    <string name="setup_your_profile">Set up your profile</string>
+    <string name="personalize_your_experience">Personalize your Fitlog experience</string>
+    <string name="age">Age</string>
+    <string name="weight_kg">Weight (Kg)</string>
+    <string name="height_cm">Height (Cm)</string>
+    <string name="gender">Gender</string>
+    <string name="select_option">Select an option</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="not_specified">Not specified</string>
+    <string name="info_calorie_calculation">This data helps to calculate burned calories with greater precision.</string>
 </resources>
