@@ -1,7 +1,9 @@
 package com.saico.core.ui.icon
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Person
@@ -18,4 +20,5 @@ object FitlogIcons {
     val Error: ImageVector = Icons.Default.Error
     val Visibility: ImageVector = Icons.Default.Visibility
     val VisibilityOff: ImageVector = Icons.Default.VisibilityOff
+    val ArrowForward: ImageVector = Icons.Default.ArrowForward
 }

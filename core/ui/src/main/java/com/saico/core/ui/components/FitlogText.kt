@@ -14,13 +14,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
-import com.saico.core.ui.theme.FitlogTheme
 
 @Composable
 fun FitlogText(
     modifier: Modifier = Modifier,
     text: String,
     fontSize: TextUnit = TextUnit.Unspecified,
+    lineHeight: TextUnit = TextUnit.Unspecified,
     style: TextStyle = LocalTextStyle.current,
     color: Color = Color.Unspecified,
     maxLines: Int = Int.MAX_VALUE,
@@ -36,6 +36,7 @@ fun FitlogText(
         maxLines = maxLines,
         textAlign = textAlign,
         fontSize = fontSize,
+        lineHeight = lineHeight,
         overflow = overflow,
         fontWeight = fontWeight
     )
@@ -54,15 +55,4 @@ fun FitlogTextTitle(
     )
 }
 
-@Preview("Texts")
-@Composable
-private fun FitlogTextsPreview() {
-    FitlogTheme {
-        Surface {
-            Column {
-                FitlogText(text = "Generic FitlogText")
-                FitlogTextTitle(text = "Title FitlogText")
-            }
-        }
-    }
-}
+

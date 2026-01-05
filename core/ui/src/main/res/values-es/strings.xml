@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Agrega tus cadenas de texto en español aquí -->
+    <string name="welcome_to_fitlog">¡Bienvenido a\nFitLog!</string>
+    <string name="login_subtitle">Registra tus caminatas, carreras\ny gym facilmente.</string>
+    <string name="get_started">Empezar</string>
 </resources>

@@ -26,7 +26,7 @@ fun FitlogButton(
     label: String = "",
     enabled: Boolean = true,
     shape: Shape = ButtonDefaults.textShape,
-    content: @Composable RowScope.() -> Unit = { Text(text = label) },
+    content: @Composable RowScope.() -> Unit = {  },
     onClick: () -> Unit,
     colors: ButtonColors = ButtonDefaults.buttonColors(),
 ) {
