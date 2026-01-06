@@ -32,7 +32,7 @@ import com.saico.core.ui.components.FitlogIcon
 import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.components.SpacerHeight
 import com.saico.core.ui.icon.FitlogIcons
-import com.saico.core.ui.navigation.routes.dashboard.OnboardingRoute
+import com.saico.core.ui.navigation.routes.onboarding.OnboardingRoute
 import com.saico.core.ui.theme.AppDim
 import com.saico.core.ui.theme.FontSizes
 import com.saico.core.ui.theme.LightBackground

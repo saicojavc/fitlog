@@ -1,4 +1,4 @@
-package com.saico.core.ui.navigation.routes.dashboard
+package com.saico.core.ui.navigation.routes.onboarding
 
 import com.saico.core.ui.navigation.routes.Route
 

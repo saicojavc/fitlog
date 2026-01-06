@@ -7,5 +7,6 @@ data class OnboardingUiState(
     val gender: String = "",
     val isGenderMenuExpanded: Boolean = false,
     val dailySteps: Int = 10000,
-    val caloriesToBurn: Int = 500
+    val caloriesToBurn: Int = 500,
+    val isProfileConfigurationValid: Boolean = false
 )

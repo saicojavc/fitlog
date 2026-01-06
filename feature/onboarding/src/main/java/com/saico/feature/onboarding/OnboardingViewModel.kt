@@ -18,23 +18,27 @@ class OnboardingViewModel @Inject constructor() : ViewModel() {
     fun onAgeChange(newAge: String) {
         if (newAge.all { it.isDigit() }) {
             _uiState.update { it.copy(age = newAge) }
+            validateProfileConfiguration()
         }
     }
 
     fun onWeightChange(newWeight: String) {
         if (newWeight.all { it.isDigit() }) {
             _uiState.update { it.copy(weight = newWeight) }
+            validateProfileConfiguration()
         }
     }
 
     fun onHeightChange(newHeight: String) {
         if (newHeight.all { it.isDigit() }) {
             _uiState.update { it.copy(height = newHeight) }
+            validateProfileConfiguration()
         }
     }
 
     fun onGenderSelected(gender: String) {
         _uiState.update { it.copy(gender = gender) }
+        validateProfileConfiguration()
     }
 
     fun onGenderMenuExpanded(expanded: Boolean) {
@@ -47,5 +51,14 @@ class OnboardingViewModel @Inject constructor() : ViewModel() {
 
     fun onCaloriesToBurnChange(newCalories: Int) {
         _uiState.update { it.copy(caloriesToBurn = newCalories) }
+    }
+
+    private fun validateProfileConfiguration() {
+        val state = _uiState.value
+        val isConfigurationValid = state.age.isNotBlank() &&
+                state.weight.isNotBlank() &&
+                state.height.isNotBlank() &&
+                state.gender.isNotBlank()
+        _uiState.update { it.copy(isProfileConfigurationValid = isConfigurationValid) }
     }
 }

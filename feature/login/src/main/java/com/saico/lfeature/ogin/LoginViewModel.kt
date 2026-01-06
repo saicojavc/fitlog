@@ -3,7 +3,7 @@ package com.saico.lfeature.ogin
 import androidx.lifecycle.ViewModel
 import com.saico.core.ui.navigation.NavigationCommand
 import com.saico.core.ui.navigation.Navigator
-import com.saico.core.ui.navigation.routes.dashboard.OnboardingRoute
+import com.saico.core.ui.navigation.routes.onboarding.OnboardingRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 

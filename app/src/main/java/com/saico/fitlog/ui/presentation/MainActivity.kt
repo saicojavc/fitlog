@@ -30,6 +30,7 @@ import androidx.navigation.compose.rememberNavController
 import com.saico.core.ui.navigation.Navigator
 import com.saico.core.ui.navigation.routes.login.LoginRoute
 import com.saico.core.ui.theme.FitlogTheme
+import com.saico.feature.dashboard.navigation.dashboardGraph
 import com.saico.feature.onboarding.navigation.onboardingGraph
 import com.saico.lfeature.ogin.navigation.loginGraph
 import dagger.hilt.android.AndroidEntryPoint
@@ -80,58 +81,10 @@ private fun MainContainer(
         ){
             loginGraph(navHostController = navController)
 
-            onboardingGraph()
+            onboardingGraph(navController = navController)
+
+            dashboardGraph(navController = navController)
         }
     }
 }
 
-
-    @Composable
-    fun Greeting(
-        name: String,
-        modifier: Modifier = Modifier,
-        isDark: Boolean,
-        onThemeChange: (Boolean) -> Unit
-    ) {
-        Column(
-            modifier = modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "Hello $name!"
-            )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (isDark) {
-                    Text(text = "Dark Theme")
-                } else {
-
-                    Text(text = "Light Theme")
-                }
-
-                Switch(
-                    checked = isDark,
-                    onCheckedChange = onThemeChange
-                )
-            }
-        }
-    }
-
-    @Preview(showBackground = true)
-    @Composable
-    fun GreetingPreview() {
-        var isDarkTheme by remember { mutableStateOf(false) }
-        FitlogTheme(darkTheme = isDarkTheme) {
-            Greeting(
-                name = "Android",
-                isDark = isDarkTheme,
-                onThemeChange = { isDarkTheme = it }
-            )
-        }
-    }

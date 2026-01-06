@@ -26,12 +26,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import com.saico.core.ui.R
 import com.saico.core.ui.theme.CornerDim
-import com.saico.core.ui.theme.FitlogTheme
 import com.saico.core.ui.theme.LightBackground
 import com.saico.core.ui.theme.LightPrimary
 import com.saico.core.ui.theme.LightSuccess
@@ -44,7 +43,8 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun OnboardingScreen(
-    viewModel: OnboardingViewModel = hiltViewModel()
+    viewModel: OnboardingViewModel = hiltViewModel(),
+    navController: NavHostController
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -56,7 +56,8 @@ fun OnboardingScreen(
         onGenderSelected = viewModel::onGenderSelected,
         onGenderMenuExpanded = viewModel::onGenderMenuExpanded,
         onDailyStepsChange = viewModel::onDailyStepsChange,
-        onCaloriesToBurnChange = viewModel::onCaloriesToBurnChange
+        onCaloriesToBurnChange = viewModel::onCaloriesToBurnChange,
+        navController = navController
     )
 }
 
@@ -70,7 +71,8 @@ fun Content(
     onGenderSelected: (String) -> Unit,
     onGenderMenuExpanded: (Boolean) -> Unit,
     onDailyStepsChange: (Int) -> Unit,
-    onCaloriesToBurnChange: (Int) -> Unit
+    onCaloriesToBurnChange: (Int) -> Unit,
+    navController: NavHostController,
 ) {
     val pagerState = rememberPagerState { 3 }
     val scope = rememberCoroutineScope()
@@ -145,7 +147,8 @@ fun Content(
                 }
                 2 -> {
                     OnboardingFinish(
-                        uiState = state
+                        uiState = state,
+                        navController = navController
                     )
                 }
             }
@@ -161,6 +164,7 @@ fun Content(
                         }
                     }
                 },
+                enabled = if (pagerState.currentPage == 0) state.isProfileConfigurationValid else true,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(PaddingDim.LARGE)
@@ -168,24 +172,5 @@ fun Content(
                 Text(text = stringResource(id = R.string.next))
             }
         }
-    }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-private fun OnboardingScreenPreview() {
-    FitlogTheme {
-        val uiState = OnboardingUiState(age = "25", weight = "70", height = "180")
-        Content(
-            state = uiState,
-            onAgeChange = {},
-            onWeightChange = {},
-            onHeightChange = {},
-            onGenderSelected = {},
-            onGenderMenuExpanded = {},
-            onDailyStepsChange = {},
-            onCaloriesToBurnChange = {}
-        )
     }
 }

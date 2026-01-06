@@ -31,6 +31,8 @@ minSdk = "23"
 appcompat = "1.6.1"
 material = "1.10.0"
 materialIcons = "1.6.8"
+navigationCommonKtx = "2.9.6"
+navigationRuntimeKtx = "2.9.6"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -72,6 +74,8 @@ squareup-moshi-converter = { group = "com.squareup.retrofit2", name = "converter
 # Moshi
 squareup-moshi = { group = "com.squareup.moshi", name = "moshi-kotlin", version.ref = "moshi" }
 squareup-moshi-codegen = { group = "com.squareup.moshi", name = "moshi-kotlin-codegen", version.ref = "moshi" }
+androidx-navigation-common-ktx = { group = "androidx.navigation", name = "navigation-common-ktx", version.ref = "navigationCommonKtx" }
+androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

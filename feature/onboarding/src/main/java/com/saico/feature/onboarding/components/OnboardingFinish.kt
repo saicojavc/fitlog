@@ -21,21 +21,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.saico.core.ui.R
 import com.saico.core.ui.components.FitlogCard
 import com.saico.core.ui.components.FitlogIcon
 import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.components.SpacerHeight
 import com.saico.core.ui.icon.FitlogIcons
+import com.saico.core.ui.navigation.routes.dashboard.DashboardRoute
 import com.saico.core.ui.theme.CornerDim
 import com.saico.core.ui.theme.LightPrimary
 import com.saico.core.ui.theme.PaddingDim
 import com.saico.feature.onboarding.state.OnboardingUiState
-import kotlinx.coroutines.launch
 
 @Composable
 fun OnboardingFinish(
     uiState: OnboardingUiState,
+    navController: NavHostController,
 ) {
     Column(
         modifier = Modifier
@@ -97,7 +99,7 @@ fun OnboardingFinish(
                     .padding(PaddingDim.MEDIUM)
             ) {
                 FitlogText(
-                    modifier = Modifier.padding( PaddingDim.MEDIUM),
+                    modifier = Modifier.padding(PaddingDim.MEDIUM),
                     text = stringResource(id = R.string.your_profile),
                     style = MaterialTheme.typography.headlineSmall
                 )
@@ -109,7 +111,10 @@ fun OnboardingFinish(
                         .fillMaxWidth(),
                     color = Color.Transparent,
                     shape = RoundedCornerShape(CornerDim.MEDIUM),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f))
+                    border = BorderStroke(
+                        1.dp,
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+                    )
                 ) {
                     Row(
                         modifier = Modifier
@@ -194,16 +199,30 @@ fun OnboardingFinish(
                         modifier = Modifier.padding(PaddingDim.MEDIUM)
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            FitlogIcon(imageVector = FitlogIcons.Walk, contentDescription = null, background = Color.Transparent, tint = Color.White)
-                            FitlogText(text = stringResource(id = R.string.lose_weight), color = Color.White)
+                            FitlogIcon(
+                                imageVector = FitlogIcons.Walk,
+                                contentDescription = null,
+                                background = Color.Transparent,
+                                tint = Color.White
+                            )
+                            FitlogText(
+                                text = stringResource(id = R.string.lose_weight),
+                                color = Color.White
+                            )
                         }
                         SpacerHeight(PaddingDim.SMALL)
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            FitlogText(text = stringResource(id = R.string.running), color = Color.White)
-                            FitlogText(text = stringResource(id = R.string.times_a_week), color = Color.White)
+                            FitlogText(
+                                text = stringResource(id = R.string.running),
+                                color = Color.White
+                            )
+                            FitlogText(
+                                text = stringResource(id = R.string.times_a_week),
+                                color = Color.White
+                            )
                         }
                         Divider(
                             modifier = Modifier.padding(vertical = PaddingDim.SMALL),
@@ -214,15 +233,21 @@ fun OnboardingFinish(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            FitlogText(text = stringResource(id = R.string.level), color = Color.White)
-                            FitlogText(text = stringResource(id = R.string.beginner), color = Color.White)
+                            FitlogText(
+                                text = stringResource(id = R.string.level),
+                                color = Color.White
+                            )
+                            FitlogText(
+                                text = stringResource(id = R.string.beginner),
+                                color = Color.White
+                            )
                         }
                     }
                 }
 
                 Button(
                     onClick = {
-
+                        navController.navigate(DashboardRoute.DashboardScreenRoute.route)
                     },
                     modifier = Modifier
                         .fillMaxWidth()
