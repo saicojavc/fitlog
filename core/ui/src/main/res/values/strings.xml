@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">Fitlog</string>
+    <string name="login">Login</string>
+    <string name="sign_up">Age</string>
     <string name="welcome_to_fitlog">Welcome to\nFitLog!</string>
     <string name="login_subtitle">Track your walks, runs,\nand gym sessions easily.</string>
     <string name="get_started">Get Started</string>
@@ -34,4 +37,8 @@
     <string name="beginner">Beginner</string>
     <string name="next">Next</string>
     <string name="save_and_continue">Save and continue</string>
+
+    <string name="home">Home</string>
+    <string name="history">History</string>
+    <string name="profile">Profile</string>
 </resources>

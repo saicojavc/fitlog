@@ -34,4 +34,8 @@
     <string name="beginner">Principiante</string>
     <string name="next">Siguiente</string>
     <string name="save_and_continue">Guardar y continuar</string>
+
+    <string name="home">Inicio</string>
+    <string name="history">Historial</string>
+    <string name="profile">Perfil</string>
 </resources>

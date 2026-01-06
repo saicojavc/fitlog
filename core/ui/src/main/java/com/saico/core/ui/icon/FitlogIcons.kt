@@ -10,6 +10,8 @@ import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Height
 import androidx.compose.material.icons.filled.Male
 import androidx.compose.material.icons.filled.Female
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Visibility
@@ -40,4 +42,8 @@ object FitlogIcons {
     val Person: ImageVector = Icons.Default.Person
     val Weight: ImageVector = Icons.Default.FitnessCenter
     val Height: ImageVector = Icons.Default.Height
+
+    val Home : ImageVector = Icons.Default.Home
+
+    val History: ImageVector = Icons.Default.History
 }
