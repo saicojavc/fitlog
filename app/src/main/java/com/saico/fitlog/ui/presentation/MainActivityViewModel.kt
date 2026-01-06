@@ -18,6 +18,9 @@ class MainActivityViewModel @Inject constructor(
     private val getOnboardingCompletedUseCase: GetOnboardingCompletedUseCase
 ) : ViewModel() {
 
+    var isLoading by mutableStateOf(true)
+        private set
+
     var firstScreen by mutableStateOf(LoginRoute.RootRoute.route)
         private set
 
@@ -29,6 +32,7 @@ class MainActivityViewModel @Inject constructor(
                 } else {
                     LoginRoute.RootRoute.route
                 }
+                isLoading = false
             }
         }
     }
