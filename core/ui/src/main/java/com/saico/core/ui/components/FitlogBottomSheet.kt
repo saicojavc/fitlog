@@ -4,7 +4,6 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -45,7 +44,6 @@ fun FitlogBottomSheet(
 
     if (isVisible) {
         ModalBottomSheet(
-            modifier = Modifier.fillMaxSize(),
             sheetState = modalSheetState,
             containerColor = MaterialTheme.colorScheme.surface,
             onDismissRequest = onDismissRequest,

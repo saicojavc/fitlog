@@ -84,109 +84,93 @@ fun Content(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(gradientColors))
-            .padding(PaddingDim.LARGE),
+            .background(Brush.verticalGradient(gradientColors)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
         // Top Indicators
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(vertical = PaddingDim.LARGE),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            repeat(pagerState.pageCount) { iteration ->
-                val color = if (pagerState.currentPage == iteration) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
-                Box(
-                    modifier = Modifier
-                        .padding(horizontal = PaddingDim.VERY_SMALL)
-                        .clip(RoundedCornerShape(CornerDim.SMALL))
-                        .background(color)
-                        .width(PaddingDim.HUGE)
-                        .height(PaddingDim.SMALL)
-                )
+        if (pagerState.currentPage < pagerState.pageCount ) {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = PaddingDim.LARGE),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                repeat(pagerState.pageCount) { iteration ->
+                    val color = if (pagerState.currentPage == iteration) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
+                    Box(
+                        modifier = Modifier
+                            .padding(horizontal = PaddingDim.VERY_SMALL)
+                            .clip(RoundedCornerShape(CornerDim.SMALL))
+                            .background(color)
+                            .width(PaddingDim.HUGE)
+                            .height(PaddingDim.SMALL)
+                    )
+                }
             }
         }
 
         // Pager that hosts the different pages
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier.weight(1f) // Let the pager take up available space
+            modifier = Modifier.weight(1f), // Let the pager take up available space
+            userScrollEnabled = pagerState.currentPage < pagerState.pageCount
         ) { page ->
             when (page) {
-                0 -> OnboardingProfileConfiguration(
-                    age = state.age,
-                    onAgeChange = onAgeChange,
-                    weight = state.weight,
-                    onWeightChange = onWeightChange,
-                    height = state.height,
-                    onHeightChange = onHeightChange,
-                    gender = state.gender,
-                    onGenderSelected = onGenderSelected,
-                    isGenderMenuExpanded = state.isGenderMenuExpanded,
-                    onGenderMenuExpanded = onGenderMenuExpanded
-                )
-                1 -> OnboardingDailyGoal(
-                    dailySteps = state.dailySteps,
-                    onDailyStepsChange = onDailyStepsChange,
-                    caloriesToBurn = state.caloriesToBurn,
-                    onCaloriesToBurnChange = onCaloriesToBurnChange
-                )
-                2 -> OnboardingFinish()
+                0 -> {
+                    Column(modifier = Modifier.padding(PaddingDim.LARGE)) {
+                        OnboardingProfileConfiguration(
+                            age = state.age,
+                            onAgeChange = onAgeChange,
+                            weight = state.weight,
+                            onWeightChange = onWeightChange,
+                            height = state.height,
+                            onHeightChange = onHeightChange,
+                            gender = state.gender,
+                            onGenderSelected = onGenderSelected,
+                            isGenderMenuExpanded = state.isGenderMenuExpanded,
+                            onGenderMenuExpanded = onGenderMenuExpanded
+                        )
+                    }
+                }
+                1 -> {
+                    Column(modifier = Modifier.padding(PaddingDim.LARGE)) {
+                        OnboardingDailyGoal(
+                            dailySteps = state.dailySteps,
+                            onDailyStepsChange = onDailyStepsChange,
+                            caloriesToBurn = state.caloriesToBurn,
+                            onCaloriesToBurnChange = onCaloriesToBurnChange
+                        )
+                    }
+                }
+                2 -> {
+                    OnboardingFinish(
+                        uiState = state
+                    )
+                }
             }
         }
 
         // Bottom Button
-        val buttonText = if (pagerState.currentPage < pagerState.pageCount - 1) {
-            stringResource(id = R.string.get_started)
-        } else {
-            "Finalizar"
-        }
-
-        Button(
-            onClick = {
-                scope.launch {
-                    if (pagerState.currentPage < pagerState.pageCount - 1) {
-                        pagerState.animateScrollToPage(pagerState.currentPage + 1)
-                    } else {
-                        // TODO: Navigate to the main part of the app
+        if (pagerState.currentPage < pagerState.pageCount - 1) {
+            Button(
+                onClick = {
+                    scope.launch {
+                        if (pagerState.currentPage < pagerState.pageCount - 1) {
+                            pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                        }
                     }
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(PaddingDim.LARGE)
-        ) {
-            Text(text = buttonText)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(PaddingDim.LARGE)
+            ) {
+                Text(text = stringResource(id = R.string.next))
+            }
         }
     }
 }
 
-
-@Composable
-private fun PageTwo() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(PaddingDim.LARGE),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = "Registra cada logro", style = MaterialTheme.typography.headlineMedium)
-    }
-}
-
-@Composable
-private fun PageThree() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(PaddingDim.LARGE),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = "Alcanza tus metas", style = MaterialTheme.typography.headlineMedium)
-    }
-}
 
 @Preview(showBackground = true)
 @Composable

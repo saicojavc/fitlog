@@ -20,4 +20,18 @@
     <string name="set_goals_to_motivate_yourself">Establece metas para motivarte</string>
     <string name="daily_steps">Pasos diarios</string>
     <string name="calories_to_burn">Calorias a quemar</string>
+    <string name="all__set">¡Todo listo!</string>
+    <string name="review_your_data">Revisa tus datos y metas antes de iniciar tu viaje en Fitlog</string>
+    <string name="close">Cerrar</string>
+    <string name="summary">Resumen</string>
+    <string name="your_profile">Tu perfil</string>
+    <string name="years">años</string>
+    <string name="your_main_goal">Tu meta principal</string>
+    <string name="lose_weight">Perder peso</string>
+    <string name="running">Correr</string>
+    <string name="times_a_week">3x por semana</string>
+    <string name="level">Nivel</string>
+    <string name="beginner">Principiante</string>
+    <string name="next">Siguiente</string>
+    <string name="save_and_continue">Guardar y continuar</string>
 </resources>

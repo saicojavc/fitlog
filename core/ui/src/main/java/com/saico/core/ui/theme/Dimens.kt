@@ -31,6 +31,7 @@ object BorderDim {
 }
 
 object CornerDim {
+    val ZERO = 0.dp
     val EXTRA_SMALL = 2.dp
     val VERY_SMALL = 4.dp
     val SMALL = 8.dp

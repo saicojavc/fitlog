@@ -20,4 +20,18 @@
     <string name="set_goals_to_motivate_yourself">Set goals to motivate yourself</string>
     <string name="daily_steps">Daily steps</string>
     <string name="calories_to_burn">Calories to burn</string>
+    <string name="all_set">¡All set!</string>
+    <string name="review_your_data">Review your data and goals before starting your journey in Fitlog</string>
+    <string name="close">Close</string>
+    <string name="summary">Summary</string>
+    <string name="your_profile">Your profile</string>
+    <string name="years">years</string>
+    <string name="your_main_goal">Your main goal</string>
+    <string name="lose_weight">Lose weight</string>
+    <string name="running">Running</string>
+    <string name="times_a_week">3x a week</string>
+    <string name="level">Level</string>
+    <string name="beginner">Beginner</string>
+    <string name="next">Next</string>
+    <string name="save_and_continue">Save and continue</string>
 </resources>
