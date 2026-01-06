@@ -10,6 +10,8 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.Whatshot
+import androidx.compose.material.icons.outlined.DirectionsWalk
 import androidx.compose.ui.graphics.vector.ImageVector
 
 object FitlogIcons {
@@ -21,4 +23,7 @@ object FitlogIcons {
     val Visibility: ImageVector = Icons.Default.Visibility
     val VisibilityOff: ImageVector = Icons.Default.VisibilityOff
     val ArrowForward: ImageVector = Icons.Default.ArrowForward
+
+    val Walk: ImageVector = Icons.Outlined.DirectionsWalk
+    val Fire: ImageVector = Icons.Default.Whatshot
 }

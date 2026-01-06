@@ -36,6 +36,8 @@ import com.saico.core.ui.theme.LightBackground
 import com.saico.core.ui.theme.LightPrimary
 import com.saico.core.ui.theme.LightSuccess
 import com.saico.core.ui.theme.PaddingDim
+import com.saico.feature.onboarding.components.OnboardingDailyGoal
+import com.saico.feature.onboarding.components.OnboardingFinish
 import com.saico.feature.onboarding.components.OnboardingProfileConfiguration
 import com.saico.feature.onboarding.state.OnboardingUiState
 import kotlinx.coroutines.launch
@@ -52,7 +54,9 @@ fun OnboardingScreen(
         onWeightChange = viewModel::onWeightChange,
         onHeightChange = viewModel::onHeightChange,
         onGenderSelected = viewModel::onGenderSelected,
-        onGenderMenuExpanded = viewModel::onGenderMenuExpanded
+        onGenderMenuExpanded = viewModel::onGenderMenuExpanded,
+        onDailyStepsChange = viewModel::onDailyStepsChange,
+        onCaloriesToBurnChange = viewModel::onCaloriesToBurnChange
     )
 }
 
@@ -64,7 +68,9 @@ fun Content(
     onWeightChange: (String) -> Unit,
     onHeightChange: (String) -> Unit,
     onGenderSelected: (String) -> Unit,
-    onGenderMenuExpanded: (Boolean) -> Unit
+    onGenderMenuExpanded: (Boolean) -> Unit,
+    onDailyStepsChange: (Int) -> Unit,
+    onCaloriesToBurnChange: (Int) -> Unit
 ) {
     val pagerState = rememberPagerState { 3 }
     val scope = rememberCoroutineScope()
@@ -121,8 +127,13 @@ fun Content(
                     isGenderMenuExpanded = state.isGenderMenuExpanded,
                     onGenderMenuExpanded = onGenderMenuExpanded
                 )
-                1 -> PageTwo()
-                2 -> PageThree()
+                1 -> OnboardingDailyGoal(
+                    dailySteps = state.dailySteps,
+                    onDailyStepsChange = onDailyStepsChange,
+                    caloriesToBurn = state.caloriesToBurn,
+                    onCaloriesToBurnChange = onCaloriesToBurnChange
+                )
+                2 -> OnboardingFinish()
             }
         }
 
@@ -188,7 +199,9 @@ private fun OnboardingScreenPreview() {
             onWeightChange = {},
             onHeightChange = {},
             onGenderSelected = {},
-            onGenderMenuExpanded = {}
+            onGenderMenuExpanded = {},
+            onDailyStepsChange = {},
+            onCaloriesToBurnChange = {}
         )
     }
 }

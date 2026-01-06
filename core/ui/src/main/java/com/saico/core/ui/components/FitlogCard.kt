@@ -1,6 +1,7 @@
 package com.saico.core.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -26,9 +27,9 @@ import com.saico.core.ui.theme.FitlogTheme
 fun FitlogCard(
     modifier: Modifier = Modifier,
     shape: Shape = ShapeDefaults.Medium,
-    color: Color = MaterialTheme.colorScheme.surface,
+    color: Color = if (isSystemInDarkTheme()) Color.Black.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surface,
     contentColor: Color = contentColorFor(color),
-    elevation: Dp = 4.dp, // Replaced ElevationDim.MEDIUM
+    elevation: Dp = 0.dp, // Replaced ElevationDim.MEDIUM
     border: BorderStroke? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {

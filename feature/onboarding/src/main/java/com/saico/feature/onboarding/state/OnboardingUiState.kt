@@ -5,5 +5,7 @@ data class OnboardingUiState(
     val weight: String = "",
     val height: String = "",
     val gender: String = "",
-    val isGenderMenuExpanded: Boolean = false
+    val isGenderMenuExpanded: Boolean = false,
+    val dailySteps: Int = 10000,
+    val caloriesToBurn: Int = 500
 )

@@ -6,6 +6,8 @@
     <string name="setup_your_profile">Configura tu perfil</string>
     <string name="personalize_your_experience">Personaliza tu experiencia en Fitlog</string>
     <string name="age">Edad</string>
+    <string name="weight">Peso</string>
+    <string name="height">Altura</string>
     <string name="weight_kg">Peso (Kg)</string>
     <string name="height_cm">Altura (Cm)</string>
     <string name="gender">Género</string>
@@ -14,4 +16,8 @@
     <string name="female">Mujer</string>
     <string name="not_specified">No especificado</string>
     <string name="info_calorie_calculation">Estos datos ayudan a calcular las calorias quemadas con mayor presicion.</string>
+    <string name="daily_goals">Metas Diarias</string>
+    <string name="set_goals_to_motivate_yourself">Establece metas para motivarte</string>
+    <string name="daily_steps">Pasos diarios</string>
+    <string name="calories_to_burn">Calorias a quemar</string>
 </resources>

@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import com.saico.core.ui.R
@@ -25,6 +26,7 @@ import com.saico.core.ui.components.FitlogCard
 import com.saico.core.ui.components.FitlogDropdown
 import com.saico.core.ui.components.FitlogOutlinedTextField
 import com.saico.core.ui.components.FitlogText
+import com.saico.core.ui.components.SpacerHeight
 import com.saico.core.ui.theme.PaddingDim
 
 @Composable
@@ -45,20 +47,21 @@ fun OnboardingProfileConfiguration(
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = stringResource(id = R.string.setup_your_profile),
+         FitlogText(
+            text = stringResource(id = R.string.daily_goals),
             style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.onSurface,
+             color = Color.White,
         )
 
-        Spacer(modifier = Modifier.height(PaddingDim.SMALL))
+        SpacerHeight(PaddingDim.SMALL)
 
-        Text(
+        FitlogText(
             text = stringResource(id = R.string.personalize_your_experience),
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
+            color = Color.White,
         )
 
-        Spacer(modifier = Modifier.height(PaddingDim.MEDIUM))
+        SpacerHeight(PaddingDim.MEDIUM)
 
         FitlogCard(
             modifier = Modifier
@@ -69,8 +72,14 @@ fun OnboardingProfileConfiguration(
                 modifier = Modifier.padding(PaddingDim.SMALL),
                 horizontalAlignment = Alignment.Start
             ) {
+                FitlogText(
+                    modifier = Modifier.padding(PaddingDim.SMALL),
+                    text = stringResource(id = R.string.age)
+                )
                 FitlogOutlinedTextField(
-                    modifier = Modifier.padding(PaddingDim.SMALL).fillMaxWidth(),
+                    modifier = Modifier
+                        .padding(PaddingDim.SMALL)
+                        .fillMaxWidth(),
                     value = age,
                     onValueChange = onAgeChange,
                     label = stringResource(id = R.string.age),
@@ -78,38 +87,56 @@ fun OnboardingProfileConfiguration(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
 
-                Spacer(modifier = Modifier.height(PaddingDim.MEDIUM))
+                SpacerHeight(PaddingDim.MEDIUM)
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                    horizontalArrangement = Arrangement.spacedBy(PaddingDim.SMALL)
                 ) {
-                    FitlogOutlinedTextField(
-                        modifier = Modifier.padding(PaddingDim.SMALL).weight(1f),
-                        value = weight,
-                        onValueChange = onWeightChange,
-                        label = stringResource(id = R.string.weight_kg),
-                        shape = MaterialTheme.shapes.small,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                    )
-                    FitlogOutlinedTextField(
-                        modifier = Modifier.padding(PaddingDim.SMALL).weight(1f),
-                        value = height,
-                        onValueChange = onHeightChange,
-                        label = stringResource(id = R.string.height_cm),
-                        shape = MaterialTheme.shapes.small,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        FitlogText(
+                            modifier = Modifier.padding(PaddingDim.SMALL),
+                            text = stringResource(id = R.string.weight)
+                        )
+                        FitlogOutlinedTextField(
+                            modifier = Modifier
+                                .padding(PaddingDim.SMALL)
+                                .fillMaxWidth(),
+                            value = weight,
+                            onValueChange = onWeightChange,
+                            label = stringResource(id = R.string.weight_kg),
+                            shape = MaterialTheme.shapes.small,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        )
+                    }
+                    Column(modifier = Modifier.weight(1f)) {
+                        FitlogText(
+                            modifier = Modifier.padding(PaddingDim.SMALL),
+                            text = stringResource(id = R.string.height)
+                        )
+                        FitlogOutlinedTextField(
+                            modifier = Modifier
+                                .padding(PaddingDim.SMALL)
+                                .fillMaxWidth(),
+                            value = height,
+                            onValueChange = onHeightChange,
+                            label = stringResource(id = R.string.height_cm),
+                            shape = MaterialTheme.shapes.small,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        )
+                    }
                 }
 
-                Spacer(modifier = Modifier.height(PaddingDim.MEDIUM))
+                SpacerHeight(PaddingDim.MEDIUM)
 
                 FitlogText(
                     modifier = Modifier.padding(PaddingDim.SMALL),
                     text = stringResource(id = R.string.gender)
                 )
                 FitlogDropdown(
-                    modifier = Modifier.fillMaxWidth().padding(PaddingDim.SMALL),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(PaddingDim.SMALL),
                     expanded = isGenderMenuExpanded,
                     onExpandedChange = onGenderMenuExpanded,
                     placeholder = stringResource(id = R.string.select_option),
@@ -124,7 +151,7 @@ fun OnboardingProfileConfiguration(
             }
         }
 
-        Spacer(modifier = Modifier.height(PaddingDim.MEDIUM))
+        SpacerHeight(PaddingDim.MEDIUM)
 
         // Informational Card
         FitlogCard(

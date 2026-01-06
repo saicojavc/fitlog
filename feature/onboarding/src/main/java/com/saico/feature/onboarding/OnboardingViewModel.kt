@@ -40,4 +40,12 @@ class OnboardingViewModel @Inject constructor() : ViewModel() {
     fun onGenderMenuExpanded(expanded: Boolean) {
         _uiState.update { it.copy(isGenderMenuExpanded = expanded) }
     }
+
+    fun onDailyStepsChange(newSteps: Int) {
+        _uiState.update { it.copy(dailySteps = newSteps) }
+    }
+
+    fun onCaloriesToBurnChange(newCalories: Int) {
+        _uiState.update { it.copy(caloriesToBurn = newCalories) }
+    }
 }
