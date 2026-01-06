@@ -2,7 +2,9 @@ package com.saico.feature.onboarding
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.saico.core.domain.usecase.onboarding.SetOnboardingCompletedUseCase
 import com.saico.core.domain.usecase.user_profile.InsertUserProfileUseCase
+import com.saico.core.domain.usecase.user_profile.UserProfileUseCase
 import com.saico.core.model.UserProfile
 import com.saico.feature.onboarding.state.OnboardingUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
-    private val insertUserProfileUseCase: InsertUserProfileUseCase
+    private val userProfileUseCase: UserProfileUseCase,
+    private val setOnboardingCompletedUseCase: SetOnboardingCompletedUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OnboardingUiState())
@@ -70,7 +73,8 @@ class OnboardingViewModel @Inject constructor(
                 dailyStepsGoal = state.dailySteps,
                 dailyCaloriesGoal = state.caloriesToBurn
             )
-            insertUserProfileUseCase(userProfile)
+            userProfileUseCase.insertUserProfileUseCase(userProfile)
+            setOnboardingCompletedUseCase(true)
         }
     }
 
