@@ -57,6 +57,7 @@ fun OnboardingScreen(
         onGenderMenuExpanded = viewModel::onGenderMenuExpanded,
         onDailyStepsChange = viewModel::onDailyStepsChange,
         onCaloriesToBurnChange = viewModel::onCaloriesToBurnChange,
+        onSaveUserProfile = viewModel::saveUserProfile,
         navController = navController
     )
 }
@@ -72,6 +73,7 @@ fun Content(
     onGenderMenuExpanded: (Boolean) -> Unit,
     onDailyStepsChange: (Int) -> Unit,
     onCaloriesToBurnChange: (Int) -> Unit,
+    onSaveUserProfile: () -> Unit,
     navController: NavHostController,
 ) {
     val pagerState = rememberPagerState { 3 }
@@ -148,6 +150,7 @@ fun Content(
                 2 -> {
                     OnboardingFinish(
                         uiState = state,
+                        onSaveUserProfile = onSaveUserProfile,
                         navController = navController
                     )
                 }

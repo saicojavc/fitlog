@@ -37,6 +37,7 @@ import com.saico.feature.onboarding.state.OnboardingUiState
 @Composable
 fun OnboardingFinish(
     uiState: OnboardingUiState,
+    onSaveUserProfile: () -> Unit,
     navController: NavHostController,
 ) {
     Column(
@@ -247,6 +248,7 @@ fun OnboardingFinish(
 
                 Button(
                     onClick = {
+                        onSaveUserProfile()
                         navController.navigate(DashboardRoute.DashboardScreenRoute.route)
                     },
                     modifier = Modifier
