@@ -52,7 +52,7 @@ fun OnboardingFinish(
         ) {
             FitlogIcon(
                 modifier = Modifier
-                    .padding(horizontal = PaddingDim.LARGE)
+                    .padding(horizontal = PaddingDim.MEDIUM)
                     .size(PaddingDim.EXTRA_HUGE)
                     .border(1.dp, Color.White, CircleShape),
                 imageVector = FitlogIcons.Check,
