@@ -7,4 +7,5 @@ interface WorkoutRepository {
     fun getWorkouts(): Flow<List<Workout>>
     suspend fun insertWorkout(workout: Workout)
     fun getWorkoutsByDay(day: String): Flow<List<Workout>>
+    fun getWorkoutsForLast7Days(): Flow<List<Workout>>
 }

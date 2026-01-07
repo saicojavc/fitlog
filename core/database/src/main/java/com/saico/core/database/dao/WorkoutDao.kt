@@ -19,4 +19,7 @@ interface WorkoutDao {
 
     @Query("SELECT * FROM $WORKOUT_TABLE WHERE dayOfWeek = :day")
     fun getWorkoutsByDay(day: String): Flow<List<WorkoutEntity>>
+
+    @Query("SELECT * FROM $WORKOUT_TABLE WHERE date >= :sinceDate ORDER BY date ASC")
+    fun getWorkoutsSince(sinceDate: Long): Flow<List<WorkoutEntity>>
 }

@@ -17,4 +17,8 @@ class WorkoutLocalDataSourceImpl @Inject constructor(
     override fun getWorkoutsByDay(day: String): Flow<List<WorkoutEntity>> {
         return workoutDao.getWorkoutsByDay(day)
     }
+
+    override fun getWorkoutsSince(date: Long): Flow<List<WorkoutEntity>> {
+        return workoutDao.getWorkoutsSince(date)
+    }
 }

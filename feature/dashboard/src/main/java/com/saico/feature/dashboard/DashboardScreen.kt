@@ -103,7 +103,7 @@ fun Content(uiState: DashboardUiState) {
         ) {
             when (selectedBottomAppBarItem) {
                 BottomAppBarItems.HOME -> {
-                    HomeScreen(uiState)
+                    HomeScreen(uiState = uiState)
                 }
 
                 BottomAppBarItems.HISTORY -> {

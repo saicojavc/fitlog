@@ -7,6 +7,7 @@ import com.saico.core.domain.repository.WorkoutRepository
 import com.saico.core.model.Workout
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.util.Calendar
 import javax.inject.Inject
 
 class WorkoutRepositoryImpl @Inject constructor(
@@ -24,6 +25,16 @@ class WorkoutRepositoryImpl @Inject constructor(
 
     override fun getWorkoutsByDay(day: String): Flow<List<Workout>> {
         return localDataSource.getWorkoutsByDay(day).map { entities ->
+            entities.map { it.toDomain() }
+        }
+    }
+
+    override fun getWorkoutsForLast7Days(): Flow<List<Workout>> {
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.DAY_OF_YEAR, -7)
+        val date = calendar.timeInMillis
+
+        return localDataSource.getWorkoutsSince(date).map { entities ->
             entities.map { it.toDomain() }
         }
     }

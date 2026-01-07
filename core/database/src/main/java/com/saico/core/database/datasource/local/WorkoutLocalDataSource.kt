@@ -7,4 +7,5 @@ interface WorkoutLocalDataSource {
     fun getWorkouts(): Flow<List<WorkoutEntity>>
     suspend fun insertWorkout(workout: WorkoutEntity)
     fun getWorkoutsByDay(day: String): Flow<List<WorkoutEntity>>
+    fun getWorkoutsSince(date: Long): Flow<List<WorkoutEntity>>
 }

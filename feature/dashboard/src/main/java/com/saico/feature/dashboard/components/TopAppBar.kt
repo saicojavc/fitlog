@@ -22,7 +22,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import com.saico.core.ui.R
+import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.components.FitlogTopAppBar
 import com.saico.core.ui.theme.PaddingDim
 import com.saico.feature.dashboard.model.BottomAppBarItems
@@ -40,13 +42,18 @@ fun TopAppBar(){
         actions = {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
-                    modifier = Modifier.padding(PaddingDim.SMALL).clip(CircleShape),
+                    modifier = Modifier.padding(PaddingDim.MEDIUM).clip(CircleShape),
                     painter = painterResource(id = R.drawable.ic_launcher_foreground),
                     contentDescription = stringResource(id = R.string.app_name)
+                )
+
+                FitlogText(
+                    text = stringResource(id = R.string.app_name),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.ExtraBold
                 )
             }
         },

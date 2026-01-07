@@ -12,8 +12,10 @@ import androidx.compose.material.icons.filled.Male
 import androidx.compose.material.icons.filled.Female
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Whatshot
@@ -46,4 +48,8 @@ object FitlogIcons {
     val Home : ImageVector = Icons.Default.Home
 
     val History: ImageVector = Icons.Default.History
+
+    val Clock: ImageVector = Icons.Default.Timer
+
+    val Map: ImageVector = Icons.Default.Map
 }
