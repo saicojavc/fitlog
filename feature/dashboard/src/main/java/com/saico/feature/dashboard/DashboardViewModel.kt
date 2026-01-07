@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.saico.core.common.util.FitnessCalculator
 import com.saico.core.datastore.StepCounterDataStore
 import com.saico.core.domain.usecase.user_profile.GetUserProfileUseCase
+import com.saico.core.domain.usecase.user_profile.UserProfileUseCase
 import com.saico.core.domain.usecase.workout.GetWeeklyWorkoutsUseCase
 import com.saico.core.domain.usecase.workout.InsertWorkoutUseCase
 import com.saico.core.model.Workout
@@ -25,7 +26,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    private val getUserProfileUseCase: GetUserProfileUseCase,
+    private val userProfileUseCase: UserProfileUseCase,
     private val getWeeklyWorkoutsUseCase: GetWeeklyWorkoutsUseCase,
     private val stepCounterSensor: StepCounterSensor,
     private val stepCounterDataStore: StepCounterDataStore,
@@ -43,7 +44,7 @@ class DashboardViewModel @Inject constructor(
 
     private fun getUserProfile() {
         viewModelScope.launch {
-            getUserProfileUseCase().collectLatest {
+            userProfileUseCase.getUserProfileUseCase().collectLatest {
                 _uiState.update { state ->
                     state.copy(userProfile = it)
                 }
@@ -102,7 +103,7 @@ class DashboardViewModel @Inject constructor(
         val yesterdaySteps = currentSensorValue - previousOffset
         if (yesterdaySteps <= 0) return // No guardamos si no hubo actividad
 
-        val userProfile = _uiState.value.userProfile ?: getUserProfileUseCase().first()
+        val userProfile = _uiState.value.userProfile ?: userProfileUseCase.getUserProfileUseCase().first()
 
         val calories = FitnessCalculator.calculateCaloriesBurned(yesterdaySteps, userProfile?.weightKg ?: 0.0)
         val distance = FitnessCalculator.calculateDistanceKm(yesterdaySteps, userProfile?.heightCm?.toInt() ?: 0, userProfile?.gender ?: "")

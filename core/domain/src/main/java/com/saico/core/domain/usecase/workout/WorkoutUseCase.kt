@@ -5,5 +5,6 @@ import javax.inject.Inject
 data class WorkoutUseCase @Inject constructor(
     val getWorkoutsUseCase: GetWorkoutsUseCase,
     val insertWorkoutUseCase: InsertWorkoutUseCase,
-    val getWorkoutsByDayUseCase: GetWorkoutsByDayUseCase
+    val getWorkoutsByDayUseCase: GetWorkoutsByDayUseCase,
+    val getWeeklyWorkoutsUseCase: GetWeeklyWorkoutsUseCase
 )
