@@ -35,7 +35,8 @@ fun WeeklyActivityCard(workouts: List<Workout>, dailySteps: Int) {
     FitlogCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(PaddingDim.SMALL)
+            .padding(PaddingDim.SMALL),
+        shape = MaterialTheme.shapes.extraLarge
     ) {
         Column(
             modifier = Modifier.padding(PaddingDim.MEDIUM)

@@ -28,5 +28,9 @@ fun ContentHomeScreen(uiState: DashboardUiState) {
                 dailySteps = uiState.dailySteps
             )
         }
+        item {
+            RegisterWork()
+        }
+
     }
 }

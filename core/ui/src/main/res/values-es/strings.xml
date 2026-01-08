@@ -40,4 +40,6 @@
     <string name="profile">Perfil</string>
     
     <string name="weekly_activity">Actividad Semanal</string>
+    <string name="register_workout">Registrar Workout</string>
+    <string name="register_gym">Registrar Gym</string>
 </resources>

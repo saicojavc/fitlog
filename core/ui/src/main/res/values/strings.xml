@@ -43,4 +43,6 @@
     <string name="profile">Profile</string>
 
     <string name="weekly_activity">Weekly Activity</string>
+    <string name="register_workout">Register Workout</string>
+    <string name="register_gym">Register Gym</string>
 </resources>
