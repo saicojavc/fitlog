@@ -22,7 +22,11 @@ fun ContentHomeScreen(uiState: DashboardUiState) {
             StepsDailyCard(uiState = uiState)
         }
         item {
-            WeeklyActivityCard(workouts = uiState.weeklyWorkouts)
+            // 4. Pasamos los pasos del día actual al gráfico semanal
+            WeeklyActivityCard(
+                workouts = uiState.weeklyWorkouts,
+                dailySteps = uiState.dailySteps
+            )
         }
     }
 }

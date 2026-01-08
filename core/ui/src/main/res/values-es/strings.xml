@@ -38,4 +38,6 @@
     <string name="home">Inicio</string>
     <string name="history">Historial</string>
     <string name="profile">Perfil</string>
+    
+    <string name="weekly_activity">Actividad Semanal</string>
 </resources>

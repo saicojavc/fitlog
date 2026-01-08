@@ -32,14 +32,18 @@ import com.saico.feature.dashboard.state.DashboardUiState
 fun StepsDailyCard(uiState: DashboardUiState) {
     val userProfile = uiState.userProfile
     val dailySteps = uiState.dailySteps
-    val dailyStepsGoal = userProfile?.dailyStepsGoal ?: 1
-    val progress = (dailySteps.toFloat() / dailyStepsGoal.toFloat()).coerceIn(0f, 1f)
+    val dailyStepsGoal = (userProfile?.dailyStepsGoal ?: 1).toFloat()
+
+    // Progreso para el anillo interior (se detiene en 100%)
+    val baseProgress = (dailySteps / dailyStepsGoal).coerceIn(0f, 1f)
+    // Progreso para el anillo exterior (solo cuenta los pasos extra)
+    val extraProgress = ((dailySteps - dailyStepsGoal) / dailyStepsGoal).coerceIn(0f, 1f)
 
 
     val calories = FitnessCalculator.calculateCaloriesBurned(dailySteps, userProfile?.weightKg ?: 0.0)
     val distance = FitnessCalculator.calculateDistanceKm(
-        steps = dailySteps, 
-        heightCm = userProfile?.heightCm?.toInt() ?: 0, 
+        steps = dailySteps,
+        heightCm = userProfile?.heightCm?.toInt() ?: 0,
         genderString = userProfile?.gender ?: ""
     )
     val activeTime = FitnessCalculator.calculateActiveTimeMinutes(dailySteps)
@@ -56,28 +60,42 @@ fun StepsDailyCard(uiState: DashboardUiState) {
                     .padding(top = PaddingDim.MEDIUM),
                 contentAlignment = Alignment.Center
             ) {
+                // --- NUEVA LÓGICA DE INDICADORES ---
+
+                // Anillo Interior (0-100%)
                 CircularProgressIndicator(
-                    progress = { progress },
+                    progress = { baseProgress },
                     modifier = Modifier.size(150.dp),
                     strokeWidth = 12.dp,
-                    strokeCap = StrokeCap.Round
+                    strokeCap = StrokeCap.Round,
+                    color = MaterialTheme.colorScheme.primary
                 )
 
+                // Anillo Exterior (Pasos Extra) - Más grande para rodear al primero
+                CircularProgressIndicator(
+                    progress = { extraProgress },
+                    modifier = Modifier.size(170.dp), // <-- Tamaño mayor
+                    strokeWidth = 12.dp,
+                    strokeCap = StrokeCap.Round,
+                    color = Color(0xFFFF6F00) // <-- Color de "bonus" cambiado a fuego
+                )
+
+                // Contenido central (icono y texto)
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(
                         imageVector = FitlogIcons.Walk,
-                        contentDescription = "Icono de pasos",
+                        contentDescription = null,
                         modifier = Modifier.size(48.dp)
                     )
                     Spacer(modifier = Modifier.height(PaddingDim.SMALL))
                     Text(
-                        text = "$dailySteps / $dailyStepsGoal",
+                        text = "$dailySteps / ${dailyStepsGoal.toInt()}",
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Bold
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(PaddingDim.MEDIUM))
 
             Row(
@@ -103,7 +121,7 @@ fun StepsDailyCard(uiState: DashboardUiState) {
                     unit = "Min"
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(PaddingDim.SMALL))
         }
     }
