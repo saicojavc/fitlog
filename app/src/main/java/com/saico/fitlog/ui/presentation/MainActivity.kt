@@ -81,7 +81,7 @@ private fun MainContainer(
 
             dashboardGraph(navController = navController)
 
-            workoutGraph()
+            workoutGraph(navController = navController)
         }
     }
 }

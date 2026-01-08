@@ -10,5 +10,6 @@ data class WorkoutUiState(
     val stepsTaken: Int = 0,
     val distance: Float = 0.0f,
     val calories: Int = 0,
-    val averagePace: Float = 0.0f
+    val averagePace: Float = 0.0f,
+    val showWorkoutSavedDialog: Boolean = false
 )

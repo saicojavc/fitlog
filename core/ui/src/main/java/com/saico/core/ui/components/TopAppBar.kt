@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @Composable
 fun FitlogTopAppBar(
     modifier: Modifier = Modifier,
+    navigationIcon: @Composable () -> Unit = {},
     title: String,
     actions: @Composable () -> Unit = {},
     scrollBehavior: TopAppBarScrollBehavior? = null,
@@ -24,7 +25,8 @@ fun FitlogTopAppBar(
         title = { Text(text = title) },
         actions = { actions() },
         scrollBehavior = scrollBehavior,
-        colors = colors
+        colors = colors,
+        navigationIcon = navigationIcon
     )
 }
 

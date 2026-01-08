@@ -64,4 +64,6 @@ object FitlogIcons {
     val Stop: ImageVector = Icons.Default.Stop
 
     val Play: ImageVector = Icons.Default.PlayArrow
+
+    val ArrowBack: ImageVector = Icons.AutoMirrored.Filled.ArrowBack
 }

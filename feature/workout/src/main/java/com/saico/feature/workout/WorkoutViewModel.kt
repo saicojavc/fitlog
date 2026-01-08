@@ -112,12 +112,16 @@ class WorkoutViewModel @Inject constructor(
                     date = Date().time
                 )
                 insertWorkoutSessionUseCase(workoutSession)
+                _uiState.update { it.copy(showWorkoutSavedDialog = true) }
             }
         }
 
         workoutJob?.cancel()
         workoutJob = null
         initialSteps = null
+    }
+
+    fun onDialogDismissed() {
         _uiState.value = WorkoutUiState() // Reinicia el estado
     }
 }

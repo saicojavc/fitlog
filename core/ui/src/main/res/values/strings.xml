@@ -45,4 +45,17 @@
     <string name="weekly_activity">Weekly Activity</string>
     <string name="register_workout">Register Workout</string>
     <string name="register_gym">Register Gym</string>
+
+    <!-- Dialogs -->
+    <string name="understood">Understood</string>
+    <string name="workout_saved_title">Workout Saved</string>
+    <string name="workout_saved_text">Your workout has been successfully saved.</string>
+
+    <string name="elapsed_time">Elapsed Time</string>
+
+    <string name="km">Km</string>
+    <string name="calories">Calories</string>
+    <string name="average_pace">Average pace (Km/h))</string>
+
+    <string name="register_session">Register session</string>
 </resources>

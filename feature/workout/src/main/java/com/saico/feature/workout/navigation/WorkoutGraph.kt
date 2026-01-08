@@ -7,13 +7,13 @@ import androidx.navigation.navigation
 import com.saico.core.ui.navigation.routes.workout.WorkoutRoute
 import com.saico.feature.workout.WorkoutScreen
 
-fun NavGraphBuilder.workoutGraph() {
+fun NavGraphBuilder.workoutGraph(navController: NavHostController) {
     navigation(
         startDestination = WorkoutRoute.WorkoutScreenRoute.route,
         route = WorkoutRoute.RootRoute.route
     ){
         composable(route = WorkoutRoute.WorkoutScreenRoute.route){
-            WorkoutScreen()
+            WorkoutScreen(navController = navController)
         }
 
     }

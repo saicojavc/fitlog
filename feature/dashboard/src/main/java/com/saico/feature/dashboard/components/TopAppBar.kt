@@ -32,7 +32,6 @@ import com.saico.feature.dashboard.model.BottomAppBarItems
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBar(){
-    var selectedBottomAppBarItem by remember { mutableStateOf(BottomAppBarItems.HOME) }
 
     FitlogTopAppBar(
         title = stringResource(id = R.string.app_name),
