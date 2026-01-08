@@ -8,7 +8,7 @@ plugins {
 }
 
 android {
-    namespace = "com.saico.feature.dashboard"
+    namespace = "com.saico.feature.workout"
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
@@ -37,7 +37,6 @@ android {
     buildFeatures {
         compose = true
     }
-
 }
 
 dependencies {
