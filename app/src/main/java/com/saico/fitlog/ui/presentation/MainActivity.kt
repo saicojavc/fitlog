@@ -22,6 +22,7 @@ import com.saico.core.ui.navigation.Navigator
 import com.saico.core.ui.theme.FitlogTheme
 import com.saico.feature.dashboard.navigation.dashboardGraph
 import com.saico.feature.onboarding.navigation.onboardingGraph
+import com.saico.feature.workout.navigation.workoutGraph
 import com.saico.fitlog.ui.presentation.splash.SplashScreen
 import com.saico.lfeature.ogin.navigation.loginGraph
 import dagger.hilt.android.AndroidEntryPoint
@@ -79,6 +80,8 @@ private fun MainContainer(
             onboardingGraph(navController = navController)
 
             dashboardGraph(navController = navController)
+
+            workoutGraph()
         }
     }
 }

@@ -22,6 +22,6 @@ object DatabaseModule {
             context,
             FitlogDatabase::class.java,
             DB_NAME
-        ).build()
+        ).fallbackToDestructiveMigration().build()
     }
 }

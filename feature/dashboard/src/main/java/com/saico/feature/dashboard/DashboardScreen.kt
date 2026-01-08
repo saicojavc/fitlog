@@ -69,11 +69,17 @@ fun DashboardScreen(
         }
     }
 
-    Content(uiState)
+    Content(
+        uiState = uiState,
+        navController = navController
+    )
 }
 
 @Composable
-fun Content(uiState: DashboardUiState) {
+fun Content(
+    uiState: DashboardUiState,
+    navController: NavHostController
+) {
 
     var selectedBottomAppBarItem by remember { mutableStateOf(BottomAppBarItems.HOME) }
     val gradientColors = if (isSystemInDarkTheme()) {
@@ -103,7 +109,10 @@ fun Content(uiState: DashboardUiState) {
         ) {
             when (selectedBottomAppBarItem) {
                 BottomAppBarItems.HOME -> {
-                    HomeScreen(uiState = uiState)
+                    HomeScreen(
+                        uiState = uiState,
+                        navController = navController
+                    )
                 }
 
                 BottomAppBarItems.HISTORY -> {

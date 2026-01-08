@@ -5,15 +5,24 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
 import com.saico.feature.dashboard.state.DashboardUiState
 
 @Composable
-fun HomeScreen(uiState: DashboardUiState) {
-    ContentHomeScreen(uiState = uiState)
+fun HomeScreen(uiState: DashboardUiState, navController: NavHostController) {
+
+    ContentHomeScreen(
+        uiState = uiState,
+        navController = navController
+        )
 }
 
 @Composable
-fun ContentHomeScreen(uiState: DashboardUiState) {
+fun ContentHomeScreen(
+    uiState: DashboardUiState,
+    navController: NavHostController,
+    ) {
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -29,7 +38,7 @@ fun ContentHomeScreen(uiState: DashboardUiState) {
             )
         }
         item {
-            RegisterWork()
+            RegisterWork(navController = navController)
         }
 
     }

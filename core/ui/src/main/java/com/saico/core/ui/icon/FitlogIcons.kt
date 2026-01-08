@@ -13,8 +13,12 @@ import androidx.compose.material.icons.filled.Female
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -52,4 +56,12 @@ object FitlogIcons {
     val Clock: ImageVector = Icons.Default.Timer
 
     val Map: ImageVector = Icons.Default.Map
+
+    val Speed: ImageVector = Icons.Default.Speed
+
+    val Pause : ImageVector = Icons.Default.Pause
+
+    val Stop: ImageVector = Icons.Default.Stop
+
+    val Play: ImageVector = Icons.Default.PlayArrow
 }

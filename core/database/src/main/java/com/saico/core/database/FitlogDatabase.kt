@@ -6,13 +6,15 @@ import androidx.room.TypeConverters
 import com.saico.core.database.dao.GymExerciseDao
 import com.saico.core.database.dao.UserProfileDao
 import com.saico.core.database.dao.WorkoutDao
+import com.saico.core.database.dao.WorkoutSessionDao
 import com.saico.core.database.entity.GymExerciseEntity
 import com.saico.core.database.entity.UserProfileEntity
 import com.saico.core.database.entity.WorkoutEntity
+import com.saico.core.database.entity.WorkoutSessionEntity
 import com.saico.core.database.util.TypeConverter
 
 @Database(
-    entities = [WorkoutEntity::class, UserProfileEntity::class, GymExerciseEntity::class],
+    entities = [WorkoutEntity::class, UserProfileEntity::class, GymExerciseEntity::class, WorkoutSessionEntity::class],
     version = DB_VERSION,
     exportSchema = false
 )
@@ -21,4 +23,5 @@ abstract class FitlogDatabase : RoomDatabase() {
     abstract fun workoutDao(): WorkoutDao
     abstract fun userProfileDao(): UserProfileDao
     abstract fun gymExerciseDao(): GymExerciseDao
+    abstract fun workoutSessionDao(): WorkoutSessionDao
 }

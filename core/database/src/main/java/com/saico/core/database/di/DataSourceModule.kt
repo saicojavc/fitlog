@@ -6,6 +6,8 @@ import com.saico.core.database.datasource.local.UserProfileLocalDataSource
 import com.saico.core.database.datasource.local.UserProfileLocalDataSourceImpl
 import com.saico.core.database.datasource.local.WorkoutLocalDataSource
 import com.saico.core.database.datasource.local.WorkoutLocalDataSourceImpl
+import com.saico.core.database.datasource.local.WorkoutSessionLocalDataSource
+import com.saico.core.database.datasource.local.WorkoutSessionLocalDataSourceImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -17,6 +19,9 @@ abstract class DataSourceModule {
 
     @Binds
     internal abstract fun bindWorkoutLocalDataSource(impl: WorkoutLocalDataSourceImpl): WorkoutLocalDataSource
+
+    @Binds
+    internal abstract fun bindWorkoutSessionLocalDataSource(impl: WorkoutSessionLocalDataSourceImpl): WorkoutSessionLocalDataSource
 
     @Binds
     internal abstract fun bindUserProfileLocalDataSource(impl: UserProfileLocalDataSourceImpl): UserProfileLocalDataSource

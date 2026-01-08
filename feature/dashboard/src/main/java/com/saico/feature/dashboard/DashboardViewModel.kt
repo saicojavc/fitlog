@@ -9,7 +9,7 @@ import com.saico.core.domain.usecase.user_profile.UserProfileUseCase
 import com.saico.core.domain.usecase.workout.GetWeeklyWorkoutsUseCase
 import com.saico.core.domain.usecase.workout.InsertWorkoutUseCase
 import com.saico.core.model.Workout
-import com.saico.feature.dashboard.service.StepCounterSensor
+import com.saico.core.common.util.StepCounterSensor
 import com.saico.feature.dashboard.state.DashboardUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

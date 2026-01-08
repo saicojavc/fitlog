@@ -1,4 +1,4 @@
-package com.saico.feature.dashboard.service
+package com.saico.core.common.util
 
 import android.content.Context
 import android.hardware.Sensor
