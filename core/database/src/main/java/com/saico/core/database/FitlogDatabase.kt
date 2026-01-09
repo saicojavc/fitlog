@@ -11,14 +11,14 @@ import com.saico.core.database.entity.GymExerciseEntity
 import com.saico.core.database.entity.UserProfileEntity
 import com.saico.core.database.entity.WorkoutEntity
 import com.saico.core.database.entity.WorkoutSessionEntity
-import com.saico.core.database.util.TypeConverter
+import com.saico.core.database.util.FitlogTypeConverters
 
 @Database(
     entities = [WorkoutEntity::class, UserProfileEntity::class, GymExerciseEntity::class, WorkoutSessionEntity::class],
     version = DB_VERSION,
     exportSchema = false
 )
-@TypeConverters(TypeConverter::class)
+@TypeConverters(FitlogTypeConverters::class)
 abstract class FitlogDatabase : RoomDatabase() {
     abstract fun workoutDao(): WorkoutDao
     abstract fun userProfileDao(): UserProfileDao

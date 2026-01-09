@@ -6,5 +6,6 @@ import kotlinx.coroutines.flow.Flow
 interface GymExerciseLocalDataSource {
     fun getGymExercises(): Flow<List<GymExerciseEntity>>
     suspend fun insertGymExercise(gymExercise: GymExerciseEntity)
+    suspend fun insertGymExercises(gymExercises: List<GymExerciseEntity>)
     fun getGymExercisesByDay(day: String): Flow<List<GymExerciseEntity>>
 }

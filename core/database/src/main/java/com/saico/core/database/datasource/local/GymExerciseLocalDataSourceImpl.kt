@@ -14,6 +14,10 @@ class GymExerciseLocalDataSourceImpl @Inject constructor(
         gymExerciseDao.insertGymExercise(gymExercise)
     }
 
+    override suspend fun insertGymExercises(gymExercises: List<GymExerciseEntity>) {
+        gymExerciseDao.insertGymExercises(gymExercises)
+    }
+
     override fun getGymExercisesByDay(day: String): Flow<List<GymExerciseEntity>> {
         return gymExerciseDao.getGymExercisesByDay(day)
     }

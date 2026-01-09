@@ -14,6 +14,9 @@ interface GymExerciseDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertGymExercise(gymExercise: GymExerciseEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertGymExercises(gymExercises: List<GymExerciseEntity>)
+
     @Query("SELECT * FROM $GYM_EXERCISE_TABLE")
     fun getGymExercises(): Flow<List<GymExerciseEntity>>
 

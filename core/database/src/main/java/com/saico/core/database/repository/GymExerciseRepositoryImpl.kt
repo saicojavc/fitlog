@@ -22,6 +22,10 @@ class GymExerciseRepositoryImpl @Inject constructor(
         localDataSource.insertGymExercise(gymExercise.toEntity())
     }
 
+    override suspend fun insertGymExercises(gymExercises: List<GymExercise>) {
+        localDataSource.insertGymExercises(gymExercises.map { it.toEntity() })
+    }
+
     override fun getGymExercisesByDay(day: String): Flow<List<GymExercise>> {
         return localDataSource.getGymExercisesByDay(day).map { entities ->
             entities.map { it.toDomain() }
