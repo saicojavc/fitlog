@@ -91,7 +91,7 @@ fun Content(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             FitlogTopAppBar(
-                title = stringResource(id = R.string.weekly_activity),
+                title = stringResource(id = R.string.register_session),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = if (isSystemInDarkTheme()) Color.Black.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surface
                 ),

@@ -16,7 +16,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -41,7 +40,8 @@ fun StepsDailyCard(uiState: DashboardUiState) {
     val extraProgress = ((dailySteps - dailyStepsGoal) / dailyStepsGoal).coerceIn(0f, 1f)
 
 
-    val calories = FitnessCalculator.calculateCaloriesBurned(dailySteps, userProfile?.weightKg ?: 0.0)
+    val calories =
+        FitnessCalculator.calculateCaloriesBurned(dailySteps, userProfile?.weightKg ?: 0.0)
     val distance = FitnessCalculator.calculateDistanceKm(
         steps = dailySteps,
         heightCm = userProfile?.heightCm?.toInt() ?: 0,
@@ -73,14 +73,17 @@ fun StepsDailyCard(uiState: DashboardUiState) {
                     color = MaterialTheme.colorScheme.primary
                 )
 
-                // Anillo Exterior (Pasos Extra) - Más grande para rodear al primero
-                CircularProgressIndicator(
-                    progress = { extraProgress },
-                    modifier = Modifier.size(170.dp), // <-- Tamaño mayor
-                    strokeWidth = 12.dp,
-                    strokeCap = StrokeCap.Round,
-                    color = Color(0xFFFF6F00) // <-- Color de "bonus" cambiado a fuego
-                )
+                if (dailySteps >= dailyStepsGoal) {
+// Anillo Exterior (Pasos Extra) - Más grande para rodear al primero
+                    CircularProgressIndicator(
+                        progress = { extraProgress },
+                        modifier = Modifier.size(170.dp), // <-- Tamaño mayor
+                        strokeWidth = 12.dp,
+                        strokeCap = StrokeCap.Round,
+                        color = Color(0xFFFF6F00) // <-- Color de "bonus" cambiado a fuego
+                    )
+                }
+
 
                 // Contenido central (icono y texto)
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -138,7 +141,11 @@ private fun StatInfo(
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(imageVector = icon, contentDescription = null, tint = tint)
-        Text(text = value, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Text(
+            text = value,
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold
+        )
         Text(text = unit, style = MaterialTheme.typography.bodySmall, fontSize = 12.sp)
     }
 }
