@@ -21,6 +21,7 @@ import com.saico.core.ui.theme.LightPrimaryVariant
 import com.saico.core.ui.theme.PaddingDim
 import com.saico.core.ui.theme.LightSuccess
 import com.saico.core.ui.R
+import com.saico.core.ui.navigation.routes.gymwork.GymWorkRoute
 import com.saico.core.ui.navigation.routes.workout.WorkoutRoute
 
 @Composable
@@ -64,7 +65,7 @@ fun RegisterWork(navController: NavHostController) {
                 .weight(1f)
                 .padding(PaddingDim.SMALL)
                 .clickable{
-
+                    navController.navigate(GymWorkRoute.GymWorkScreenRoute.route)
                 },
             color = LightPrimaryVariant,
             elevation = 1.dp

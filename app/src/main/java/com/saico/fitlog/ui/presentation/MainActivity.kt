@@ -21,6 +21,7 @@ import androidx.navigation.compose.rememberNavController
 import com.saico.core.ui.navigation.Navigator
 import com.saico.core.ui.theme.FitlogTheme
 import com.saico.feature.dashboard.navigation.dashboardGraph
+import com.saico.feature.gymwork.navigation.gymWorkGraph
 import com.saico.feature.onboarding.navigation.onboardingGraph
 import com.saico.feature.workout.navigation.workoutGraph
 import com.saico.fitlog.ui.presentation.splash.SplashScreen
@@ -82,6 +83,8 @@ private fun MainContainer(
             dashboardGraph(navController = navController)
 
             workoutGraph(navController = navController)
+
+            gymWorkGraph(navController = navController)
         }
     }
 }
