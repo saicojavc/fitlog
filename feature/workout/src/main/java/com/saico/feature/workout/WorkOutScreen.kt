@@ -97,7 +97,7 @@ fun Content(
                 ),
                 navigationIcon = {
                     FitlogIcon(
-                        modifier = Modifier.clickable{
+                        modifier = Modifier.clickable {
                             navController.popBackStack()
                         },
                         imageVector = FitlogIcons.ArrowBack,
@@ -160,7 +160,7 @@ fun Content(
                 )
             }
 
-            Spacer(modifier = Modifier.height(PaddingDim.LARGE))
+            SpacerHeight(PaddingDim.LARGE)
 
             // -- RITMO MEDIO --
             WorkoutStat(
