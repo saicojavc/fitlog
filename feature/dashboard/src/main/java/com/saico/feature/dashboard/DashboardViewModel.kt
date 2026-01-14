@@ -5,13 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.saico.core.common.util.FitnessCalculator
 import com.saico.core.datastore.StepCounterDataStore
 import com.saico.core.domain.usecase.user_profile.UserProfileUseCase
-import com.saico.core.domain.usecase.workout.GetWeeklyWorkoutsUseCase
-import com.saico.core.domain.usecase.workout.InsertWorkoutUseCase
 import com.saico.core.model.Workout
 import com.saico.core.common.util.StepCounterSensor
-import com.saico.core.domain.usecase.gym_exercise.GetGymExercisesUseCase
 import com.saico.core.domain.usecase.gym_exercise.GymUseCase
-import com.saico.core.domain.usecase.workout.GetWorkoutSessionsUseCase
 import com.saico.core.domain.usecase.workout.WorkoutUseCase
 import com.saico.feature.dashboard.state.DashboardUiState
 import com.saico.feature.dashboard.state.HistoryFilter
