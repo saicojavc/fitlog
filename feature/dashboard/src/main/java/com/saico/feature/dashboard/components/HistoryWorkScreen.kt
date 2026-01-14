@@ -17,14 +17,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.saico.core.model.GymExercise
 import com.saico.core.model.WorkoutSession
+import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.icon.FitlogIcons
 import com.saico.core.ui.theme.LightPrimary
 import com.saico.core.ui.theme.LightSuccess
 import com.saico.core.ui.theme.PaddingDim
+import com.saico.core.ui.R
+import com.saico.core.ui.components.FitlogIcon
 import com.saico.feature.dashboard.state.DashboardUiState
 import com.saico.feature.dashboard.state.HistoryFilter
 import java.text.SimpleDateFormat
@@ -105,10 +109,10 @@ fun SummaryCard(
     totalTimeSeconds: Long
 ) {
     val filterText = when (filter) {
-        HistoryFilter.TODAY -> "Hoy"
-        HistoryFilter.LAST_WEEK -> "Esta Semana"
-        HistoryFilter.LAST_MONTH -> "Este Mes"
-        HistoryFilter.ALL -> "Historial Total"
+        HistoryFilter.TODAY -> stringResource(id = R.string.today)
+        HistoryFilter.LAST_WEEK -> stringResource(id = R.string.this_week)
+        HistoryFilter.LAST_MONTH -> stringResource(id = R.string.this_month)
+        HistoryFilter.ALL -> stringResource(id = R.string.total_history)
     }
 
     Card(
@@ -127,8 +131,8 @@ fun SummaryCard(
                 .padding(PaddingDim.MEDIUM)
         ) {
             Column {
-                Text(
-                    text = "Resumen $filterText",
+                FitlogText(
+                    text = "${stringResource(id = R.string.summary_resumen)} $filterText",
                     style = MaterialTheme.typography.titleMedium,
                     color = Color.White,
                     fontWeight = FontWeight.Bold
@@ -139,14 +143,14 @@ fun SummaryCard(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     SummaryStat(
-                        label = "Calorías Totales",
+                        label = stringResource(id = R.string.total_calories),
                         value = "$totalCalories",
                         unit = "kcal",
                         icon = FitlogIcons.Fire,
                         tint = Color(0xFFFF6F00)
                     )
                     SummaryStat(
-                        label = "Tiempo Activo",
+                        label = stringResource(id = R.string.active_time),
                         value = formatElapsedTime(totalTimeSeconds),
                         unit = "",
                         icon = FitlogIcons.Clock,
@@ -219,12 +223,12 @@ fun FilterRow(
                 selected = selectedFilter == filter,
                 onClick = { onFilterSelected(filter) },
                 label = {
-                    Text(
+                    FitlogText(
                         text = when (filter) {
-                            HistoryFilter.TODAY -> "Hoy"
-                            HistoryFilter.LAST_WEEK -> "Semana"
-                            HistoryFilter.LAST_MONTH -> "Mes"
-                            HistoryFilter.ALL -> "Todos"
+                            HistoryFilter.TODAY -> stringResource(id = R.string.today)
+                            HistoryFilter.LAST_WEEK -> stringResource(id = R.string.week)
+                            HistoryFilter.LAST_MONTH -> stringResource(id = R.string.month)
+                            HistoryFilter.ALL -> stringResource(id = R.string.all)
                         }
                     )
                 }
@@ -252,28 +256,29 @@ fun GymExerciseCard(gymExercise: GymExercise) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text(
-                        text = "Entrenamiento Gym",
+                    FitlogText(
+                        text = stringResource(id = R.string.gym_workout),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
-                    Text(
+                    FitlogText(
                         text = "${gymExercise.dayOfWeek}, ${dateFormat.format(Date(gymExercise.date))}",
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
-                Icon(
+                FitlogIcon(
                     imageVector = if (expanded) FitlogIcons.ArrowUp else FitlogIcons.ArrowDown,
-                    contentDescription = null
+                    contentDescription = null,
+                    background = Color.Unspecified,
                 )
             }
 
             Spacer(modifier = Modifier.height(PaddingDim.SMALL))
 
             Row(modifier = Modifier.fillMaxWidth()) {
-                StatItem(label = "Tiempo", value = formatElapsedTime(gymExercise.elapsedTime))
+                StatItem(label = stringResource(id = R.string.elapsed_time), value = formatElapsedTime(gymExercise.elapsedTime))
                 Spacer(modifier = Modifier.width(PaddingDim.MEDIUM))
-                StatItem(label = "Calorías", value = "${gymExercise.totalCalories} kcal")
+                StatItem(label = stringResource(id = R.string.calories), value = "${gymExercise.totalCalories} kcal")
             }
 
             AnimatedVisibility(visible = expanded) {
@@ -309,7 +314,7 @@ fun WorkoutSessionCard(session: WorkoutSession) {
     ) {
         Column(modifier = Modifier.padding(PaddingDim.MEDIUM)) {
             Text(
-                text = "Sesión de Cardio/Pasos",
+                text = stringResource(id = R.string.cardio_session),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -319,11 +324,11 @@ fun WorkoutSessionCard(session: WorkoutSession) {
             )
             Spacer(modifier = Modifier.height(PaddingDim.SMALL))
             Row(modifier = Modifier.fillMaxWidth()) {
-                StatItem(label = "Pasos", value = session.steps.toString())
+                StatItem(label = stringResource(id = R.string.daily_steps), value = session.steps.toString())
                 Spacer(modifier = Modifier.width(PaddingDim.MEDIUM))
-                StatItem(label = "Distancia", value = String.format("%.2f km", session.distance))
+                StatItem(label = stringResource(id = R.string.distance), value = String.format("%.2f km", session.distance))
                 Spacer(modifier = Modifier.width(PaddingDim.MEDIUM))
-                StatItem(label = "Calorías", value = "${session.calories} kcal")
+                StatItem(label = stringResource(id = R.string.calories), value = "${session.calories} kcal")
             }
         }
     }

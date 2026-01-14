@@ -58,4 +58,19 @@
     <string name="average_pace">Average pace (Km/h))</string>
 
     <string name="register_session">Register session</string>
+
+    <!-- History Filters -->
+    <string name="today">Today</string>
+    <string name="week">Week</string>
+    <string name="month">Month</string>
+    <string name="all">All</string>
+    <string name="this_week">This Week</string>
+    <string name="this_month">This Month</string>
+    <string name="total_history">Total History</string>
+    <string name="summary_resumen">Summary</string>
+    <string name="total_calories">Total Calories</string>
+    <string name="active_time">Active Time</string>
+    <string name="gym_workout">Gym Workout</string>
+    <string name="cardio_session">Cardio Session</string>
+    <string name="distance">Distance</string>
 </resources>

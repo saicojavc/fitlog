@@ -52,4 +52,19 @@
     <string name="average_pace">Ritmo medio (Km/h)</string>
 
     <string name="register_session">Registrar secion</string>
+
+    <!-- History Filters -->
+    <string name="today">Hoy</string>
+    <string name="week">Semana</string>
+    <string name="month">Mes</string>
+    <string name="all">Todos</string>
+    <string name="this_week">Esta Semana</string>
+    <string name="this_month">Este Mes</string>
+    <string name="total_history">Historial Total</string>
+    <string name="summary_resumen">Resumen</string>
+    <string name="total_calories">Calorías Totales</string>
+    <string name="active_time">Tiempo Activo</string>
+    <string name="gym_workout">Entrenamiento Gym</string>
+    <string name="cardio_session">Sesión de Cardio</string>
+    <string name="distance">Distancia</string>
 </resources>
