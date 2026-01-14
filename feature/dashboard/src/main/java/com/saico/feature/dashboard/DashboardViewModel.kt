@@ -10,7 +10,9 @@ import com.saico.core.domain.usecase.workout.InsertWorkoutUseCase
 import com.saico.core.model.Workout
 import com.saico.core.common.util.StepCounterSensor
 import com.saico.core.domain.usecase.gym_exercise.GetGymExercisesUseCase
+import com.saico.core.domain.usecase.gym_exercise.GymUseCase
 import com.saico.core.domain.usecase.workout.GetWorkoutSessionsUseCase
+import com.saico.core.domain.usecase.workout.WorkoutUseCase
 import com.saico.feature.dashboard.state.DashboardUiState
 import com.saico.feature.dashboard.state.HistoryFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,12 +31,10 @@ import javax.inject.Inject
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     private val userProfileUseCase: UserProfileUseCase,
-    private val getWeeklyWorkoutsUseCase: GetWeeklyWorkoutsUseCase,
+    private val workoutUseCase: WorkoutUseCase,
+    private val gymUseCase: GymUseCase,
     private val stepCounterSensor: StepCounterSensor,
     private val stepCounterDataStore: StepCounterDataStore,
-    private val insertWorkoutUseCase: InsertWorkoutUseCase,
-    private val getGymExercisesUseCase: GetGymExercisesUseCase,
-    private val getWorkoutSessionsUseCase: GetWorkoutSessionsUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DashboardUiState())
@@ -59,7 +59,7 @@ class DashboardViewModel @Inject constructor(
 
     private fun getWeeklyWorkouts() {
         viewModelScope.launch {
-            getWeeklyWorkoutsUseCase().collectLatest {
+            workoutUseCase.getWeeklyWorkoutsUseCase().collectLatest {
                 _uiState.update { state ->
                     state.copy(weeklyWorkouts = it)
                 }
@@ -70,8 +70,8 @@ class DashboardViewModel @Inject constructor(
     private fun getHistoryData() {
         viewModelScope.launch {
             combine(
-                getGymExercisesUseCase(),
-                getWorkoutSessionsUseCase()
+                gymUseCase.getGymExercisesUseCase(),
+                workoutUseCase.getWorkoutSessionsUseCase()
             ) { gym, sessions ->
                 Pair(gym, sessions)
             }.collectLatest { (gym, sessions) ->
@@ -144,6 +144,6 @@ class DashboardViewModel @Inject constructor(
             dayOfWeek = dayOfWeek
         )
 
-        insertWorkoutUseCase(workout)
+        workoutUseCase.insertWorkoutUseCase(workout)
     }
 }

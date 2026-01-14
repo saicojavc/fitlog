@@ -6,5 +6,7 @@ data class WorkoutUseCase @Inject constructor(
     val getWorkoutsUseCase: GetWorkoutsUseCase,
     val insertWorkoutUseCase: InsertWorkoutUseCase,
     val getWorkoutsByDayUseCase: GetWorkoutsByDayUseCase,
-    val getWeeklyWorkoutsUseCase: GetWeeklyWorkoutsUseCase
+    val getWeeklyWorkoutsUseCase: GetWeeklyWorkoutsUseCase,
+    val getWorkoutSessionsUseCase: GetWorkoutSessionsUseCase,
+    val insertWorkoutSessionUseCase: InsertWorkoutSessionUseCase,
 )
