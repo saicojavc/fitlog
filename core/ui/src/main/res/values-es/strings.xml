@@ -68,4 +68,9 @@
     <string name="cardio_session">Sesión de Cardio</string>
     <string name="distance">Distancia</string>
     <string name="personal_info">Información Personal</string>
+
+    <string name="update_profile_title">Actualizar Perfil</string>
+    <string name="update_profile_message">¿Estás seguro de que quieres guardar estos cambios?</string>
+    <string name="cancel">Cancelar</string>
+    <string name="accept">Aceptar</string>
 </resources>

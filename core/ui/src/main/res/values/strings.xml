@@ -74,4 +74,9 @@
     <string name="cardio_session">Cardio Session</string>
     <string name="distance">Distance</string>
     <string name="personal_info">Personal Information</string>
+    
+    <string name="update_profile_title">Update Profile</string>
+    <string name="update_profile_message">Are you sure you want to save these changes?</string>
+    <string name="cancel">Cancel</string>
+    <string name="accept">Accept</string>
 </resources>

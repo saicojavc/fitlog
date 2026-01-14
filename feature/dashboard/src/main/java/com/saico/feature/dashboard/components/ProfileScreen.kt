@@ -20,6 +20,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.saico.core.model.UserProfile
 import com.saico.core.ui.R
+import com.saico.core.ui.components.CrmAlertDialog
 import com.saico.core.ui.components.FitlogButton
 import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.components.FitlogTextField
@@ -54,7 +55,39 @@ fun ProfileContent(
     var dailyStepsGoal by remember { mutableStateOf(profile.dailyStepsGoal.toString()) }
     var caloriesGoal by remember { mutableStateOf(profile.dailyCaloriesGoal.toString()) }
     
+    var showConfirmDialog by remember { mutableStateOf(false) }
+
     val scrollState = rememberScrollState()
+
+    if (showConfirmDialog) {
+        CrmAlertDialog(
+            onDismissRequest = { showConfirmDialog = false },
+            title = { FitlogText(text = stringResource(id = R.string.update_profile_title)) },
+            text = { FitlogText(text = stringResource(id = R.string.update_profile_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val updatedProfile = profile.copy(
+                            age = age.toIntOrNull() ?: profile.age,
+                            weightKg = weight.toDoubleOrNull() ?: profile.weightKg,
+                            heightCm = height.toDoubleOrNull() ?: profile.heightCm,
+                            dailyStepsGoal = dailyStepsGoal.toIntOrNull() ?: profile.dailyStepsGoal,
+                            dailyCaloriesGoal = caloriesGoal.toIntOrNull() ?: profile.dailyCaloriesGoal
+                        )
+                        onSave(updatedProfile)
+                        showConfirmDialog = false
+                    }
+                ) {
+                    FitlogText(text = stringResource(id = R.string.accept))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showConfirmDialog = false }) {
+                    FitlogText(text = stringResource(id = R.string.cancel))
+                }
+            }
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -134,16 +167,7 @@ fun ProfileContent(
         Spacer(modifier = Modifier.height(PaddingDim.MEDIUM))
 
         FitlogButton(
-            onClick = {
-                val updatedProfile = profile.copy(
-                    age = age.toIntOrNull() ?: profile.age,
-                    weightKg = weight.toDoubleOrNull() ?: profile.weightKg,
-                    heightCm = height.toDoubleOrNull() ?: profile.heightCm,
-                    dailyStepsGoal = dailyStepsGoal.toIntOrNull() ?: profile.dailyStepsGoal,
-                    dailyCaloriesGoal = caloriesGoal.toIntOrNull() ?: profile.dailyCaloriesGoal
-                )
-                onSave(updatedProfile)
-            },
+            onClick = { showConfirmDialog = true },
             modifier = Modifier.fillMaxWidth(),
             content = {
                 FitlogText(text = stringResource(id = R.string.save_and_continue))
