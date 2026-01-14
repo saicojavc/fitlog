@@ -13,6 +13,7 @@ fun UserProfileEntity.toDomain() = UserProfile(
 )
 
 fun UserProfile.toEntity() = UserProfileEntity(
+    id = 1, // Usamos ID fijo para asegurar que siempre se actualice el mismo registro
     age = age,
     weightKg = weightKg,
     heightCm = heightCm,

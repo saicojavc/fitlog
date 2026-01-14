@@ -9,6 +9,7 @@ import com.saico.core.model.Workout
 import com.saico.core.common.util.StepCounterSensor
 import com.saico.core.domain.usecase.gym_exercise.GymUseCase
 import com.saico.core.domain.usecase.workout.WorkoutUseCase
+import com.saico.core.model.UserProfile
 import com.saico.feature.dashboard.state.DashboardUiState
 import com.saico.feature.dashboard.state.HistoryFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -50,6 +51,12 @@ class DashboardViewModel @Inject constructor(
                     state.copy(userProfile = it)
                 }
             }
+        }
+    }
+
+    fun updateUserProfile(userProfile: UserProfile) {
+        viewModelScope.launch {
+            userProfileUseCase.updateUserProfileUseCase(userProfile)
         }
     }
 

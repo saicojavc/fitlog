@@ -24,6 +24,7 @@ import androidx.navigation.NavHostController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import com.saico.core.model.UserProfile
 import com.saico.core.ui.theme.LightBackground
 import com.saico.core.ui.theme.LightPrimary
 import com.saico.core.ui.theme.LightSuccess
@@ -72,8 +73,9 @@ fun DashboardScreen(
 
     Content(
         onFilterSelected = viewModel::onFilterSelected,
+        updateUserProfile = viewModel::updateUserProfile,
         uiState = uiState,
-        navController = navController
+        navController = navController,
     )
 }
 
@@ -81,7 +83,8 @@ fun DashboardScreen(
 fun Content(
     uiState: DashboardUiState,
     navController: NavHostController,
-    onFilterSelected: (HistoryFilter) -> Unit
+    onFilterSelected: (HistoryFilter) -> Unit,
+    updateUserProfile: (UserProfile) -> Unit
 ) {
 
     var selectedBottomAppBarItem by remember { mutableStateOf(BottomAppBarItems.HOME) }
@@ -126,7 +129,10 @@ fun Content(
                 }
 
                 BottomAppBarItems.PROFILE -> {
-                    ProfileScreen()
+                    ProfileScreen(
+                        uiState = uiState,
+                        updateUserProfile = updateUserProfile
+                    )
                 }
             }
         }

@@ -67,4 +67,5 @@
     <string name="gym_workout">Entrenamiento Gym</string>
     <string name="cardio_session">Sesión de Cardio</string>
     <string name="distance">Distancia</string>
+    <string name="personal_info">Información Personal</string>
 </resources>

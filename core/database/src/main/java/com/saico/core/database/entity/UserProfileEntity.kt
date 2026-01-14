@@ -9,11 +9,12 @@ import kotlinx.parcelize.Parcelize
 @Entity(tableName = USER_PROFILE_TABLE)
 @Parcelize
 class UserProfileEntity(
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey
+    val id: Int = 1,
     val age: Int,
     val weightKg: Double,
     val heightCm: Double,
-    val gender: String,  // "Masculino", "Femenino", "Otro"
+    val gender: String,
     val dailyStepsGoal: Int = 10000,
     val dailyCaloriesGoal: Int = 500,
 ) : Parcelable

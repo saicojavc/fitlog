@@ -73,4 +73,5 @@
     <string name="gym_workout">Gym Workout</string>
     <string name="cardio_session">Cardio Session</string>
     <string name="distance">Distance</string>
+    <string name="personal_info">Personal Information</string>
 </resources>

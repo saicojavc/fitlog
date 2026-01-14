@@ -21,4 +21,8 @@ class UserProfileRepositoryImpl @Inject constructor(
     override suspend fun insertUserProfile(userProfile: UserProfile) {
         localDataSource.insertUserProfile(userProfile.toEntity())
     }
+
+    override suspend fun saveUserProfile(userProfile: UserProfile) {
+        localDataSource.insertUserProfile(userProfile.toEntity())
+    }
 }

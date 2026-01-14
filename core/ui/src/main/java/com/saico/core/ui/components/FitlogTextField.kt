@@ -5,12 +5,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldColors
@@ -28,8 +25,46 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.saico.core.ui.icon.FitlogIcons
 import com.saico.core.ui.theme.FitlogTheme
+
+@Composable
+fun FitlogTextField(
+    modifier: Modifier = Modifier,
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String = "",
+    enabled: Boolean = true,
+    readOnly: Boolean = false,
+    singleLine: Boolean = true,
+    errorMessage: String? = null,
+    maxLines: Int = if (singleLine) 1 else 5,
+    maxLength: Int? = null,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    colors: TextFieldColors = OutlinedTextFieldDefaults.colors(),
+    shape: Shape = OutlinedTextFieldDefaults.shape,
+    textStyle: TextStyle = MaterialTheme.typography.bodyMedium,
+) {
+    FitlogOutlinedTextField(
+        modifier = modifier,
+        value = value,
+        onValueChange = onValueChange,
+        label = label,
+        enabled = enabled,
+        readOnly = readOnly,
+        singleLine = singleLine,
+        errorMessage = errorMessage,
+        maxLines = maxLines,
+        maxLength = maxLength,
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
+        visualTransformation = visualTransformation,
+        colors = colors,
+        shape = shape,
+        textStyle = textStyle
+    )
+}
 
 @Composable
 fun FitlogOutlinedTextField(
@@ -48,8 +83,6 @@ fun FitlogOutlinedTextField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors(),
     shape: Shape = OutlinedTextFieldDefaults.shape,
-//    trailingIcon: @Composable (() -> Unit)? = {},
-//    leadingIcon: @Composable (() -> Unit)? = {},
     textStyle: TextStyle = MaterialTheme.typography.bodyMedium,
 ) {
     Column(modifier = modifier) {
@@ -76,8 +109,6 @@ fun FitlogOutlinedTextField(
             visualTransformation = visualTransformation,
             colors = colors,
             shape = shape,
-//            leadingIcon = if (errorMessage == null) leadingIcon else { { Icon(imageVector = FitlogIcons.Error, contentDescription = errorMessage) } },
-//            trailingIcon = if (errorMessage == null) trailingIcon else { { Icon(imageVector = FitlogIcons.Error, contentDescription = errorMessage) } },
             textStyle = textStyle,
         )
 
@@ -142,12 +173,6 @@ fun FitlogTextFieldPassword(
         keyboardActions = keyboardActions,
         errorMessage = errorMessage,
         visualTransformation = if (passwordHidden) PasswordVisualTransformation() else VisualTransformation.None,
-//        trailingIcon = {
-//            IconButton(onClick = { passwordHidden = !passwordHidden }) {
-//                val icon = if (passwordHidden) FitlogIcons.Visibility else FitlogIcons.VisibilityOff
-//                Icon(imageVector = icon, contentDescription = if (passwordHidden) "Show password" else "Hide password")
-//            }
-//        },
     )
 }
 
@@ -161,12 +186,8 @@ private fun FitlogTextFieldsPreview() {
     FitlogTheme {
         Surface {
             Column(modifier = Modifier.padding(16.dp)) {
-                FitlogOutlinedTextField(value = text, onValueChange = { text = it }, label = "Generic Field")
-                SpacerHeight()
+                FitlogTextField(value = text, onValueChange = { text = it }, label = "Generic Field")
                 FitlogTextFieldEmail(value = email, onValueChange = { email = it })
-                SpacerHeight()
-                FitlogTextFieldEmail(value = "bad@email", onValueChange = { email = it }, errorMessage = "Invalid email")
-                SpacerHeight()
                 FitlogTextFieldPassword(value = password, onValueChange = { password = it })
             }
         }
