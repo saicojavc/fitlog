@@ -27,13 +27,14 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.saico.core.ui.theme.LightBackground
 import com.saico.core.ui.theme.LightPrimary
 import com.saico.core.ui.theme.LightSuccess
-import com.saico.feature.dashboard.components.HistoryScreen
+import com.saico.feature.dashboard.components.HistoryWorkScreen
 import com.saico.feature.dashboard.components.HomeScreen
 import com.saico.feature.dashboard.components.NavigationBar
 import com.saico.feature.dashboard.components.ProfileScreen
 import com.saico.feature.dashboard.components.TopAppBar
 import com.saico.feature.dashboard.model.BottomAppBarItems
 import com.saico.feature.dashboard.state.DashboardUiState
+import com.saico.feature.dashboard.state.HistoryFilter
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -70,6 +71,7 @@ fun DashboardScreen(
     }
 
     Content(
+        onFilterSelected = viewModel::onFilterSelected,
         uiState = uiState,
         navController = navController
     )
@@ -78,7 +80,8 @@ fun DashboardScreen(
 @Composable
 fun Content(
     uiState: DashboardUiState,
-    navController: NavHostController
+    navController: NavHostController,
+    onFilterSelected: (HistoryFilter) -> Unit
 ) {
 
     var selectedBottomAppBarItem by remember { mutableStateOf(BottomAppBarItems.HOME) }
@@ -116,7 +119,10 @@ fun Content(
                 }
 
                 BottomAppBarItems.HISTORY -> {
-                    HistoryScreen()
+                    HistoryWorkScreen(
+                        uiState = uiState,
+                        onFilterSelected = onFilterSelected
+                        )
                 }
 
                 BottomAppBarItems.PROFILE -> {

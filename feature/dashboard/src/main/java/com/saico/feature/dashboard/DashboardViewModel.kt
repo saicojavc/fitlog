@@ -4,13 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.saico.core.common.util.FitnessCalculator
 import com.saico.core.datastore.StepCounterDataStore
-import com.saico.core.domain.usecase.user_profile.GetUserProfileUseCase
 import com.saico.core.domain.usecase.user_profile.UserProfileUseCase
 import com.saico.core.domain.usecase.workout.GetWeeklyWorkoutsUseCase
 import com.saico.core.domain.usecase.workout.InsertWorkoutUseCase
 import com.saico.core.model.Workout
 import com.saico.core.common.util.StepCounterSensor
+import com.saico.core.domain.usecase.gym_exercise.GetGymExercisesUseCase
+import com.saico.core.domain.usecase.workout.GetWorkoutSessionsUseCase
 import com.saico.feature.dashboard.state.DashboardUiState
+import com.saico.feature.dashboard.state.HistoryFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -30,7 +32,9 @@ class DashboardViewModel @Inject constructor(
     private val getWeeklyWorkoutsUseCase: GetWeeklyWorkoutsUseCase,
     private val stepCounterSensor: StepCounterSensor,
     private val stepCounterDataStore: StepCounterDataStore,
-    private val insertWorkoutUseCase: InsertWorkoutUseCase
+    private val insertWorkoutUseCase: InsertWorkoutUseCase,
+    private val getGymExercisesUseCase: GetGymExercisesUseCase,
+    private val getWorkoutSessionsUseCase: GetWorkoutSessionsUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DashboardUiState())
@@ -40,6 +44,7 @@ class DashboardViewModel @Inject constructor(
         getUserProfile()
         initStepCounter()
         getWeeklyWorkouts()
+        getHistoryData()
     }
 
     private fun getUserProfile() {
@@ -62,6 +67,28 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
+    private fun getHistoryData() {
+        viewModelScope.launch {
+            combine(
+                getGymExercisesUseCase(),
+                getWorkoutSessionsUseCase()
+            ) { gym, sessions ->
+                Pair(gym, sessions)
+            }.collectLatest { (gym, sessions) ->
+                _uiState.update { state ->
+                    state.copy(
+                        gymExercises = gym,
+                        workoutSessions = sessions
+                    )
+                }
+            }
+        }
+    }
+
+    fun onFilterSelected(filter: HistoryFilter) {
+        _uiState.update { it.copy(selectedFilter = filter) }
+    }
+
     private fun initStepCounter() {
         if (!stepCounterSensor.isSensorAvailable()) {
             return
@@ -75,14 +102,10 @@ class DashboardViewModel @Inject constructor(
             ) { totalStepsSinceReboot, offset, lastResetDate ->
 
                 if (stepCounterDataStore.isNewDay(lastResetDate)) {
-                    // Un nuevo día ha comenzado. Guardamos los datos de ayer.
                     savePreviousDayWorkout(offset, totalStepsSinceReboot, lastResetDate)
-                    
-                    // Reiniciamos el contador para el nuevo día
                     stepCounterDataStore.saveStepCounterData(totalStepsSinceReboot)
-                    Triple(0, totalStepsSinceReboot, totalStepsSinceReboot) // daily, total, offset
+                    Triple(0, totalStepsSinceReboot, totalStepsSinceReboot)
                 } else {
-                    // Mismo día, solo calculamos
                     val dailySteps = (totalStepsSinceReboot - offset).coerceAtLeast(0)
                     Triple(dailySteps, totalStepsSinceReboot, offset)
                 }
@@ -101,7 +124,7 @@ class DashboardViewModel @Inject constructor(
 
     private suspend fun savePreviousDayWorkout(previousOffset: Int, currentSensorValue: Int, previousDayDate: Long) {
         val yesterdaySteps = currentSensorValue - previousOffset
-        if (yesterdaySteps <= 0) return // No guardamos si no hubo actividad
+        if (yesterdaySteps <= 0) return
 
         val userProfile = _uiState.value.userProfile ?: userProfileUseCase.getUserProfileUseCase().first()
 
