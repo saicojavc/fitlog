@@ -94,4 +94,21 @@
     <!-- Reminders -->
     <string name="notifications">Notificaciones</string>
     <string name="workout_reminder">Recordatorio de Entrenamiento</string>
+
+    <!-- Notification Content -->
+    <string name="daily_motivational_title">¡Es hora de moverse!</string>
+    <string name="motivational_msg_1">¡Buenos días! Hoy es perfecto para tus metas 💪</string>
+    <string name="motivational_msg_2">Un paso más cerca de tu mejor versión 🚶‍♂️</string>
+    <string name="motivational_msg_3">La constancia es la clave del éxito. ¡A darle! 🔥</string>
+    <string name="motivational_msg_4">Tu cuerpo te lo agradecerá. ¡Empieza hoy! ✨</string>
+    <string name="motivational_msg_5">No te detengas hasta que te sientas orgulloso 🏆</string>
+    <string name="workout_reminder_title">Recordatorio de entrenamiento</string>
+    <string name="workout_reminder_msg">Es hora de iniciar tu rutina diaria. ¡Tú puedes! 💪</string>
+    <string name="goal_reached_title">¡Meta cumplida! 🎉</string>
+    <string name="goal_reached_msg">¡Increíble! Has llegado a tus %1$d pasos.</string>
+    <string name="half_goal_title">¡Mitad del camino! 🔥</string>
+    <string name="half_goal_msg">Ya llevas %1$d pasos. ¡Sigue así!</string>
+    <string name="daily_summary_title">Resumen del día</string>
+    <string name="daily_summary_msg_incomplete">Hoy hiciste %1$d pasos. ¡Buen esfuerzo! Mañana por el objetivo 😊</string>
+    <string name="daily_summary_msg_complete">Hoy hiciste %1$d pasos. ¡Te has superado! ¡Felicidades! 😊</string>
 </resources>

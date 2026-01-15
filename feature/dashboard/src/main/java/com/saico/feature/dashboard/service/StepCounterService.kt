@@ -18,6 +18,7 @@ import com.saico.core.domain.usecase.user_profile.UserProfileUseCase
 import com.saico.core.domain.usecase.workout.WorkoutUseCase
 import com.saico.core.model.Workout
 import com.saico.core.notification.NotificationHelper
+import com.saico.core.ui.R
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -77,14 +78,14 @@ class StepCounterService : Service() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-//        val notification: Notification = NotificationCompat.Builder(this, channelId)
-//            .setContentTitle("Fitlog está activo")
-//            .setContentText("Contando tus pasos en segundo plano...")
-//            .setSmallIcon(android.R.drawable.ic_menu_mylocation)
-//            .setContentIntent(pendingIntent)
-//            .build()
-//
-//        startForeground(1, notification)
+        val notification: Notification = NotificationCompat.Builder(this, channelId)
+            .setContentTitle(getString(R.string.service_active_title))
+            .setContentText(getString(R.string.service_active_msg))
+            .setSmallIcon(android.R.drawable.ic_menu_mylocation)
+            .setContentIntent(pendingIntent)
+            .build()
+
+        startForeground(1, notification)
     }
 
     private fun observeSteps() {
@@ -124,8 +125,8 @@ class StepCounterService : Service() {
 
         if (dailySteps >= goal && lastGoalDate < todayStart) {
             notificationHelper.showNotification(
-                "¡Meta cumplida! 🎉",
-                "¡Increíble! Has llegado a tus $goal pasos.",
+                getString(R.string.goal_reached_title),
+                getString(R.string.goal_reached_msg, goal),
                 NotificationHelper.PROGRESS_CHANNEL_ID,
                 2001
             )
@@ -135,8 +136,8 @@ class StepCounterService : Service() {
 
         if (dailySteps >= goal / 2 && lastHalfDate < todayStart && lastGoalDate < todayStart) {
             notificationHelper.showNotification(
-                "¡Mitad del camino! 🔥",
-                "Ya llevas $dailySteps pasos. ¡Sigue así!",
+                getString(R.string.half_goal_title),
+                getString(R.string.half_goal_msg, dailySteps),
                 NotificationHelper.PROGRESS_CHANNEL_ID,
                 2002
             )

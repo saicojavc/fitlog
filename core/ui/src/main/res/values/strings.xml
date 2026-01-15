@@ -100,4 +100,25 @@
     <!-- Reminders -->
     <string name="notifications">Notifications</string>
     <string name="workout_reminder">Workout Reminder</string>
+
+    <!-- Notification Content -->
+    <string name="daily_motivational_title">Time to move!</string>
+    <string name="motivational_msg_1">Good morning! Today is perfect for your goals 💪</string>
+    <string name="motivational_msg_2">One step closer to your best version 🚶‍♂️</string>
+    <string name="motivational_msg_3">Consistency is the key to success. Let\'s go! 🔥</string>
+    <string name="motivational_msg_4">Your body will thank you. Start today! ✨</string>
+    <string name="motivational_msg_5">Don\'t stop until you\'re proud 🏆</string>
+    <string name="workout_reminder_title">Workout Reminder</string>
+    <string name="workout_reminder_msg">It\'s time to start your daily routine. You can do it! 💪</string>
+    <string name="goal_reached_title">Goal reached! 🎉</string>
+    <string name="goal_reached_msg">Incredible! You\'ve reached your %1$d steps.</string>
+    <string name="half_goal_title">Halfway there! 🔥</string>
+    <string name="half_goal_msg">You already have %1$d steps. Keep it up!</string>
+    <string name="daily_summary_title">Daily Summary</string>
+    <string name="daily_summary_msg_incomplete">Today you did %1$d steps. Good effort! Tomorrow for the goal 😊</string>
+    <string name="daily_summary_msg_complete">Today you did %1$d steps. You\'ve outdone yourself! Congratulations! 😊</string>
+
+    <!-- Service Notification -->
+    <string name="service_active_title">Fitlog is active</string>
+    <string name="service_active_msg">Counting your steps...</string>
 </resources>

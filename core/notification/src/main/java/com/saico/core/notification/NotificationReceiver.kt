@@ -3,6 +3,7 @@ package com.saico.core.notification
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.saico.core.ui.R
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -18,14 +19,14 @@ class NotificationReceiver : BroadcastReceiver() {
         when (type) {
             "daily_motivational" -> {
                 val messages = listOf(
-                    "¡Buenos días! Hoy es perfecto para tus 10k pasos 💪",
-                    "Un paso más cerca de tu mejor versión 🚶‍♂️",
-                    "La constancia es la clave del éxito. ¡A darle! 🔥",
-                    "Tu cuerpo te lo agradecerá. ¡Empieza hoy! ✨",
-                    "No te detengas hasta que te sientas orgulloso 🏆"
+                    context.getString(R.string.motivational_msg_1),
+                    context.getString(R.string.motivational_msg_2),
+                    context.getString(R.string.motivational_msg_3),
+                    context.getString(R.string.motivational_msg_4),
+                    context.getString(R.string.motivational_msg_5)
                 )
                 notificationHelper.showNotification(
-                    "¡Es hora de moverse!",
+                    context.getString(R.string.daily_motivational_title),
                     messages.random(),
                     NotificationHelper.DAILY_CHANNEL_ID,
                     1001
@@ -33,29 +34,26 @@ class NotificationReceiver : BroadcastReceiver() {
             }
             "workout_reminder" -> {
                 notificationHelper.showNotification(
-                    "Recordatorio de entrenamiento",
-                    "Es hora de iniciar tu rutina diaria. ¡Tú puedes! 💪",
+                    context.getString(R.string.workout_reminder_title),
+                    context.getString(R.string.workout_reminder_msg),
                     NotificationHelper.DAILY_CHANNEL_ID,
                     1003
                 )
             }
             "daily_summary" -> {
                 val steps = intent.getIntExtra("current_steps", 0)
-                if (steps < 10000) {
-                    notificationHelper.showNotification(
-                        "Resumen del día",
-                        "Hoy hiciste $steps pasos. ¡Buen esfuerzo! Mañana por los 10k 😊",
-                        NotificationHelper.SUMMARY_CHANNEL_ID,
-                        1002
-                    )
+                val title = context.getString(R.string.daily_summary_title)
+                val message = if (steps < 10000) {
+                    context.getString(R.string.daily_summary_msg_incomplete, steps)
                 } else {
-                    notificationHelper.showNotification(
-                        "Resumen del día",
-                        "Hoy hiciste $steps pasos. ¡Te has superado! ¡Felicidades! 😊",
-                        NotificationHelper.SUMMARY_CHANNEL_ID,
-                        1002
-                    )
+                    context.getString(R.string.daily_summary_msg_complete, steps)
                 }
+                notificationHelper.showNotification(
+                    title,
+                    message,
+                    NotificationHelper.SUMMARY_CHANNEL_ID,
+                    1002
+                )
             }
         }
     }
