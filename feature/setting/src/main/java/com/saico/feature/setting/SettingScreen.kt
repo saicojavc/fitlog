@@ -34,6 +34,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.saico.core.model.DarkThemeConfig
 import com.saico.core.model.LanguageConfig
+import com.saico.core.model.UnitsConfig
 import com.saico.core.ui.R
 import com.saico.core.ui.components.FitlogIcon
 import com.saico.core.ui.components.FitlogText
@@ -94,6 +95,7 @@ fun SettingScreen(
                         settings = state.settings,
                         onThemeChange = viewModel::updateDarkThemeConfig,
                         onLanguageChange = viewModel::updateLanguageConfig,
+                        onUnitsChange = viewModel::updateUnitsConfig,
                         onDynamicColorChange = viewModel::updateDynamicColorPreference
                     )
                 }
@@ -107,6 +109,7 @@ fun SettingsContent(
     settings: com.saico.core.model.UserData,
     onThemeChange: (DarkThemeConfig) -> Unit,
     onLanguageChange: (LanguageConfig) -> Unit,
+    onUnitsChange: (UnitsConfig) -> Unit,
     onDynamicColorChange: (Boolean) -> Unit
 ) {
     // Modo Oscuro
@@ -140,20 +143,37 @@ fun SettingsContent(
     // Idioma
     SettingSectionTitle(title = stringResource(id = R.string.language))
     Column {
-        LanguageOption(
+        SettingOption(
             label = stringResource(id = R.string.follow_system),
             selected = settings.languageConfig == LanguageConfig.FOLLOW_SYSTEM,
             onClick = { onLanguageChange(LanguageConfig.FOLLOW_SYSTEM) }
         )
-        LanguageOption(
+        SettingOption(
             label = stringResource(id = R.string.english),
             selected = settings.languageConfig == LanguageConfig.ENGLISH,
             onClick = { onLanguageChange(LanguageConfig.ENGLISH) }
         )
-        LanguageOption(
+        SettingOption(
             label = stringResource(id = R.string.spanish),
             selected = settings.languageConfig == LanguageConfig.SPANISH,
             onClick = { onLanguageChange(LanguageConfig.SPANISH) }
+        )
+    }
+
+    HorizontalDivider(modifier = Modifier.padding(vertical = PaddingDim.MEDIUM))
+
+    // Unidades de Medida
+    SettingSectionTitle(title = stringResource(id = R.string.measurement_units))
+    Column {
+        SettingOption(
+            label = stringResource(id = R.string.metric_system),
+            selected = settings.unitsConfig == UnitsConfig.METRIC,
+            onClick = { onUnitsChange(UnitsConfig.METRIC) }
+        )
+        SettingOption(
+            label = stringResource(id = R.string.imperial_system),
+            selected = settings.unitsConfig == UnitsConfig.IMPERIAL,
+            onClick = { onUnitsChange(UnitsConfig.IMPERIAL) }
         )
     }
 
@@ -196,7 +216,7 @@ fun SettingSectionTitle(title: String) {
 }
 
 @Composable
-fun LanguageOption(label: String, selected: Boolean, onClick: () -> Unit) {
+fun SettingOption(label: String, selected: Boolean, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()

@@ -18,6 +18,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.saico.core.common.util.UnitsConverter
+import com.saico.core.model.UnitsConfig
 import com.saico.core.model.UserProfile
 import com.saico.core.ui.R
 import com.saico.core.ui.components.CrmAlertDialog
@@ -35,10 +37,12 @@ fun ProfileScreen(
     uiState: DashboardUiState,
     updateUserProfile: (UserProfile) -> Unit,
 ) {
+    val units = uiState.userData?.unitsConfig ?: UnitsConfig.METRIC
 
     uiState.userProfile?.let { profile ->
         ProfileContent(
             profile = profile,
+            units = units,
             onSave = updateUserProfile
         )
     }
@@ -47,6 +51,7 @@ fun ProfileScreen(
 @Composable
 fun ProfileContent(
     profile: UserProfile,
+    units: UnitsConfig,
     onSave: (UserProfile) -> Unit
 ) {
     var age by remember { mutableStateOf(profile.age.toString()) }
@@ -133,17 +138,26 @@ fun ProfileContent(
             FitlogTextField(
                 value = weight,
                 onValueChange = { weight = it },
-                label = stringResource(id = R.string.weight_kg),
+                label = if (units == UnitsConfig.METRIC) stringResource(id = R.string.weight_kg) else "Peso (lb)",
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
             )
             FitlogTextField(
                 value = height,
                 onValueChange = { height = it },
-                label = stringResource(id = R.string.height_cm),
+                label = if (units == UnitsConfig.METRIC) stringResource(id = R.string.height_cm) else "Altura (ft/in)",
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
             )
+            
+            // Visualización de valores convertidos
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                FitlogText(
+                    text = "Actual: ${UnitsConverter.formatWeight(profile.weightKg, units)} / ${UnitsConverter.formatHeight(profile.heightCm, units)}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
         }
 
         // Card de Metas

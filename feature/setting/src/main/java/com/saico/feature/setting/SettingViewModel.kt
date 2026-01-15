@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.saico.core.datastore.UserSettingsDataStore
 import com.saico.core.model.DarkThemeConfig
 import com.saico.core.model.LanguageConfig
+import com.saico.core.model.UnitsConfig
 import com.saico.feature.setting.state.SettingUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -36,6 +37,12 @@ class SettingViewModel @Inject constructor(
     fun updateLanguageConfig(languageConfig: LanguageConfig) {
         viewModelScope.launch {
             userDataStore.setLanguageConfig(languageConfig)
+        }
+    }
+
+    fun updateUnitsConfig(unitsConfig: UnitsConfig) {
+        viewModelScope.launch {
+            userDataStore.setUnitsConfig(unitsConfig)
         }
     }
 

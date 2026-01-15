@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.saico.core.model.DarkThemeConfig
 import com.saico.core.model.LanguageConfig
+import com.saico.core.model.UnitsConfig
 import com.saico.core.model.UserData
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -25,6 +26,7 @@ class UserSettingsDataStore @Inject constructor(
     private object PreferencesKeys {
         val DARK_THEME_CONFIG = stringPreferencesKey("dark_theme_config")
         val LANGUAGE_CONFIG = stringPreferencesKey("language_config")
+        val UNITS_CONFIG = stringPreferencesKey("units_config")
         val USE_DYNAMIC_COLOR = booleanPreferencesKey("use_dynamic_color")
     }
 
@@ -35,6 +37,9 @@ class UserSettingsDataStore @Inject constructor(
             ),
             languageConfig = LanguageConfig.valueOf(
                 preferences[PreferencesKeys.LANGUAGE_CONFIG] ?: LanguageConfig.FOLLOW_SYSTEM.name
+            ),
+            unitsConfig = UnitsConfig.valueOf(
+                preferences[PreferencesKeys.UNITS_CONFIG] ?: UnitsConfig.METRIC.name
             ),
             useDynamicColor = preferences[PreferencesKeys.USE_DYNAMIC_COLOR] ?: false
         )
@@ -49,6 +54,12 @@ class UserSettingsDataStore @Inject constructor(
     suspend fun setLanguageConfig(languageConfig: LanguageConfig) {
         context.userDataStore.edit { preferences ->
             preferences[PreferencesKeys.LANGUAGE_CONFIG] = languageConfig.name
+        }
+    }
+
+    suspend fun setUnitsConfig(unitsConfig: UnitsConfig) {
+        context.userDataStore.edit { preferences ->
+            preferences[PreferencesKeys.UNITS_CONFIG] = unitsConfig.name
         }
     }
 

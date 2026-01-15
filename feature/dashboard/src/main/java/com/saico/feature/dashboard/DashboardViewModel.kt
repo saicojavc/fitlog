@@ -7,6 +7,7 @@ import com.saico.core.datastore.StepCounterDataStore
 import com.saico.core.domain.usecase.user_profile.UserProfileUseCase
 import com.saico.core.model.Workout
 import com.saico.core.common.util.StepCounterSensor
+import com.saico.core.datastore.UserSettingsDataStore
 import com.saico.core.domain.usecase.gym_exercise.GymUseCase
 import com.saico.core.domain.usecase.workout.WorkoutUseCase
 import com.saico.core.model.UserProfile
@@ -32,6 +33,7 @@ class DashboardViewModel @Inject constructor(
     private val gymUseCase: GymUseCase,
     private val stepCounterSensor: StepCounterSensor,
     private val stepCounterDataStore: StepCounterDataStore,
+    private val userDataStore: UserSettingsDataStore
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DashboardUiState())
@@ -42,6 +44,15 @@ class DashboardViewModel @Inject constructor(
         initStepCounter()
         getWeeklyWorkouts()
         getHistoryData()
+        getUserData()
+    }
+
+    private fun getUserData() {
+        viewModelScope.launch {
+            userDataStore.userData.collectLatest { data ->
+                _uiState.update { it.copy(userData = data) }
+            }
+        }
     }
 
     private fun getUserProfile() {

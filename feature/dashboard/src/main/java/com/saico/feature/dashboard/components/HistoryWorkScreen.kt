@@ -5,7 +5,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -20,15 +19,17 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.saico.core.common.util.UnitsConverter
 import com.saico.core.model.GymExercise
+import com.saico.core.model.UnitsConfig
 import com.saico.core.model.WorkoutSession
+import com.saico.core.ui.R
+import com.saico.core.ui.components.FitlogIcon
 import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.icon.FitlogIcons
 import com.saico.core.ui.theme.LightPrimary
 import com.saico.core.ui.theme.LightSuccess
 import com.saico.core.ui.theme.PaddingDim
-import com.saico.core.ui.R
-import com.saico.core.ui.components.FitlogIcon
 import com.saico.feature.dashboard.state.DashboardUiState
 import com.saico.feature.dashboard.state.HistoryFilter
 import java.text.SimpleDateFormat
@@ -39,9 +40,11 @@ fun HistoryWorkScreen(
     uiState: DashboardUiState,
     onFilterSelected: (HistoryFilter) -> Unit
 ) {
+    val units = uiState.userData?.unitsConfig ?: UnitsConfig.METRIC
 
     HistoryContent(
         uiState = uiState,
+        units = units,
         onFilterSelected = onFilterSelected
     )
 }
@@ -49,6 +52,7 @@ fun HistoryWorkScreen(
 @Composable
 fun HistoryContent(
     uiState: DashboardUiState,
+    units: UnitsConfig,
     onFilterSelected: (HistoryFilter) -> Unit
 ) {
     val filteredGymExercises = remember(uiState.gymExercises, uiState.selectedFilter) {
@@ -94,8 +98,8 @@ fun HistoryContent(
 
             items(combinedHistory) { item ->
                 when (item) {
-                    is HistoryItem.Gym -> GymExerciseCard(gymExercise = item.exercise)
-                    is HistoryItem.Session -> WorkoutSessionCard(session = item.session)
+                    is HistoryItem.Gym -> GymExerciseCard(gymExercise = item.exercise, units = units)
+                    is HistoryItem.Session -> WorkoutSessionCard(session = item.session, units = units)
                 }
             }
         }
@@ -238,7 +242,7 @@ fun FilterRow(
 }
 
 @Composable
-fun GymExerciseCard(gymExercise: GymExercise) {
+fun GymExerciseCard(gymExercise: GymExercise, units: UnitsConfig) {
     var expanded by remember { mutableStateOf(false) }
     val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
 
@@ -292,7 +296,7 @@ fun GymExerciseCard(gymExercise: GymExercise) {
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(text = exercise.name, fontWeight = FontWeight.Medium)
-                            Text(text = "${exercise.sets}x${exercise.reps} - ${exercise.weightKg}kg")
+                            Text(text = "${exercise.sets}x${exercise.reps} - ${UnitsConverter.formatWeight(exercise.weightKg, units)}")
                         }
                     }
                 }
@@ -302,7 +306,7 @@ fun GymExerciseCard(gymExercise: GymExercise) {
 }
 
 @Composable
-fun WorkoutSessionCard(session: WorkoutSession) {
+fun WorkoutSessionCard(session: WorkoutSession, units: UnitsConfig) {
     val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
     val calendar = remember { Calendar.getInstance().apply { timeInMillis = session.date } }
     val dayOfWeek = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()) ?: ""
@@ -326,7 +330,7 @@ fun WorkoutSessionCard(session: WorkoutSession) {
             Row(modifier = Modifier.fillMaxWidth()) {
                 StatItem(label = stringResource(id = R.string.daily_steps), value = session.steps.toString())
                 Spacer(modifier = Modifier.width(PaddingDim.MEDIUM))
-                StatItem(label = stringResource(id = R.string.distance), value = String.format("%.2f km", session.distance))
+                StatItem(label = stringResource(id = R.string.distance), value = UnitsConverter.formatDistance(session.distance.toDouble(), units))
                 Spacer(modifier = Modifier.width(PaddingDim.MEDIUM))
                 StatItem(label = stringResource(id = R.string.calories), value = "${session.calories} kcal")
             }

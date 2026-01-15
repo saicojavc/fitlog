@@ -85,4 +85,9 @@
     <string name="spanish">Español</string>
     <string name="dynamic_color">Color Dinámico</string>
     <string name="dynamic_color_desc">Usa colores basados en tu fondo de pantalla</string>
+    
+    <!-- Measurement Units -->
+    <string name="measurement_units">Unidades de medida</string>
+    <string name="metric_system">Métrico (km, kg, cm)</string>
+    <string name="imperial_system">Imperial (mi, lb, ft/in)</string>
 </resources>

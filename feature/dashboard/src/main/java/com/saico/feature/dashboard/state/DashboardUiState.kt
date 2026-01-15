@@ -1,12 +1,14 @@
 package com.saico.feature.dashboard.state
 
 import com.saico.core.model.GymExercise
+import com.saico.core.model.UserData
 import com.saico.core.model.UserProfile
 import com.saico.core.model.Workout
 import com.saico.core.model.WorkoutSession
 
 data class DashboardUiState(
     val userProfile: UserProfile? = null,
+    val userData: UserData? = null,
     val dailySteps: Int = 0,
     val totalSteps: Int = 0,
     val stepOffset: Int = 0,

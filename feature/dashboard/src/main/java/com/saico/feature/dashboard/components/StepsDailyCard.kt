@@ -23,6 +23,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.saico.core.common.util.FitnessCalculator
+import com.saico.core.common.util.UnitsConverter
+import com.saico.core.model.UnitsConfig
 import com.saico.core.ui.components.FitlogCard
 import com.saico.core.ui.icon.FitlogIcons
 import com.saico.core.ui.theme.PaddingDim
@@ -33,6 +35,7 @@ fun StepsDailyCard(uiState: DashboardUiState) {
     val userProfile = uiState.userProfile
     val dailySteps = uiState.dailySteps
     val dailyStepsGoal = (userProfile?.dailyStepsGoal ?: 1).toFloat()
+    val units = uiState.userData?.unitsConfig ?: UnitsConfig.METRIC
 
     // Progreso para el anillo interior (se detiene en 100%)
     val baseProgress = (dailySteps / dailyStepsGoal).coerceIn(0f, 1f)
@@ -62,8 +65,6 @@ fun StepsDailyCard(uiState: DashboardUiState) {
                     .padding(top = PaddingDim.MEDIUM),
                 contentAlignment = Alignment.Center
             ) {
-                // --- NUEVA LÓGICA DE INDICADORES ---
-
                 // Anillo Interior (0-100%)
                 CircularProgressIndicator(
                     progress = { baseProgress },
@@ -74,13 +75,13 @@ fun StepsDailyCard(uiState: DashboardUiState) {
                 )
 
                 if (dailySteps >= dailyStepsGoal) {
-// Anillo Exterior (Pasos Extra) - Más grande para rodear al primero
+                    // Anillo Exterior (Pasos Extra)
                     CircularProgressIndicator(
                         progress = { extraProgress },
-                        modifier = Modifier.size(170.dp), // <-- Tamaño mayor
+                        modifier = Modifier.size(170.dp),
                         strokeWidth = 12.dp,
                         strokeCap = StrokeCap.Round,
-                        color = Color(0xFFFF6F00) // <-- Color de "bonus" cambiado a fuego
+                        color = Color(0xFFFF6F00)
                     )
                 }
 
@@ -115,11 +116,17 @@ fun StepsDailyCard(uiState: DashboardUiState) {
                     unit = "cal",
                     tint = Color(0xFFFF6F00)
                 )
+                
+                // Aplicamos UnitsConverter para la distancia
+                val formattedDistance = UnitsConverter.formatDistance(distance.toDouble(), units)
+                val distanceParts = formattedDistance.split(" ")
+                
                 StatInfo(
                     icon = FitlogIcons.Map,
-                    value = "%.2f".format(distance),
-                    unit = "KM"
+                    value = distanceParts[0],
+                    unit = distanceParts[1].uppercase()
                 )
+                
                 StatInfo(
                     icon = FitlogIcons.Clock,
                     value = activeTime.toString(),
