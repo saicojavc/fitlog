@@ -77,14 +77,14 @@ class StepCounterService : Service() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        val notification: Notification = NotificationCompat.Builder(this, channelId)
-            .setContentTitle("Fitlog está activo")
-            .setContentText("Contando tus pasos en segundo plano...")
-            .setSmallIcon(android.R.drawable.ic_menu_mylocation)
-            .setContentIntent(pendingIntent)
-            .build()
-
-        startForeground(1, notification)
+//        val notification: Notification = NotificationCompat.Builder(this, channelId)
+//            .setContentTitle("Fitlog está activo")
+//            .setContentText("Contando tus pasos en segundo plano...")
+//            .setSmallIcon(android.R.drawable.ic_menu_mylocation)
+//            .setContentIntent(pendingIntent)
+//            .build()
+//
+//        startForeground(1, notification)
     }
 
     private fun observeSteps() {
