@@ -23,6 +23,7 @@ import com.saico.core.ui.theme.FitlogTheme
 import com.saico.feature.dashboard.navigation.dashboardGraph
 import com.saico.feature.gymwork.navigation.gymWorkGraph
 import com.saico.feature.onboarding.navigation.onboardingGraph
+import com.saico.feature.setting.navigation.settingGraph
 import com.saico.feature.workout.navigation.workoutGraph
 import com.saico.fitlog.ui.presentation.splash.SplashScreen
 import com.saico.lfeature.ogin.navigation.loginGraph
@@ -85,6 +86,8 @@ private fun MainContainer(
             workoutGraph(navController = navController)
 
             gymWorkGraph(navController = navController)
+
+            settingGraph()
         }
     }
 }
