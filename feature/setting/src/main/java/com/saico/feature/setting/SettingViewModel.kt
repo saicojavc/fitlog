@@ -51,4 +51,10 @@ class SettingViewModel @Inject constructor(
             userDataStore.setDynamicColorPreference(useDynamicColor)
         }
     }
+
+    fun updateWorkoutReminderTime(hour: Int, minute: Int) {
+        viewModelScope.launch {
+            userDataStore.setWorkoutReminderTime(hour, minute)
+        }
+    }
 }

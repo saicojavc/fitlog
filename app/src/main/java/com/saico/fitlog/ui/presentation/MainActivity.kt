@@ -1,11 +1,16 @@
 package com.saico.fitlog.ui.presentation
 
+import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
@@ -21,9 +26,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.saico.core.model.DarkThemeConfig
 import com.saico.core.model.LanguageConfig
+import com.saico.core.notification.NotificationHelper
+import com.saico.core.notification.NotificationScheduler
 import com.saico.core.ui.navigation.Navigator
 import com.saico.core.ui.theme.FitlogTheme
 import com.saico.feature.dashboard.navigation.dashboardGraph
+import com.saico.feature.dashboard.service.StepCounterService
 import com.saico.feature.gymwork.navigation.gymWorkGraph
 import com.saico.feature.onboarding.navigation.onboardingGraph
 import com.saico.feature.setting.navigation.settingGraph
@@ -40,14 +48,47 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var navigator: Navigator
 
+    @Inject
+    lateinit var notificationScheduler: NotificationScheduler
+
+    @Inject
+    lateinit var notificationHelper: NotificationHelper
+
     private val viewModel: MainActivityViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        
+        startStepCounterService()
+
         setContent {
             val userData by viewModel.userData.collectAsState()
             
+            // Permisos de Notificaciones en Android 13+
+            val permissionLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.RequestPermission()
+            ) { isGranted ->
+                if (isGranted) {
+                    userData?.let { scheduleInitialNotifications(it.workoutReminderHour, it.workoutReminderMinute) }
+                }
+            }
+
+            LaunchedEffect(Unit) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                } else {
+                    userData?.let { scheduleInitialNotifications(it.workoutReminderHour, it.workoutReminderMinute) }
+                }
+            }
+
+            // Reprogramar si el usuario cambia la hora del recordatorio de entrenamiento
+            LaunchedEffect(userData?.workoutReminderHour, userData?.workoutReminderMinute) {
+                userData?.let {
+                    scheduleInitialNotifications(it.workoutReminderHour, it.workoutReminderMinute)
+                }
+            }
+
             val darkTheme = when (userData?.darkThemeConfig) {
                 DarkThemeConfig.LIGHT -> false
                 DarkThemeConfig.DARK -> true
@@ -88,15 +129,31 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun startStepCounterService() {
+        val intent = Intent(this, StepCounterService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent)
+        } else {
+            startService(intent)
+        }
+    }
+
+    private fun scheduleInitialNotifications(reminderHour: Int, reminderMinute: Int) {
+        // Motivación diaria fija a las 8:30 AM
+        notificationScheduler.scheduleDailyMotivationalNotification()
+        
+        // Recordatorio de entrenamiento configurable por el usuario
+        notificationScheduler.scheduleWorkoutReminder(hour = reminderHour, minute = reminderMinute)
+        
+        // Resumen nocturno a las 9:00 PM
+        notificationScheduler.scheduleDailySummaryNotification(hour = 21, minute = 0, currentSteps = 0)
+    }
+
     private fun updateLocale(context: Context, locale: Locale) {
         Locale.setDefault(locale)
         val config = Configuration(context.resources.configuration)
         config.setLocale(locale)
         context.resources.updateConfiguration(config, context.resources.displayMetrics)
-        
-        // En versiones modernas de Android, esto puede requerir recrear la actividad 
-        // para que todos los componentes de la UI se refresquen completamente si no son Compose puro.
-        // Pero para Compose, el LaunchedEffect y recomposición suele ser suficiente.
     }
 }
 

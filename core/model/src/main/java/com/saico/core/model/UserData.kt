@@ -4,7 +4,9 @@ data class UserData(
     val darkThemeConfig: DarkThemeConfig,
     val languageConfig: LanguageConfig,
     val unitsConfig: UnitsConfig,
-    val useDynamicColor: Boolean
+    val useDynamicColor: Boolean,
+    val workoutReminderHour: Int = 18,
+    val workoutReminderMinute: Int = 0
 )
 
 enum class DarkThemeConfig {

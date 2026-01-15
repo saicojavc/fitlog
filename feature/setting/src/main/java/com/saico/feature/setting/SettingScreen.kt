@@ -1,5 +1,7 @@
 package com.saico.feature.setting
 
+import android.app.TimePickerDialog
+import android.text.format.DateFormat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -23,12 +25,15 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -96,7 +101,8 @@ fun SettingScreen(
                         onThemeChange = viewModel::updateDarkThemeConfig,
                         onLanguageChange = viewModel::updateLanguageConfig,
                         onUnitsChange = viewModel::updateUnitsConfig,
-                        onDynamicColorChange = viewModel::updateDynamicColorPreference
+                        onDynamicColorChange = viewModel::updateDynamicColorPreference,
+                        onTimeChange = viewModel::updateWorkoutReminderTime
                     )
                 }
             }
@@ -110,8 +116,23 @@ fun SettingsContent(
     onThemeChange: (DarkThemeConfig) -> Unit,
     onLanguageChange: (LanguageConfig) -> Unit,
     onUnitsChange: (UnitsConfig) -> Unit,
-    onDynamicColorChange: (Boolean) -> Unit
+    onDynamicColorChange: (Boolean) -> Unit,
+    onTimeChange: (Int, Int) -> Unit
 ) {
+    val context = LocalContext.current
+    val isSystem24Hour = remember { DateFormat.is24HourFormat(context) }
+
+    // Formateo visual de la hora del recordatorio
+    val displayTime = remember(settings.workoutReminderHour, settings.workoutReminderMinute, isSystem24Hour) {
+        if (isSystem24Hour) {
+            String.format("%02d:%02d", settings.workoutReminderHour, settings.workoutReminderMinute)
+        } else {
+            val hour = if (settings.workoutReminderHour % 12 == 0) 12 else settings.workoutReminderHour % 12
+            val amPm = if (settings.workoutReminderHour < 12) "AM" else "PM"
+            String.format("%d:%02d %s", hour, settings.workoutReminderMinute, amPm)
+        }
+    }
+
     // Modo Oscuro
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -136,6 +157,40 @@ fun SettingsContent(
                 )
             }
         )
+    }
+
+    HorizontalDivider(modifier = Modifier.padding(vertical = PaddingDim.MEDIUM))
+
+    // Recordatorio de Entrenamiento (Configurable)
+    SettingSectionTitle(title = stringResource(id = R.string.notifications))
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                TimePickerDialog(
+                    context,
+                    { _, hour, minute -> onTimeChange(hour, minute) },
+                    settings.workoutReminderHour,
+                    settings.workoutReminderMinute,
+                    isSystem24Hour
+                ).show()
+            }
+            .padding(vertical = PaddingDim.SMALL),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Column {
+            FitlogText(
+                text = stringResource(id = R.string.workout_reminder),
+                style = MaterialTheme.typography.bodyLarge
+            )
+            FitlogText(
+                text = displayTime,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+        Icon(imageVector = FitlogIcons.Clock, contentDescription = null)
     }
 
     HorizontalDivider(modifier = Modifier.padding(vertical = PaddingDim.MEDIUM))

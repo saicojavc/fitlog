@@ -47,6 +47,7 @@ dependencies {
     implementation(project(":core:domain"))
     implementation(project(":core:datastore"))
     implementation(project(":core:model"))
+    implementation(project(":core:notification"))
     implementation(project(":feature:login"))
     implementation(project(":feature:onboarding"))
     implementation(project(":feature:dashboard"))

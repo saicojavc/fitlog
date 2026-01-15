@@ -90,4 +90,8 @@
     <string name="measurement_units">Unidades de medida</string>
     <string name="metric_system">Métrico (km, kg, cm)</string>
     <string name="imperial_system">Imperial (mi, lb, ft/in)</string>
+
+    <!-- Reminders -->
+    <string name="notifications">Notificaciones</string>
+    <string name="workout_reminder">Recordatorio de Entrenamiento</string>
 </resources>
