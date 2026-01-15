@@ -73,4 +73,16 @@
     <string name="update_profile_message">¿Estás seguro de que quieres guardar estos cambios?</string>
     <string name="cancel">Cancelar</string>
     <string name="accept">Aceptar</string>
+
+    <!-- Settings -->
+    <string name="settings">Ajustes</string>
+    <string name="theme">Tema</string>
+    <string name="dark_mode">Modo Oscuro</string>
+    <string name="light_mode">Modo Claro</string>
+    <string name="follow_system">Seguir Sistema</string>
+    <string name="language">Idioma</string>
+    <string name="english">Inglés</string>
+    <string name="spanish">Español</string>
+    <string name="dynamic_color">Color Dinámico</string>
+    <string name="dynamic_color_desc">Usa colores basados en tu fondo de pantalla</string>
 </resources>

@@ -15,8 +15,11 @@ import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Height
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Male
 import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.Nightlight
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
@@ -27,6 +30,7 @@ import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.DirectionsWalk
@@ -64,5 +68,8 @@ object FitlogIcons {
     val ArrowDown: ImageVector = Icons.Default.ArrowDownward
     val Delete: ImageVector = Icons.Default.Delete
     val Edit: ImageVector = Icons.Default.Edit
-
+    val KeyboardArrowUp: ImageVector = Icons.Default.KeyboardArrowUp
+    val KeyboardArrowDown: ImageVector = Icons.Default.KeyboardArrowDown
+    val Moon: ImageVector = Icons.Default.Nightlight
+    val Sun: ImageVector = Icons.Default.WbSunny
 }

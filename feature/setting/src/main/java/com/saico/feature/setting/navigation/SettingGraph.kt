@@ -7,13 +7,13 @@ import androidx.navigation.navigation
 import com.saico.core.ui.navigation.routes.setting.SettingRoute
 import com.saico.feature.setting.SettingScreen
 
-fun NavGraphBuilder.settingGraph() {
+fun NavGraphBuilder.settingGraph(navController: NavHostController) {
     navigation(
         startDestination = SettingRoute.SettingScreenRoute.route,
         route = SettingRoute.RootRoute.route
     ){
         composable(route = SettingRoute.SettingScreenRoute.route){
-            SettingScreen()
+            SettingScreen(navController = navController)
         }
 
     }
