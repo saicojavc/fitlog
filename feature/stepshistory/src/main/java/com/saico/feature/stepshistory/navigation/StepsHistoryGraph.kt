@@ -14,7 +14,7 @@ fun NavGraphBuilder.stepsHistoryGraph(navController: NavHostController) {
         route = StepsHistoryRoute.RootRoute.route
     ){
         composable(route = StepsHistoryRoute.StepsHistoryScreenRoute.route){
-            StepsHistoryScreen()
+            StepsHistoryScreen(navController = navController)
         }
 
     }

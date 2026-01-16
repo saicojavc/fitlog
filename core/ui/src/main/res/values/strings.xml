@@ -121,4 +121,11 @@
     <!-- Service Notification -->
     <string name="service_active_title">Fitlog is active</string>
     <string name="service_active_msg">Counting your steps...</string>
+
+    <!-- Steps History -->
+    <string name="steps_history">Steps History</string>
+    <string name="steps">Steps</string>
+    <string name="weekly">Weekly</string>
+    <string name="monthly">Monthly</string>
+    <string name="yearly">Yearly</string>
 </resources>

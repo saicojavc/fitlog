@@ -20,7 +20,7 @@
     <string name="set_goals_to_motivate_yourself">Establece metas para motivarte</string>
     <string name="daily_steps">Pasos diarios</string>
     <string name="calories_to_burn">Calorias a quemar</string>
-    <string name="all__set">¡Todo listo!</string>
+    <string name="all_set">¡Todo listo!</string>
     <string name="review_your_data">Revisa tus datos y metas antes de iniciar tu viaje en Fitlog</string>
     <string name="close">Cerrar</string>
     <string name="summary">Resumen</string>
@@ -111,4 +111,11 @@
     <string name="daily_summary_title">Resumen del día</string>
     <string name="daily_summary_msg_incomplete">Hoy hiciste %1$d pasos. ¡Buen esfuerzo! Mañana por el objetivo 😊</string>
     <string name="daily_summary_msg_complete">Hoy hiciste %1$d pasos. ¡Te has superado! ¡Felicidades! 😊</string>
+
+    <!-- Steps History -->
+    <string name="steps_history">Historial de Pasos</string>
+    <string name="steps">Pasos</string>
+    <string name="weekly">Semanal</string>
+    <string name="monthly">Mensual</string>
+    <string name="yearly">Anual</string>
 </resources>

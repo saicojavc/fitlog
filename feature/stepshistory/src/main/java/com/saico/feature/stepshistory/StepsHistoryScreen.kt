@@ -1,9 +1,384 @@
 package com.saico.feature.stepshistory
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import com.saico.core.common.util.FitnessCalculator
+import com.saico.core.model.Workout
+import com.saico.core.ui.R
+import com.saico.core.ui.components.FitlogCard
+import com.saico.core.ui.components.FitlogIcon
+import com.saico.core.ui.components.FitlogTopAppBar
+import com.saico.core.ui.icon.FitlogIcons
+import com.saico.core.ui.theme.PaddingDim
+import com.saico.feature.stepshistory.state.ChartData
+import com.saico.feature.stepshistory.state.StepsHistoryFilter
+import com.saico.feature.stepshistory.state.StepsHistoryUiState
+import java.util.Calendar
+import java.util.Locale
 
 @Composable
-fun StepsHistoryScreen() {
-    Text("Steps History Screen")
+fun StepsHistoryScreen(
+    navController: NavHostController,
+    viewModel: StepsHistoryViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    Content(
+        uiState = uiState,
+        onBackClick = { navController.popBackStack() },
+        onFilterSelected = viewModel::onFilterSelected
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun Content(
+    uiState: StepsHistoryUiState,
+    onBackClick: () -> Unit,
+    onFilterSelected: (StepsHistoryFilter) -> Unit
+) {
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        topBar = {
+            FitlogTopAppBar(
+                title = stringResource(id = R.string.steps_history),
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = if (isSystemInDarkTheme()) Color.Black.copy(alpha = 0.3f)
+                    else MaterialTheme.colorScheme.surface
+                ),
+                navigationIcon = {
+                    FitlogIcon(
+                        modifier = Modifier.clickable { onBackClick() },
+                        imageVector = FitlogIcons.ArrowBack,
+                        background = Color.Transparent,
+                        contentDescription = null
+                    )
+                }
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = PaddingDim.MEDIUM)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.height(PaddingDim.MEDIUM))
+
+            FilterSelector(
+                selectedFilter = uiState.selectedFilter,
+                onFilterSelected = onFilterSelected
+            )
+
+            Spacer(modifier = Modifier.height(PaddingDim.LARGE))
+
+            val chartData = processData(uiState)
+
+            ChartCard(
+                title = stringResource(id = R.string.steps),
+                data = chartData.stepsData,
+                unit = ""
+            )
+
+            Spacer(modifier = Modifier.height(PaddingDim.MEDIUM))
+
+            ChartCard(
+                title = stringResource(id = R.string.calories),
+                data = chartData.caloriesData,
+                unit = "kcal"
+            )
+            
+            Spacer(modifier = Modifier.height(PaddingDim.MEDIUM))
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FilterSelector(
+    selectedFilter: StepsHistoryFilter,
+    onFilterSelected: (StepsHistoryFilter) -> Unit
+) {
+    val options = StepsHistoryFilter.values()
+    SingleChoiceSegmentedButtonRow(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        options.forEachIndexed { index, filter ->
+            SegmentedButton(
+                shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+                onClick = { onFilterSelected(filter) },
+                selected = filter == selectedFilter,
+                label = {
+                    Text(
+                        text = when (filter) {
+                            StepsHistoryFilter.WEEKLY -> stringResource(R.string.weekly)
+                            StepsHistoryFilter.MONTHLY -> stringResource(R.string.monthly)
+                            StepsHistoryFilter.YEARLY -> stringResource(R.string.yearly)
+                        }
+                    )
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun ChartCard(
+    title: String,
+    data: List<ChartData>,
+    unit: String
+) {
+    FitlogCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Column(modifier = Modifier.padding(PaddingDim.MEDIUM)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(PaddingDim.LARGE))
+
+            val maxValue = data.maxOfOrNull { it.value } ?: 1f
+            
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom
+            ) {
+                data.forEach { item ->
+                    BarItem(
+                        item = item,
+                        maxValue = maxValue,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun BarItem(
+    item: ChartData,
+    maxValue: Float,
+    modifier: Modifier = Modifier
+) {
+    val barHeightRatio = (item.value / maxValue).coerceIn(0.05f, 1f)
+
+    Column(
+        modifier = modifier.fillMaxHeight(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Bottom
+    ) {
+        Text(
+            text = if (item.value >= 1000) "${(item.value / 1000).toInt()}k" else item.value.toInt().toString(),
+            style = MaterialTheme.typography.labelSmall,
+            fontSize = 8.sp,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+        )
+        
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Box(
+            modifier = Modifier
+                .fillMaxHeight(barHeightRatio * 0.8f)
+                .width(16.dp)
+                .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                .background(
+                    if (item.isHighlighted) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
+                )
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = item.label,
+            style = MaterialTheme.typography.labelSmall,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            fontSize = 10.sp
+        )
+    }
+}
+
+data class ProcessedChartData(
+    val stepsData: List<ChartData>,
+    val caloriesData: List<ChartData>
+)
+
+private fun processData(uiState: StepsHistoryUiState): ProcessedChartData {
+    return when (uiState.selectedFilter) {
+        StepsHistoryFilter.WEEKLY -> processWeekly(uiState)
+        StepsHistoryFilter.MONTHLY -> processMonthly(uiState)
+        StepsHistoryFilter.YEARLY -> processYearly(uiState)
+    }
+}
+
+private fun processWeekly(uiState: StepsHistoryUiState): ProcessedChartData {
+    val steps = mutableListOf<ChartData>()
+    val calories = mutableListOf<ChartData>()
+    
+    val today = Calendar.getInstance()
+    val startOfWeek = Calendar.getInstance().apply {
+        set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }
+
+    val workoutsByDate = uiState.workouts.associateBy { 
+        val cal = Calendar.getInstance().apply { timeInMillis = it.date }
+        "${cal.get(Calendar.YEAR)}-${cal.get(Calendar.DAY_OF_YEAR)}"
+    }
+
+    for (i in 0..6) {
+        val cal = Calendar.getInstance().apply {
+            timeInMillis = startOfWeek.timeInMillis
+            add(Calendar.DAY_OF_WEEK, i)
+        }
+        val dateKey = "${cal.get(Calendar.YEAR)}-${cal.get(Calendar.DAY_OF_YEAR)}"
+        val isToday = cal.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR) &&
+                cal.get(Calendar.YEAR) == today.get(Calendar.YEAR)
+        
+        val workout = workoutsByDate[dateKey]
+        val stepCount = if (isToday) uiState.currentSteps.toFloat() else (workout?.steps?.toFloat() ?: 0f)
+        
+        // CORRECCIÓN CALORÍAS: Si es hoy, calculamos en tiempo real con FitnessCalculator
+        val calorieCount = if (isToday) {
+            FitnessCalculator.calculateCaloriesBurned(uiState.currentSteps, uiState.userProfile?.weightKg ?: 0.0).toFloat()
+        } else {
+            workout?.calories?.toFloat() ?: 0f
+        }
+
+        val label = cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.getDefault()) ?: ""
+        
+        steps.add(ChartData(label.take(1), stepCount, isToday))
+        calories.add(ChartData(label.take(1), calorieCount, isToday))
+    }
+    
+    return ProcessedChartData(steps, calories)
+}
+
+private fun processMonthly(uiState: StepsHistoryUiState): ProcessedChartData {
+    val steps = mutableListOf<ChartData>()
+    val calories = mutableListOf<ChartData>()
+    
+    for (i in 3 downTo 0) {
+        val startCal = Calendar.getInstance().apply { 
+            add(Calendar.WEEK_OF_YEAR, -i)
+            set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+        }
+        val endCal = Calendar.getInstance().apply { 
+            timeInMillis = startCal.timeInMillis
+            add(Calendar.DAY_OF_WEEK, 6)
+            set(Calendar.HOUR_OF_DAY, 23)
+            set(Calendar.MINUTE, 59)
+        }
+
+        val weekWorkouts = uiState.workouts.filter { it.date in startCal.timeInMillis..endCal.timeInMillis }
+        var totalSteps = weekWorkouts.sumOf { it.steps }.toFloat()
+        var totalCalories = weekWorkouts.sumOf { it.calories }.toFloat()
+
+        if (i == 0) {
+            val todayStart = Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+            }.timeInMillis
+            
+            // Si hoy no está registrado en los workouts todavía, sumamos los pasos y calorías actuales
+            if (uiState.workouts.none { it.date >= todayStart }) {
+                totalSteps += uiState.currentSteps
+                totalCalories += FitnessCalculator.calculateCaloriesBurned(uiState.currentSteps, uiState.userProfile?.weightKg ?: 0.0)
+            }
+        }
+
+        steps.add(ChartData("W${4 - i}", totalSteps, i == 0))
+        calories.add(ChartData("W${4 - i}", totalCalories, i == 0))
+    }
+    
+    return ProcessedChartData(steps, calories)
+}
+
+private fun processYearly(uiState: StepsHistoryUiState): ProcessedChartData {
+    val steps = mutableListOf<ChartData>()
+    val calories = mutableListOf<ChartData>()
+    
+    for (i in 11 downTo 0) {
+        val cal = Calendar.getInstance().apply { add(Calendar.MONTH, -i) }
+        val month = cal.get(Calendar.MONTH)
+        val year = cal.get(Calendar.YEAR)
+
+        val monthWorkouts = uiState.workouts.filter {
+            val wCal = Calendar.getInstance().apply { timeInMillis = it.date }
+            wCal.get(Calendar.MONTH) == month && wCal.get(Calendar.YEAR) == year
+        }
+
+        var totalSteps = monthWorkouts.sumOf { it.steps }.toFloat()
+        var totalCalories = monthWorkouts.sumOf { it.calories }.toFloat()
+
+        if (i == 0) {
+            val todayStart = Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+            }.timeInMillis
+            
+            if (uiState.workouts.none { it.date >= todayStart }) {
+                totalSteps += uiState.currentSteps
+                totalCalories += FitnessCalculator.calculateCaloriesBurned(uiState.currentSteps, uiState.userProfile?.weightKg ?: 0.0)
+            }
+        }
+
+        val label = cal.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault()) ?: ""
+        steps.add(ChartData(label.take(1), totalSteps, i == 0))
+        calories.add(ChartData(label.take(1), totalCalories, i == 0))
+    }
+    
+    return ProcessedChartData(steps, calories)
 }
