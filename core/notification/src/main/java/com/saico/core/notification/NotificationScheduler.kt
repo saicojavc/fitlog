@@ -71,10 +71,9 @@ class NotificationScheduler @Inject constructor(
         )
     }
 
-    fun scheduleDailySummaryNotification(hour: Int = 21, minute: Int = 0, currentSteps: Int) {
+    fun scheduleDailySummaryNotification(hour: Int = 21, minute: Int = 0) {
         val intent = Intent(context, NotificationReceiver::class.java).apply {
             putExtra("notification_type", "daily_summary")
-            putExtra("current_steps", currentSteps)
         }
         val pendingIntent = PendingIntent.getBroadcast(
             context,

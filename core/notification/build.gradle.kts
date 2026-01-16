@@ -35,6 +35,8 @@ android {
 
 dependencies {
     implementation(project(":core:ui"))
+    implementation(project(":core:model"))
+    implementation(project(":core:datastore"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)

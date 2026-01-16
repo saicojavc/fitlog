@@ -31,6 +31,8 @@ class StepCounterDataStore @Inject constructor(@ApplicationContext private val c
         val STEP_OFFSET_KEY = intPreferencesKey("step_offset")
         // Key para guardar la fecha (en milisegundos) en que se guardó el offset.
         val LAST_RESET_DATE_KEY = longPreferencesKey("last_reset_date")
+        // Key para guardar los pasos actuales del día.
+        val CURRENT_STEPS_KEY = intPreferencesKey("current_steps")
     }
 
     /**
@@ -42,6 +44,18 @@ class StepCounterDataStore @Inject constructor(@ApplicationContext private val c
         context.dataStore.edit {
             it[PreferencesKeys.STEP_OFFSET_KEY] = steps
             it[PreferencesKeys.LAST_RESET_DATE_KEY] = System.currentTimeMillis()
+            it[PreferencesKeys.CURRENT_STEPS_KEY] = 0 // Al reiniciar el día, los pasos actuales son 0
+        }
+    }
+
+    /**
+     * Guarda los pasos actuales dados en el día.
+     *
+     * @param steps El número de pasos actuales.
+     */
+    suspend fun updateCurrentSteps(steps: Int) {
+        context.dataStore.edit {
+            it[PreferencesKeys.CURRENT_STEPS_KEY] = steps
         }
     }
 
@@ -50,6 +64,13 @@ class StepCounterDataStore @Inject constructor(@ApplicationContext private val c
      */
     val stepOffset: Flow<Int> = context.dataStore.data.map {
         it[PreferencesKeys.STEP_OFFSET_KEY] ?: 0
+    }
+
+    /**
+     * Flow que emite los pasos actuales del día. Emite 0 si no hay ningún valor.
+     */
+    val currentSteps: Flow<Int> = context.dataStore.data.map {
+        it[PreferencesKeys.CURRENT_STEPS_KEY] ?: 0
     }
 
     /**

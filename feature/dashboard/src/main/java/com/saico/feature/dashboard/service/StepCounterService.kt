@@ -53,12 +53,17 @@ class StepCounterService : Service() {
     lateinit var notificationHelper: NotificationHelper
 
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private var isObserving = false
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         startForegroundService()
-        observeSteps()
+        if (!isObserving) {
+            observeSteps()
+            isObserving = true
+        }
         return START_STICKY
     }
+
 
     private fun startForegroundService() {
         val channelId = "step_counter_service"
@@ -95,6 +100,7 @@ class StepCounterService : Service() {
                 stepCounterDataStore.stepOffset,
                 stepCounterDataStore.lastResetDate
             ) { totalStepsSinceReboot, offset, lastResetDate ->
+                // Lógica de cálculo de pasos diarios
                 if (stepCounterDataStore.isNewDay(lastResetDate)) {
                     savePreviousDayWorkout(offset, totalStepsSinceReboot, lastResetDate)
                     stepCounterDataStore.saveStepCounterData(totalStepsSinceReboot)
@@ -103,6 +109,10 @@ class StepCounterService : Service() {
                     (totalStepsSinceReboot - offset).coerceAtLeast(0)
                 }
             }.collect { dailySteps ->
+                // 1. Guardamos pasos para el resumen nocturno
+                stepCounterDataStore.updateCurrentSteps(dailySteps)
+
+                // 2. Comprobamos metas de progreso (50% y 100%)
                 checkProgressNotifications(dailySteps)
             }
         }

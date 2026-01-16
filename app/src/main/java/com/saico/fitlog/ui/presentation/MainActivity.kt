@@ -146,7 +146,7 @@ class MainActivity : ComponentActivity() {
         notificationScheduler.scheduleWorkoutReminder(hour = reminderHour, minute = reminderMinute)
         
         // Resumen nocturno a las 9:00 PM
-        notificationScheduler.scheduleDailySummaryNotification(hour = 21, minute = 0, currentSteps = 0)
+        notificationScheduler.scheduleDailySummaryNotification(hour = 21, minute = 0)
     }
 
     private fun updateLocale(context: Context, locale: Locale) {

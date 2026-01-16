@@ -3,8 +3,11 @@ package com.saico.core.notification
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.saico.core.datastore.StepCounterDataStore
 import com.saico.core.ui.R
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -12,6 +15,9 @@ class NotificationReceiver : BroadcastReceiver() {
 
     @Inject
     lateinit var notificationHelper: NotificationHelper
+
+    @Inject
+    lateinit var stepCounterDataStore: StepCounterDataStore
 
     override fun onReceive(context: Context, intent: Intent) {
         val type = intent.getStringExtra("notification_type") ?: return
@@ -41,7 +47,9 @@ class NotificationReceiver : BroadcastReceiver() {
                 )
             }
             "daily_summary" -> {
-                val steps = intent.getIntExtra("current_steps", 0)
+                val steps = runBlocking {
+                    stepCounterDataStore.currentSteps.first()
+                }
                 val title = context.getString(R.string.daily_summary_title)
                 val message = if (steps < 10000) {
                     context.getString(R.string.daily_summary_msg_incomplete, steps)

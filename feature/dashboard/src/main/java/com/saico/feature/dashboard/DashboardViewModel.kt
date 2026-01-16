@@ -1,6 +1,5 @@
 package com.saico.feature.dashboard
 
-import androidx.compose.remote.creation.first
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.saico.core.common.util.FitnessCalculator
@@ -19,12 +18,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.sql.Time
@@ -51,63 +47,6 @@ class DashboardViewModel @Inject constructor(
         getWeeklyWorkouts()
         getHistoryData()
         getUserData()
-        setupNotificationObserver()
-    }
-
-    private fun setupNotificationObserver() {
-        viewModelScope.launch {
-            // Combinamos Pasos, Perfil y Flags de Notificación en un único flujo reactivo
-            combine(
-                uiState.map { it.dailySteps }.distinctUntilChanged(),
-                uiState.map { it.userProfile }.distinctUntilChanged(),
-                userDataStore.goalReachedShownDate,
-                userDataStore.halfGoalShownDate
-            ) { steps, profile, lastGoalDate, lastHalfDate ->
-                if (profile != null) {
-                    processProgressNotifications(steps, profile, lastGoalDate, lastHalfDate)
-                }
-            }.collect()
-        }
-    }
-
-    private suspend fun processProgressNotifications(
-        dailySteps: Int,
-        profile: UserProfile,
-        lastGoalDate: Long,
-        lastHalfDate: Long
-    ) {
-        val goal = profile.dailyStepsGoal
-        if (goal <= 0) return
-
-        val todayStart = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }.timeInMillis
-
-        // Notificación 100%
-//        if (dailySteps >= goal ) {
-//            notificationHelper.showNotification(
-//                "¡Meta cumplida! 🎉",
-//                "¡Increíble! Has llegado a tus $goal pasos.",
-//                NotificationHelper.PROGRESS_CHANNEL_ID,
-//                2001
-//            )
-//            userDataStore.setGoalReachedShown(System.currentTimeMillis())
-//            return
-//        }
-
-        // Notificación 50%
-//        if (dailySteps >= goal / 2 && lastHalfDate < todayStart && lastGoalDate < todayStart) {
-//            notificationHelper.showNotification(
-//                "¡Mitad del camino! 🔥",
-//                "Ya llevas $dailySteps pasos. ¡Sigue así!",
-//                NotificationHelper.PROGRESS_CHANNEL_ID,
-//                2002
-//            )
-//            userDataStore.setHalfGoalShown(System.currentTimeMillis())
-//        }
     }
 
     private fun getUserData() {
