@@ -1,5 +1,6 @@
 package com.saico.feature.dashboard.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,16 +23,18 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.saico.core.common.util.FitnessCalculator
 import com.saico.core.common.util.UnitsConverter
 import com.saico.core.model.UnitsConfig
 import com.saico.core.ui.components.FitlogCard
 import com.saico.core.ui.icon.FitlogIcons
+import com.saico.core.ui.navigation.routes.stepshistory.StepsHistoryRoute
 import com.saico.core.ui.theme.PaddingDim
 import com.saico.feature.dashboard.state.DashboardUiState
 
 @Composable
-fun StepsDailyCard(uiState: DashboardUiState) {
+fun StepsDailyCard(uiState: DashboardUiState, navController: NavHostController) {
     val userProfile = uiState.userProfile
     val dailySteps = uiState.dailySteps
     val dailyStepsGoal = (userProfile?.dailyStepsGoal ?: 1).toFloat()
@@ -55,7 +58,10 @@ fun StepsDailyCard(uiState: DashboardUiState) {
     FitlogCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(PaddingDim.SMALL),
+            .padding(PaddingDim.SMALL)
+            .clickable{
+                navController.navigate(StepsHistoryRoute.RootRoute.route)
+            },
         shape = MaterialTheme.shapes.extraLarge
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {

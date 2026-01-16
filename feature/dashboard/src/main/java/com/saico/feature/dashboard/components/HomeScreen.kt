@@ -28,14 +28,18 @@ fun ContentHomeScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
-            StepsDailyCard(uiState = uiState)
+            StepsDailyCard(
+                uiState = uiState,
+                navController = navController
+            )
         }
         item {
             // 4. Pasamos los pasos del día actual al gráfico semanal
             WeeklyActivityCard(
                 workouts = uiState.weeklyWorkouts,
                 dailySteps = uiState.dailySteps,
-                dailyStepsGoal = uiState.userProfile?.dailyStepsGoal ?: 1
+                dailyStepsGoal = uiState.userProfile?.dailyStepsGoal ?: 1,
+                navController = navController
             )
         }
         item {

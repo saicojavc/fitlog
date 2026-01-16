@@ -2,6 +2,7 @@ package com.saico.feature.dashboard.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,9 +30,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.saico.core.model.Workout
 import com.saico.core.ui.R
 import com.saico.core.ui.components.FitlogCard
+import com.saico.core.ui.navigation.routes.stepshistory.StepsHistoryRoute
 import com.saico.core.ui.theme.PaddingDim
 import java.util.Calendar
 import java.util.Locale
@@ -40,14 +43,19 @@ import java.util.Locale
 fun WeeklyActivityCard(
     workouts: List<Workout>,
     dailySteps: Int,
-    dailyStepsGoal: Int) {
+    dailyStepsGoal: Int,
+    navController: NavHostController
+) {
     val targetSteps = if (dailyStepsGoal > 0) dailyStepsGoal else 10000
     val maxScaleSteps = targetSteps * 2
 
     FitlogCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(PaddingDim.SMALL),
+            .padding(PaddingDim.SMALL)
+            .clickable{
+                navController.navigate(StepsHistoryRoute.RootRoute.route)
+            },
         shape = MaterialTheme.shapes.extraLarge
     ) {
         Column(

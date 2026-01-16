@@ -26,6 +26,7 @@
             <option value="$PROJECT_DIR$/feature/login" />
             <option value="$PROJECT_DIR$/feature/onboarding" />
             <option value="$PROJECT_DIR$/feature/setting" />
+            <option value="$PROJECT_DIR$/feature/stepshistory" />
             <option value="$PROJECT_DIR$/feature/workout" />
           </set>
         </option>
