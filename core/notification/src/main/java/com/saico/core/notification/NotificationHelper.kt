@@ -65,6 +65,7 @@ class NotificationHelper @Inject constructor(
             ).apply {
                 description = "Muestra el progreso de tu entrenamiento actual"
                 setShowBadge(false)
+                lockscreenVisibility = android.app.Notification.VISIBILITY_PUBLIC
             }
 
             val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -75,9 +76,6 @@ class NotificationHelper @Inject constructor(
         }
     }
 
-    /**
-     * Muestra una notificación si el permiso POST_NOTIFICATIONS ha sido otorgado.
-     */
     @SuppressLint("MissingPermission")
     fun showNotification(
         title: String,
@@ -103,9 +101,12 @@ class NotificationHelper @Inject constructor(
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(if (isOngoing) NotificationCompat.PRIORITY_LOW else NotificationCompat.PRIORITY_DEFAULT)
-            .setOngoing(isOngoing) // Esto hace que no se pueda quitar
+            .setOngoing(isOngoing)
             .setAutoCancel(!isOngoing)
-            .setOnlyAlertOnce(true) // Evita ruidos/vibraciones constantes
+            .setOnlyAlertOnce(true)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC) // Visible en pantalla de bloqueo
+            .setCategory(NotificationCompat.CATEGORY_WORKOUT)
+            .setColor(0xFF2196F3.toInt()) // Color azul de la app (ajustar si es necesario)
             .setContentIntent(pendingIntent)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
             .build()

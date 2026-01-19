@@ -146,12 +146,8 @@ class WorkoutViewModel @Inject constructor(
             String.format(Locale.getDefault(), "%.2f km/h", state.averagePace)
         }
 
-        val labelTime = context.getString(R.string.workout_stat_time)
-        val labelDist = context.getString(R.string.workout_stat_distance)
-        val labelCal = context.getString(R.string.workout_stat_calories)
-        val labelSpeed = context.getString(R.string.workout_stat_speed)
-
-        val content = "$labelTime: $timeStr | $labelDist: $distStr\n$labelCal: ${state.calories} kcal | $labelSpeed: $speedStr"
+        // Estructura visual con iconos (emojis) para estética y claridad
+        val content = "⏱️ $timeStr   📍 $distStr\n🔥 ${state.calories} kcal   ⚡ $speedStr"
         
         notificationHelper.showNotification(
             title = context.getString(R.string.workout_ongoing_title),
@@ -182,7 +178,7 @@ class WorkoutViewModel @Inject constructor(
             _uiState.update { it.copy(workoutState = WorkoutState.PAUSED) }
             
             notificationHelper.showNotification(
-                title = context.getString(R.string.workout_paused_title),
+                title = "⏸️ " + context.getString(R.string.workout_paused_title),
                 message = context.getString(R.string.workout_paused_msg),
                 channelId = NotificationHelper.WORKOUT_CHANNEL_ID,
                 notificationId = NotificationHelper.WORKOUT_NOTIFICATION_ID,
@@ -223,5 +219,11 @@ class WorkoutViewModel @Inject constructor(
         )
         accumulatedStepsBeforePause = 0
         initialSteps = null
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        // Asegurar que la notificación se limpie si se cierra la app bruscamente o se destruye el VM
+        notificationHelper.cancelNotification(NotificationHelper.WORKOUT_NOTIFICATION_ID)
     }
 }
