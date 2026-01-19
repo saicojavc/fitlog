@@ -15,8 +15,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.sql.Time
@@ -35,6 +33,7 @@ class WorkoutViewModel @Inject constructor(
 
     private var workoutJob: Job? = null
     private var initialSteps: Int? = null
+    private var accumulatedStepsBeforePause: Int = 0
 
     init {
         getUserProfile()
@@ -49,53 +48,77 @@ class WorkoutViewModel @Inject constructor(
             }
         }
     }
+
     fun startWorkout() {
         if (_uiState.value.workoutState == WorkoutState.RUNNING) return
 
         _uiState.update { it.copy(workoutState = WorkoutState.RUNNING) }
 
+        // Cancelamos cualquier job previo por seguridad
+        workoutJob?.cancel()
+
         workoutJob = viewModelScope.launch {
-            // Inicia el cronómetro
-            val ticker = flow { while (true) { emit(Unit); delay(1000L) } }
-
-            combine(ticker, stepCounterSensor.steps) { _, totalStepsSinceReboot ->
-                // Guarda los pasos iniciales la primera vez
-                if (initialSteps == null) {
-                    initialSteps = totalStepsSinceReboot
-                }
-
-                // Solo actualiza si el entrenamiento está activo
-                if (_uiState.value.workoutState == WorkoutState.RUNNING) {
-                    _uiState.update { currentState ->
-                        val stepsTaken = (totalStepsSinceReboot - (initialSteps ?: totalStepsSinceReboot)).coerceAtLeast(0)
-                        val elapsedTime = currentState.elapsedTimeInSeconds + 1
-                        
-                        // Obtén el perfil del usuario para los cálculos
-                        val userProfile = uiState.value.userProfile // Asumiendo que se carga desde algún sitio
-
-                        val distance = FitnessCalculator.calculateDistanceKm(
-                            steps = stepsTaken,
-                            heightCm = userProfile?.heightCm?.toInt() ?: 0,
-                            genderString = userProfile?.gender ?: ""
-                        )
-                        val calories = FitnessCalculator.calculateCaloriesBurned(stepsTaken, userProfile?.weightKg ?: 0.0)
-                        val averagePace = if (elapsedTime > 0) (distance / (elapsedTime / 3600.0f)) else 0.0f
-
-                        currentState.copy(
-                            elapsedTimeInSeconds = elapsedTime,
-                            stepsTaken = stepsTaken,
-                            distance = distance,
-                            calories = calories,
-                            averagePace = averagePace
-                        )
+            // 1. Job independiente para el Cronómetro (Exactamente 1 segundo)
+            launch {
+                while (true) {
+                    delay(1000L)
+                    if (_uiState.value.workoutState == WorkoutState.RUNNING) {
+                        _uiState.update { state ->
+                            val newTime = state.elapsedTimeInSeconds + 1
+                            state.copy(
+                                elapsedTimeInSeconds = newTime,
+                                averagePace = calculateAverageSpeed(state.distance, newTime)
+                            )
+                        }
                     }
                 }
-            }.collectLatest { /* El combine ya hace el trabajo */ }
+            }
+
+            // 2. Job independiente para los Pasos (Reacciona al sensor)
+            launch {
+                stepCounterSensor.steps.collect { totalStepsSinceReboot ->
+                    if (initialSteps == null) {
+                        initialSteps = totalStepsSinceReboot
+                    }
+
+                    if (_uiState.value.workoutState == WorkoutState.RUNNING) {
+                        val currentStepsInSession = (totalStepsSinceReboot - (initialSteps ?: totalStepsSinceReboot)).coerceAtLeast(0)
+                        val totalSteps = accumulatedStepsBeforePause + currentStepsInSession
+
+                        _uiState.update { state ->
+                            val userProfile = state.userProfile
+                            val distance = FitnessCalculator.calculateDistanceKm(
+                                steps = totalSteps,
+                                heightCm = userProfile?.heightCm?.toInt() ?: 170,
+                                genderString = userProfile?.gender ?: "male"
+                            )
+                            val calories = FitnessCalculator.calculateCaloriesBurned(totalSteps, userProfile?.weightKg ?: 70.0)
+
+                            state.copy(
+                                stepsTaken = totalSteps,
+                                distance = distance,
+                                calories = calories,
+                                averagePace = calculateAverageSpeed(distance, state.elapsedTimeInSeconds)
+                            )
+                        }
+                    }
+                }
+            }
         }
+    }
+
+    private fun calculateAverageSpeed(distanceKm: Float, timeSeconds: Long): Float {
+        if (timeSeconds <= 0) return 0f
+        val hours = timeSeconds / 3600.0f
+        return distanceKm / hours
     }
 
     fun pauseWorkout() {
         if (_uiState.value.workoutState == WorkoutState.RUNNING) {
+            // Guardamos los pasos acumulados hasta ahora para que al reanudar no se pierdan
+            // ni se sumen pasos dados mientras estaba en pausa
+            accumulatedStepsBeforePause = _uiState.value.stepsTaken
+            initialSteps = null // Se reseteará al reanudar con el nuevo valor del sensor
             _uiState.update { it.copy(workoutState = WorkoutState.PAUSED) }
         }
     }
@@ -119,9 +142,12 @@ class WorkoutViewModel @Inject constructor(
         workoutJob?.cancel()
         workoutJob = null
         initialSteps = null
+        accumulatedStepsBeforePause = 0
     }
 
     fun onDialogDismissed() {
-        _uiState.value = WorkoutUiState() // Reinicia el estado
+        _uiState.value = WorkoutUiState()
+        accumulatedStepsBeforePause = 0
+        initialSteps = null
     }
 }
