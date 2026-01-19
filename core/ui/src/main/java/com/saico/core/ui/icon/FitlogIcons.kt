@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Female
@@ -73,6 +74,7 @@ object FitlogIcons {
     val KeyboardArrowDown: ImageVector = Icons.Default.KeyboardArrowDown
     val Moon: ImageVector = Icons.Default.Nightlight
     val Sun: ImageVector = Icons.Default.WbSunny
-
     val Location : ImageVector = Icons.Default.LocationOn
+
+    val Download : ImageVector = Icons.Default.Download
 }

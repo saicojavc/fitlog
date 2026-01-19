@@ -1,5 +1,7 @@
 package com.saico.feature.dashboard
 
+import android.content.Context
+import android.text.format.DateUtils
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.saico.core.common.util.FitnessCalculator
@@ -10,11 +12,16 @@ import com.saico.core.common.util.StepCounterSensor
 import com.saico.core.datastore.UserSettingsDataStore
 import com.saico.core.domain.usecase.gym_exercise.GymUseCase
 import com.saico.core.domain.usecase.workout.WorkoutUseCase
+import com.saico.core.model.GymExercise
+import com.saico.core.model.UnitsConfig
 import com.saico.core.model.UserProfile
+import com.saico.core.model.WorkoutSession
 import com.saico.core.notification.NotificationHelper
 import com.saico.feature.dashboard.state.DashboardUiState
 import com.saico.feature.dashboard.state.HistoryFilter
+import com.saico.feature.dashboard.util.PdfExporter
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -103,6 +110,68 @@ class DashboardViewModel @Inject constructor(
 
     fun onFilterSelected(filter: HistoryFilter) {
         _uiState.update { it.copy(selectedFilter = filter) }
+    }
+
+    fun exportHistoryToPdf(context: Context) {
+        val state = _uiState.value
+        val filter = state.selectedFilter
+        
+        val filteredGym = filterData(state.gymExercises, filter) { it.date }
+        val filteredSessions = filterData(state.workoutSessions, filter) { it.date }
+
+        if (filteredGym.isEmpty() && filteredSessions.isEmpty()) {
+            android.widget.Toast.makeText(context, "No hay datos para exportar", android.widget.Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val totalCalories = filteredGym.sumOf { it.totalCalories } + filteredSessions.sumOf { it.calories }
+        val totalSteps = filteredSessions.sumOf { it.steps }
+        val totalDistance = filteredSessions.sumOf { it.distance.toDouble() }
+        val totalTimeSeconds = filteredGym.sumOf { it.elapsedTime } + filteredSessions.sumOf { it.time.time / 1000 }
+        
+        val filterName = when (filter) {
+            HistoryFilter.TODAY -> "Hoy"
+            HistoryFilter.LAST_WEEK -> "Última Semana"
+            HistoryFilter.LAST_MONTH -> "Último Mes"
+            HistoryFilter.ALL -> "Todo el Historial"
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            PdfExporter.generateHistoryPdf(
+                context = context,
+                filterName = filterName,
+                gymExercises = filteredGym,
+                workoutSessions = filteredSessions,
+                units = state.userData?.unitsConfig ?: UnitsConfig.METRIC,
+                totalCalories = totalCalories,
+                totalSteps = totalSteps,
+                totalDistanceKm = totalDistance,
+                totalTime = DateUtils.formatElapsedTime(totalTimeSeconds)
+            )
+        }
+    }
+
+    private fun <T> filterData(data: List<T>, filter: HistoryFilter, dateSelector: (T) -> Long): List<T> {
+        val now = Calendar.getInstance()
+        val today = now.apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+
+        return when (filter) {
+            HistoryFilter.TODAY -> data.filter { dateSelector(it) >= today }
+            HistoryFilter.LAST_WEEK -> {
+                val weekAgo = today - (7 * 24 * 60 * 60 * 1000L)
+                data.filter { dateSelector(it) >= weekAgo }
+            }
+            HistoryFilter.LAST_MONTH -> {
+                val monthAgo = today - (30 * 24 * 60 * 60 * 1000L)
+                data.filter { dateSelector(it) >= monthAgo }
+            }
+            HistoryFilter.ALL -> data
+        }
     }
 
     private fun initStepCounter() {

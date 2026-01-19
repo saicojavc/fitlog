@@ -132,6 +132,25 @@
     <string name="workout_stat_calories">Calories</string>
     <string name="workout_stat_speed">Speed</string>
 
+    <!-- PDF Export -->
+    <string name="pdf_report_title">FitLog - History Report</string>
+    <string name="pdf_filter_label">Filter: %1$s</string>
+    <string name="pdf_generation_date">Generation date: %1$s</string>
+    <string name="pdf_summary_title">SUMMARY OF THE PERIOD</string>
+    <string name="pdf_total_calories">Total Calories: %1$d kcal</string>
+    <string name="pdf_total_steps">Total Steps: %1$d</string>
+    <string name="pdf_total_distance">Total Distance: %1$s</string>
+    <string name="pdf_active_time">Active Time: %1$s</string>
+    <string name="pdf_total_sessions">Total Sessions: %1$d</string>
+    <string name="pdf_activities_detail">ACTIVITY DETAILS</string>
+    <string name="pdf_gym_workout">🏋️ Gym Workout - %1$s</string>
+    <string name="pdf_cardio_session">🏃 Cardio Session - %1$s</string>
+    <string name="pdf_activity_summary_gym">Calories: %1$d kcal | Duration: %2$s</string>
+    <string name="pdf_activity_summary_cardio">Steps: %1$d | Distance: %2$s | Calories: %3$d kcal</string>
+    <string name="pdf_no_data">No data to export</string>
+    <string name="pdf_success">PDF saved in Downloads</string>
+    <string name="pdf_error">Error saving PDF: %1$s</string>
+
     <!-- Steps History -->
     <string name="steps_history">Steps History</string>
     <string name="steps">Steps</string>

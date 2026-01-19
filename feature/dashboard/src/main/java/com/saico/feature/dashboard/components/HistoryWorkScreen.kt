@@ -4,6 +4,7 @@ import android.text.format.DateUtils
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -27,6 +28,7 @@ import com.saico.core.ui.R
 import com.saico.core.ui.components.FitlogIcon
 import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.icon.FitlogIcons
+import com.saico.core.ui.theme.LightBackground
 import com.saico.core.ui.theme.LightPrimary
 import com.saico.core.ui.theme.LightSuccess
 import com.saico.core.ui.theme.PaddingDim
@@ -38,15 +40,40 @@ import java.util.*
 @Composable
 fun HistoryWorkScreen(
     uiState: DashboardUiState,
-    onFilterSelected: (HistoryFilter) -> Unit
+    onFilterSelected: (HistoryFilter) -> Unit,
+    onExportPdf: () -> Unit
 ) {
     val units = uiState.userData?.unitsConfig ?: UnitsConfig.METRIC
+    val gradientColors = if (isSystemInDarkTheme()) {
+        listOf(LightPrimary, LightSuccess)
+    } else {
+        listOf(LightPrimary, LightSuccess, LightBackground)
+    }
 
-    HistoryContent(
-        uiState = uiState,
-        units = units,
-        onFilterSelected = onFilterSelected
-    )
+
+    Scaffold(
+        modifier = Modifier.background(Brush.verticalGradient(gradientColors)),
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onExportPdf,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = Color.White
+            ) {
+                Icon(
+                    imageVector = FitlogIcons.Download,
+                    contentDescription = null
+                )
+            }
+        }
+    ) { padding ->
+        Box(modifier = Modifier.background(Brush.verticalGradient(gradientColors)).padding(padding)) {
+            HistoryContent(
+                uiState = uiState,
+                units = units,
+                onFilterSelected = onFilterSelected
+            )
+        }
+    }
 }
 
 @Composable

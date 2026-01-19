@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -44,6 +45,7 @@ fun DashboardScreen(
     navController: NavHostController
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     // 1. Prepara el estado del permiso
     val permissionState = rememberPermissionState(
@@ -55,9 +57,9 @@ fun DashboardScreen(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { isGranted ->
             if (isGranted) {
-                // El permiso fue otorgado, la lógica del ViewModel ya se está ejecutando
+                // El permiso fue otorgado
             } else {
-                // El usuario denegó el permiso. Puedes mostrar un mensaje si lo deseas.
+                // El usuario denegó el permiso.
             }
         }
     )
@@ -74,6 +76,7 @@ fun DashboardScreen(
     Content(
         onFilterSelected = viewModel::onFilterSelected,
         updateUserProfile = viewModel::updateUserProfile,
+        onExportPdf = { viewModel.exportHistoryToPdf(context) },
         uiState = uiState,
         navController = navController,
     )
@@ -84,7 +87,8 @@ fun Content(
     uiState: DashboardUiState,
     navController: NavHostController,
     onFilterSelected: (HistoryFilter) -> Unit,
-    updateUserProfile: (UserProfile) -> Unit
+    updateUserProfile: (UserProfile) -> Unit,
+    onExportPdf: () -> Unit
 ) {
 
     var selectedBottomAppBarItem by remember { mutableStateOf(BottomAppBarItems.HOME) }
@@ -124,8 +128,9 @@ fun Content(
                 BottomAppBarItems.HISTORY -> {
                     HistoryWorkScreen(
                         uiState = uiState,
-                        onFilterSelected = onFilterSelected
-                        )
+                        onFilterSelected = onFilterSelected,
+                        onExportPdf = onExportPdf
+                    )
                 }
 
                 BottomAppBarItems.PROFILE -> {
