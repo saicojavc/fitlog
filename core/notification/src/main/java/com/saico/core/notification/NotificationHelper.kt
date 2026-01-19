@@ -24,6 +24,8 @@ class NotificationHelper @Inject constructor(
         const val DAILY_CHANNEL_ID = "motivational_daily"
         const val PROGRESS_CHANNEL_ID = "progress_achievements"
         const val SUMMARY_CHANNEL_ID = "daily_summary"
+        const val WORKOUT_CHANNEL_ID = "workout_active"
+        const val WORKOUT_NOTIFICATION_ID = 3001
     }
 
     init {
@@ -56,34 +58,40 @@ class NotificationHelper @Inject constructor(
                 NotificationManager.IMPORTANCE_DEFAULT
             )
 
+            val workoutChannel = NotificationChannel(
+                WORKOUT_CHANNEL_ID,
+                "Entrenamiento Activo",
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = "Muestra el progreso de tu entrenamiento actual"
+                setShowBadge(false)
+            }
+
             val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             manager.createNotificationChannel(dailyChannel)
             manager.createNotificationChannel(progressChannel)
             manager.createNotificationChannel(summaryChannel)
+            manager.createNotificationChannel(workoutChannel)
         }
     }
 
     /**
      * Muestra una notificación si el permiso POST_NOTIFICATIONS ha sido otorgado.
-     * Se usa @SuppressLint("MissingPermission") porque la verificación se realiza manualmente
-     * dentro de la función para evitar propagar la necesidad de permisos a los llamadores (ViewModels).
      */
     @SuppressLint("MissingPermission")
     fun showNotification(
         title: String,
         message: String,
         channelId: String,
-        notificationId: Int
+        notificationId: Int,
+        isOngoing: Boolean = false
     ) {
-        // Verificación manual de seguridad para Android 13+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                // Si no hay permiso, salimos silenciosamente
                 return
             }
         }
 
-        // Intent para abrir la app al tocar la notificación
         val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
         val pendingIntent = PendingIntent.getActivity(
             context, 0, intent,
@@ -91,18 +99,23 @@ class NotificationHelper @Inject constructor(
         )
 
         val notification = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(android.R.drawable.ic_menu_mylocation)
             .setContentTitle(title)
             .setContentText(message)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setAutoCancel(true)
+            .setPriority(if (isOngoing) NotificationCompat.PRIORITY_LOW else NotificationCompat.PRIORITY_DEFAULT)
+            .setOngoing(isOngoing) // Esto hace que no se pueda quitar
+            .setAutoCancel(!isOngoing)
+            .setOnlyAlertOnce(true) // Evita ruidos/vibraciones constantes
             .setContentIntent(pendingIntent)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(message))
             .build()
 
         try {
             NotificationManagerCompat.from(context).notify(notificationId, notification)
-        } catch (e: Exception) {
-            // Captura cualquier excepción inesperada para proteger la estabilidad de la app
-        }
+        } catch (e: Exception) {}
+    }
+
+    fun cancelNotification(notificationId: Int) {
+        NotificationManagerCompat.from(context).cancel(notificationId)
     }
 }

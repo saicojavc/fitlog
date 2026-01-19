@@ -123,6 +123,15 @@
     <string name="service_active_title">Fitlog is active</string>
     <string name="service_active_msg">Counting your steps...</string>
 
+    <!-- Workout Tracking -->
+    <string name="workout_ongoing_title">Workout in progress</string>
+    <string name="workout_paused_title">Workout Paused</string>
+    <string name="workout_paused_msg">Your progress is saved.</string>
+    <string name="workout_stat_time">Time</string>
+    <string name="workout_stat_distance">Distance</string>
+    <string name="workout_stat_calories">Calories</string>
+    <string name="workout_stat_speed">Speed</string>
+
     <!-- Steps History -->
     <string name="steps_history">Steps History</string>
     <string name="steps">Steps</string>

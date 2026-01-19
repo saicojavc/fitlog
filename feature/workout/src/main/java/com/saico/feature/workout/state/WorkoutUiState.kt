@@ -1,10 +1,12 @@
 package com.saico.feature.workout.state
 
+import com.saico.core.model.UnitsConfig
 import com.saico.core.model.UserProfile
 import com.saico.feature.workout.WorkoutState
 
 data class WorkoutUiState(
     val userProfile: UserProfile? = null,
+    val unitsConfig: UnitsConfig = UnitsConfig.METRIC,
     val workoutState: WorkoutState = WorkoutState.IDLE,
     val elapsedTimeInSeconds: Long = 0L,
     val stepsTaken: Int = 0,

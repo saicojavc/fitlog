@@ -113,6 +113,15 @@
     <string name="daily_summary_msg_incomplete">Hoy hiciste %1$d pasos. ¡Buen esfuerzo! Mañana por el objetivo 😊</string>
     <string name="daily_summary_msg_complete">Hoy hiciste %1$d pasos. ¡Te has superado! ¡Felicidades! 😊</string>
 
+    <!-- Workout Tracking -->
+    <string name="workout_ongoing_title">Entrenamiento en curso</string>
+    <string name="workout_paused_title">Entrenamiento Pausado</string>
+    <string name="workout_paused_msg">Tu progreso está guardado.</string>
+    <string name="workout_stat_time">Tiempo</string>
+    <string name="workout_stat_distance">Distancia</string>
+    <string name="workout_stat_calories">Calorías</string>
+    <string name="workout_stat_speed">Vel</string>
+
     <!-- Steps History -->
     <string name="steps_history">Historial de Pasos</string>
     <string name="steps">Pasos</string>
