@@ -3,6 +3,7 @@ package com.saico.feature.stepshistory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.saico.core.datastore.StepCounterDataStore
+import com.saico.core.datastore.UserSettingsDataStore
 import com.saico.core.domain.usecase.workout.WorkoutUseCase
 import com.saico.core.model.Workout
 import com.saico.core.domain.usecase.user_profile.UserProfileUseCase
@@ -24,7 +25,8 @@ import javax.inject.Inject
 class StepsHistoryViewModel @Inject constructor(
     private val workoutUseCase: WorkoutUseCase,
     private val stepCounterDataStore: StepCounterDataStore,
-    private val userProfileUseCase: UserProfileUseCase
+    private val userProfileUseCase: UserProfileUseCase,
+    private val userSettingsDataStore: UserSettingsDataStore
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(StepsHistoryUiState())
@@ -40,14 +42,17 @@ class StepsHistoryViewModel @Inject constructor(
             combine(
                 workoutUseCase.getWorkoutsUseCase(),
                 stepCounterDataStore.currentSteps,
-                userProfileUseCase.getUserProfileUseCase()
-            ) { workouts, currentSteps, userProfile ->
-                Triple(workouts, currentSteps, userProfile)
-            }.collectLatest { (workouts, currentSteps, userProfile) ->
+                userProfileUseCase.getUserProfileUseCase(),
+                userSettingsDataStore.userData
+            ) { workouts, currentSteps, userProfile, userData ->
+                DataBundle(workouts, currentSteps, userProfile, userData.unitsConfig)
+            }.collectLatest { data ->
                 _uiState.update { 
                     it.copy(
-                        workouts = workouts,
-                        currentSteps = currentSteps,
+                        workouts = data.workouts,
+                        currentSteps = data.currentSteps,
+                        userProfile = data.userProfile,
+                        unitsConfig = data.unitsConfig,
                         isLoading = false
                     )
                 }
@@ -58,4 +63,11 @@ class StepsHistoryViewModel @Inject constructor(
     fun onFilterSelected(filter: StepsHistoryFilter) {
         _uiState.update { it.copy(selectedFilter = filter) }
     }
+
+    private data class DataBundle(
+        val workouts: List<Workout>,
+        val currentSteps: Int,
+        val userProfile: com.saico.core.model.UserProfile?,
+        val unitsConfig: com.saico.core.model.UnitsConfig
+    )
 }

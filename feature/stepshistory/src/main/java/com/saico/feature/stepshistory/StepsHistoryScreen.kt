@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.saico.core.common.util.FitnessCalculator
+import com.saico.core.common.util.UnitsConverter
 import com.saico.core.model.Workout
 import com.saico.core.ui.R
 import com.saico.core.ui.components.FitlogCard
@@ -113,6 +114,13 @@ fun Content(
 
             val chartData = processData(uiState)
 
+            SummaryStatsRow(
+                distance = UnitsConverter.formatDistance(chartData.totalDistanceKm.toDouble(), uiState.unitsConfig),
+                time = formatMinutes(chartData.totalTimeMinutes)
+            )
+
+            Spacer(modifier = Modifier.height(PaddingDim.LARGE))
+
             ChartCard(
                 title = stringResource(id = R.string.steps),
                 data = chartData.stepsData,
@@ -128,6 +136,70 @@ fun Content(
             )
             
             Spacer(modifier = Modifier.height(PaddingDim.MEDIUM))
+        }
+    }
+}
+
+@Composable
+fun SummaryStatsRow(
+    distance: String,
+    time: String
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(PaddingDim.MEDIUM)
+    ) {
+        StatCard(
+            modifier = Modifier.weight(1f),
+            title = stringResource(id = R.string.distance),
+            value = distance,
+            icon = FitlogIcons.Location
+        )
+        StatCard(
+            modifier = Modifier.weight(1f),
+            title = stringResource(id = R.string.time),
+            value = time,
+            icon = FitlogIcons.History
+        )
+    }
+}
+
+@Composable
+fun StatCard(
+    modifier: Modifier = Modifier,
+    title: String,
+    value: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector
+) {
+    FitlogCard(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.large
+    ) {
+        Column(
+            modifier = Modifier.padding(PaddingDim.MEDIUM),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                FitlogIcon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier.width(20.dp),
+                    background = Color.Transparent,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.width(PaddingDim.SMALL))
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                )
+            }
+            Spacer(modifier = Modifier.height(PaddingDim.SMALL))
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }
@@ -247,7 +319,9 @@ fun BarItem(
 
 data class ProcessedChartData(
     val stepsData: List<ChartData>,
-    val caloriesData: List<ChartData>
+    val caloriesData: List<ChartData>,
+    val totalDistanceKm: Float = 0f,
+    val totalTimeMinutes: Int = 0
 )
 
 private fun processData(uiState: StepsHistoryUiState): ProcessedChartData {
@@ -261,6 +335,8 @@ private fun processData(uiState: StepsHistoryUiState): ProcessedChartData {
 private fun processWeekly(uiState: StepsHistoryUiState): ProcessedChartData {
     val steps = mutableListOf<ChartData>()
     val calories = mutableListOf<ChartData>()
+    var totalDistance = 0f
+    var totalTime = 0
     
     val today = Calendar.getInstance()
     val startOfWeek = Calendar.getInstance().apply {
@@ -286,27 +362,43 @@ private fun processWeekly(uiState: StepsHistoryUiState): ProcessedChartData {
                 cal.get(Calendar.YEAR) == today.get(Calendar.YEAR)
         
         val workout = workoutsByDate[dateKey]
-        val stepCount = if (isToday) uiState.currentSteps.toFloat() else (workout?.steps?.toFloat() ?: 0f)
+        val stepCount = if (isToday) uiState.currentSteps else (workout?.steps ?: 0)
         
-        // CORRECCIÓN CALORÍAS: Si es hoy, calculamos en tiempo real con FitnessCalculator
         val calorieCount = if (isToday) {
-            FitnessCalculator.calculateCaloriesBurned(uiState.currentSteps, uiState.userProfile?.weightKg ?: 0.0).toFloat()
+            FitnessCalculator.calculateCaloriesBurned(uiState.currentSteps, uiState.userProfile?.weightKg ?: 0.0)
         } else {
-            workout?.calories?.toFloat() ?: 0f
+            workout?.calories ?: 0
         }
+
+        val distanceKm = if (isToday) {
+            FitnessCalculator.calculateDistanceKm(uiState.currentSteps, uiState.userProfile?.heightCm?.toInt() ?: 170, uiState.userProfile?.gender ?: "male")
+        } else {
+            workout?.distance?.toFloat() ?: 0f
+        }
+
+        val timeMinutes = if (isToday) {
+            FitnessCalculator.calculateActiveTimeMinutes(uiState.currentSteps)
+        } else {
+            FitnessCalculator.calculateActiveTimeMinutes(workout?.steps ?: 0) // Or use workout.time if available
+        }
+
+        totalDistance += distanceKm
+        totalTime += timeMinutes
 
         val label = cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.getDefault()) ?: ""
         
-        steps.add(ChartData(label.take(1), stepCount, isToday))
-        calories.add(ChartData(label.take(1), calorieCount, isToday))
+        steps.add(ChartData(label.take(1), stepCount.toFloat(), isToday))
+        calories.add(ChartData(label.take(1), calorieCount.toFloat(), isToday))
     }
     
-    return ProcessedChartData(steps, calories)
+    return ProcessedChartData(steps, calories, totalDistance, totalTime)
 }
 
 private fun processMonthly(uiState: StepsHistoryUiState): ProcessedChartData {
     val steps = mutableListOf<ChartData>()
     val calories = mutableListOf<ChartData>()
+    var totalDistance = 0f
+    var totalTime = 0
     
     for (i in 3 downTo 0) {
         val startCal = Calendar.getInstance().apply { 
@@ -323,8 +415,10 @@ private fun processMonthly(uiState: StepsHistoryUiState): ProcessedChartData {
         }
 
         val weekWorkouts = uiState.workouts.filter { it.date in startCal.timeInMillis..endCal.timeInMillis }
-        var totalSteps = weekWorkouts.sumOf { it.steps }.toFloat()
-        var totalCalories = weekWorkouts.sumOf { it.calories }.toFloat()
+        var weekSteps = weekWorkouts.sumOf { it.steps }.toFloat()
+        var weekCalories = weekWorkouts.sumOf { it.calories }.toFloat()
+        var weekDistance = weekWorkouts.sumOf { it.distance }.toFloat()
+        var weekTime = weekWorkouts.sumOf { FitnessCalculator.calculateActiveTimeMinutes(it.steps) }
 
         if (i == 0) {
             val todayStart = Calendar.getInstance().apply {
@@ -332,23 +426,29 @@ private fun processMonthly(uiState: StepsHistoryUiState): ProcessedChartData {
                 set(Calendar.MINUTE, 0)
             }.timeInMillis
             
-            // Si hoy no está registrado en los workouts todavía, sumamos los pasos y calorías actuales
             if (uiState.workouts.none { it.date >= todayStart }) {
-                totalSteps += uiState.currentSteps
-                totalCalories += FitnessCalculator.calculateCaloriesBurned(uiState.currentSteps, uiState.userProfile?.weightKg ?: 0.0)
+                weekSteps += uiState.currentSteps
+                weekCalories += FitnessCalculator.calculateCaloriesBurned(uiState.currentSteps, uiState.userProfile?.weightKg ?: 0.0)
+                weekDistance += FitnessCalculator.calculateDistanceKm(uiState.currentSteps, uiState.userProfile?.heightCm?.toInt() ?: 170, uiState.userProfile?.gender ?: "male")
+                weekTime += FitnessCalculator.calculateActiveTimeMinutes(uiState.currentSteps)
             }
         }
 
-        steps.add(ChartData("W${4 - i}", totalSteps, i == 0))
-        calories.add(ChartData("W${4 - i}", totalCalories, i == 0))
+        totalDistance += weekDistance
+        totalTime += weekTime
+
+        steps.add(ChartData("W${4 - i}", weekSteps, i == 0))
+        calories.add(ChartData("W${4 - i}", weekCalories, i == 0))
     }
     
-    return ProcessedChartData(steps, calories)
+    return ProcessedChartData(steps, calories, totalDistance, totalTime)
 }
 
 private fun processYearly(uiState: StepsHistoryUiState): ProcessedChartData {
     val steps = mutableListOf<ChartData>()
     val calories = mutableListOf<ChartData>()
+    var totalDistance = 0f
+    var totalTime = 0
     
     for (i in 11 downTo 0) {
         val cal = Calendar.getInstance().apply { add(Calendar.MONTH, -i) }
@@ -360,8 +460,10 @@ private fun processYearly(uiState: StepsHistoryUiState): ProcessedChartData {
             wCal.get(Calendar.MONTH) == month && wCal.get(Calendar.YEAR) == year
         }
 
-        var totalSteps = monthWorkouts.sumOf { it.steps }.toFloat()
-        var totalCalories = monthWorkouts.sumOf { it.calories }.toFloat()
+        var monthSteps = monthWorkouts.sumOf { it.steps }.toFloat()
+        var monthCalories = monthWorkouts.sumOf { it.calories }.toFloat()
+        var monthDistance = monthWorkouts.sumOf { it.distance }.toFloat()
+        var monthTime = monthWorkouts.sumOf { FitnessCalculator.calculateActiveTimeMinutes(it.steps) }
 
         if (i == 0) {
             val todayStart = Calendar.getInstance().apply {
@@ -370,15 +472,26 @@ private fun processYearly(uiState: StepsHistoryUiState): ProcessedChartData {
             }.timeInMillis
             
             if (uiState.workouts.none { it.date >= todayStart }) {
-                totalSteps += uiState.currentSteps
-                totalCalories += FitnessCalculator.calculateCaloriesBurned(uiState.currentSteps, uiState.userProfile?.weightKg ?: 0.0)
+                monthSteps += uiState.currentSteps
+                monthCalories += FitnessCalculator.calculateCaloriesBurned(uiState.currentSteps, uiState.userProfile?.weightKg ?: 0.0)
+                monthDistance += FitnessCalculator.calculateDistanceKm(uiState.currentSteps, uiState.userProfile?.heightCm?.toInt() ?: 170, uiState.userProfile?.gender ?: "male")
+                monthTime += FitnessCalculator.calculateActiveTimeMinutes(uiState.currentSteps)
             }
         }
 
+        totalDistance += monthDistance
+        totalTime += monthTime
+
         val label = cal.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault()) ?: ""
-        steps.add(ChartData(label.take(1), totalSteps, i == 0))
-        calories.add(ChartData(label.take(1), totalCalories, i == 0))
+        steps.add(ChartData(label.take(1), monthSteps, i == 0))
+        calories.add(ChartData(label.take(1), monthCalories, i == 0))
     }
     
-    return ProcessedChartData(steps, calories)
+    return ProcessedChartData(steps, calories, totalDistance, totalTime)
+}
+
+private fun formatMinutes(minutes: Int): String {
+    val h = minutes / 60
+    val m = minutes % 60
+    return if (h > 0) "${h}h ${m}m" else "${m}m"
 }

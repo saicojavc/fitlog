@@ -52,6 +52,7 @@
     <string name="workout_saved_text">Your workout has been successfully saved.</string>
 
     <string name="elapsed_time">Elapsed Time</string>
+    <string name="time">Time</string>
 
     <string name="km">Km</string>
     <string name="calories">Calories</string>

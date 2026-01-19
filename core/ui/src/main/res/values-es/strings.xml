@@ -46,6 +46,7 @@
     <string name="workout_saved_title">Entrenamiento guardado</string>
     <string name="workout_saved_text">Tu carrera ha sido registrada con éxito.</string>
     <string name="elapsed_time">Tiempo transcurrido</string>
+    <string name="time">Tiempo</string>
 
     <string name="km">Km</string>
     <string name="calories">Calorias</string>
