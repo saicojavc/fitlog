@@ -12,9 +12,8 @@ import com.saico.core.common.util.StepCounterSensor
 import com.saico.core.datastore.UserSettingsDataStore
 import com.saico.core.domain.usecase.gym_exercise.GymUseCase
 import com.saico.core.domain.usecase.workout.WorkoutUseCase
-import com.saico.core.model.GymExercise
-import com.saico.core.model.UnitsConfig
 import com.saico.core.model.UserProfile
+import com.saico.core.model.UnitsConfig
 import com.saico.core.model.WorkoutSession
 import com.saico.core.notification.NotificationHelper
 import com.saico.feature.dashboard.state.DashboardUiState
@@ -152,83 +151,43 @@ class DashboardViewModel @Inject constructor(
     }
 
     private fun <T> filterData(data: List<T>, filter: HistoryFilter, dateSelector: (T) -> Long): List<T> {
-        val now = Calendar.getInstance()
-        val today = now.apply {
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }.timeInMillis
+        val cal = Calendar.getInstance()
+        cal.set(Calendar.HOUR_OF_DAY, 0)
+        cal.set(Calendar.MINUTE, 0)
+        cal.set(Calendar.SECOND, 0)
+        cal.set(Calendar.MILLISECOND, 0)
 
         return when (filter) {
-            HistoryFilter.TODAY -> data.filter { dateSelector(it) >= today }
+            HistoryFilter.TODAY -> {
+                data.filter { dateSelector(it) >= cal.timeInMillis }
+            }
             HistoryFilter.LAST_WEEK -> {
-                val weekAgo = today - (7 * 24 * 60 * 60 * 1000L)
-                data.filter { dateSelector(it) >= weekAgo }
+                cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
+                if (Calendar.getInstance().get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+                    cal.add(Calendar.DAY_OF_YEAR, -7)
+                }
+                data.filter { dateSelector(it) >= cal.timeInMillis }
             }
             HistoryFilter.LAST_MONTH -> {
-                val monthAgo = today - (30 * 24 * 60 * 60 * 1000L)
-                data.filter { dateSelector(it) >= monthAgo }
+                cal.set(Calendar.DAY_OF_MONTH, 1)
+                data.filter { dateSelector(it) >= cal.timeInMillis }
             }
             HistoryFilter.ALL -> data
         }
     }
 
     private fun initStepCounter() {
-        if (!stepCounterSensor.isSensorAvailable()) {
-            return
-        }
+        if (!stepCounterSensor.isSensorAvailable()) return
 
         viewModelScope.launch {
             combine(
                 stepCounterSensor.steps,
-                stepCounterDataStore.stepOffset,
-                stepCounterDataStore.lastResetDate
-            ) { totalStepsSinceReboot, offset, lastResetDate ->
-
-                if (stepCounterDataStore.isNewDay(lastResetDate)) {
-                    savePreviousDayWorkout(offset, totalStepsSinceReboot, lastResetDate)
-                    stepCounterDataStore.saveStepCounterData(totalStepsSinceReboot)
-                    Triple(0, totalStepsSinceReboot, totalStepsSinceReboot)
-                } else {
-                    val dailySteps = (totalStepsSinceReboot - offset).coerceAtLeast(0)
-                    Triple(dailySteps, totalStepsSinceReboot, offset)
-                }
-
-            }.collect { (daily, total, offsetValue) ->
-                _uiState.update {
-                    it.copy(
-                        dailySteps = daily,
-                        totalSteps = total,
-                        stepOffset = offsetValue
-                    )
-                }
+                stepCounterDataStore.stepOffset
+            ) { totalStepsSinceReboot, offset ->
+                (totalStepsSinceReboot - offset).coerceAtLeast(0)
+            }.collect { dailySteps ->
+                _uiState.update { it.copy(dailySteps = dailySteps) }
             }
         }
-    }
-
-    private suspend fun savePreviousDayWorkout(previousOffset: Int, currentSensorValue: Int, previousDayDate: Long) {
-        val yesterdaySteps = currentSensorValue - previousOffset
-        if (yesterdaySteps <= 0) return
-
-        val userProfile = _uiState.value.userProfile ?: userProfileUseCase.getUserProfileUseCase().first()
-
-        val calories = FitnessCalculator.calculateCaloriesBurned(yesterdaySteps, userProfile?.weightKg ?: 0.0)
-        val distance = FitnessCalculator.calculateDistanceKm(yesterdaySteps, userProfile?.heightCm?.toInt() ?: 0, userProfile?.gender ?: "")
-        val activeTime = FitnessCalculator.calculateActiveTimeMinutes(yesterdaySteps)
-
-        val calendar = Calendar.getInstance().apply { timeInMillis = previousDayDate }
-        val dayOfWeek = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.getDefault()) ?: ""
-
-        val workout = Workout(
-            steps = yesterdaySteps,
-            calories = calories,
-            distance = distance.toDouble(),
-            time = Time(activeTime * 60 * 1000L),
-            date = previousDayDate,
-            dayOfWeek = dayOfWeek
-        )
-
-        workoutUseCase.insertWorkoutUseCase(workout)
     }
 }
