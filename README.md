@@ -12,6 +12,13 @@ Track your daily steps, log outdoor activities with GPS, record gym sessions man
 Personalized setup with age, weight, height, gender, and daily goals (steps & calories).  
 Uses Mifflin-St Jeor formula for accurate BMR-based calorie estimation.
 
+Here are some clean onboarding flows similar to FitLog's style:
+
+![Onboarding 1](https://res.cloudinary.com/ds4ko1uws/image/upload/v1768878936/dashboard1_dr6csw.jpg)  
+
+![Onboarding 2](https://res.cloudinary.com/ds4ko1uws/image/upload/v1768878936/daschboard2_fraui1.jpg)
+
+![Onboarding 3](https://res.cloudinary.com/ds4ko1uws/image/upload/v1768878936/dashboard3_cdqmff.jpg)
 
 
 ### Dashboard (Home Screen)
@@ -21,6 +28,8 @@ Real-time overview of:
 - Approximate distance
 - Progress rings & simple weekly charts
 
+  ![Dashboard HomeScreen](https://res.cloudinary.com/ds4ko1uws/image/upload/v1768879212/HomeScreen_xvkgru.jpg)
+
 
 
 ### Outdoor Activity Tracking
@@ -29,6 +38,7 @@ Real-time GPS tracking for walking, running, or cycling:
 - Live timer, distance, pace, calories
 - Automatic save to history
 
+ ![Workout](https://res.cloudinary.com/ds4ko1uws/image/upload/v1768879315/Workout_cs4tyw.jpg)
 
 ### Gym / Strength Training Log
 Manual entry of workouts:
@@ -36,18 +46,23 @@ Manual entry of workouts:
 - Track sets, reps, weight
 - Grouped by muscle or custom name
 
+  ![Gym Work](https://res.cloudinary.com/ds4ko1uws/image/upload/v1768879417/GymWork_cifz9n.jpg)
+
 ### History & Progress
 Filter sessions by:
 - Day / Week / Month / All time
 - Detailed expandable cards
 - **Export current filtered view as PDF** (via FAB)
 
+![History](https://res.cloudinary.com/ds4ko1uws/image/upload/v1768879481/History_bz6uik.jpg)
 
 ### Settings & Personalization
 - Theme: Light / Dark / System
 - Language: English / Español
 - Units: Metric (km/kg/cm) ↔ Imperial (mi/lb/ft-in) with live conversion
 - Motivational notifications toggle + daily reminder time
+
+  ![History](https://res.cloudinary.com/ds4ko1uws/image/upload/v1768879597/settings_yuqxsi.jpg)
 
 ### Motivational Notifications (Local)
 - Daily morning encouragement
