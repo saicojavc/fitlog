@@ -50,7 +50,6 @@ fun HistoryWorkScreen(
         listOf(LightPrimary, LightSuccess, LightBackground)
     }
 
-
     Scaffold(
         modifier = Modifier.background(Brush.verticalGradient(gradientColors)),
         floatingActionButton = {
@@ -66,7 +65,9 @@ fun HistoryWorkScreen(
             }
         }
     ) { padding ->
-        Box(modifier = Modifier.background(Brush.verticalGradient(gradientColors)).padding(padding)) {
+        Box(modifier = Modifier
+            .background(Brush.verticalGradient(gradientColors))
+            .padding(padding)) {
             HistoryContent(
                 uiState = uiState,
                 units = units,
@@ -314,7 +315,7 @@ fun GymExerciseCard(gymExercise: GymExercise, units: UnitsConfig) {
 
             AnimatedVisibility(visible = expanded) {
                 Column(modifier = Modifier.padding(top = PaddingDim.MEDIUM)) {
-                    Divider(modifier = Modifier.padding(vertical = PaddingDim.SMALL))
+                    HorizontalDivider(modifier = Modifier.padding(vertical = PaddingDim.SMALL))
                     gymExercise.exercises.forEach { exercise ->
                         Row(
                             modifier = Modifier
@@ -379,23 +380,30 @@ sealed class HistoryItem(val date: Long) {
 }
 
 private fun <T> filterData(data: List<T>, filter: HistoryFilter, dateSelector: (T) -> Long): List<T> {
-    val now = Calendar.getInstance()
-    val today = now.apply {
-        set(Calendar.HOUR_OF_DAY, 0)
-        set(Calendar.MINUTE, 0)
-        set(Calendar.SECOND, 0)
-        set(Calendar.MILLISECOND, 0)
-    }.timeInMillis
+    val cal = Calendar.getInstance()
+    // Resetear a 00:00:00.000 de hoy
+    cal.set(Calendar.HOUR_OF_DAY, 0)
+    cal.set(Calendar.MINUTE, 0)
+    cal.set(Calendar.SECOND, 0)
+    cal.set(Calendar.MILLISECOND, 0)
 
     return when (filter) {
-        HistoryFilter.TODAY -> data.filter { dateSelector(it) >= today }
+        HistoryFilter.TODAY -> {
+            data.filter { dateSelector(it) >= cal.timeInMillis }
+        }
         HistoryFilter.LAST_WEEK -> {
-            val weekAgo = today - (7 * 24 * 60 * 60 * 1000L)
-            data.filter { dateSelector(it) >= weekAgo }
+            // Ajustar al lunes de la semana actual
+            cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
+            // Si hoy es domingo, retroceder 7 días para estar en la semana que acaba
+            if (Calendar.getInstance().get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+                cal.add(Calendar.DAY_OF_YEAR, -7)
+            }
+            data.filter { dateSelector(it) >= cal.timeInMillis }
         }
         HistoryFilter.LAST_MONTH -> {
-            val monthAgo = today - (30 * 24 * 60 * 60 * 1000L)
-            data.filter { dateSelector(it) >= monthAgo }
+            // Ajustar al día 1 del mes actual
+            cal.set(Calendar.DAY_OF_MONTH, 1)
+            data.filter { dateSelector(it) >= cal.timeInMillis }
         }
         HistoryFilter.ALL -> data
     }
