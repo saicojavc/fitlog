@@ -321,10 +321,21 @@ fun GymExerciseCard(gymExercise: GymExercise, units: UnitsConfig) {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 4.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(text = exercise.name, fontWeight = FontWeight.Medium)
-                            Text(text = "${exercise.sets}x${exercise.reps} - ${UnitsConverter.formatWeight(exercise.weightKg, units)}")
+                            // Nombre del ejercicio con peso para permitir salto de línea
+                            Text(
+                                text = exercise.name, 
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Spacer(modifier = Modifier.width(PaddingDim.MEDIUM))
+                            // Detalles técnicos alineados a la derecha
+                            Text(
+                                text = "${exercise.sets}x${exercise.reps} - ${UnitsConverter.formatWeight(exercise.weightKg, units)}",
+                                style = MaterialTheme.typography.bodySmall
+                            )
                         }
                     }
                 }
