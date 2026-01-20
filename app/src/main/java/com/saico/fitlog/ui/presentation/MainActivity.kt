@@ -3,6 +3,7 @@ package com.saico.fitlog.ui.presentation
 import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
@@ -21,6 +22,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
@@ -61,44 +63,63 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         
-        startStepCounterService()
-
         setContent {
             val userData by viewModel.userData.collectAsState()
             
-            // Permisos de Notificaciones en Android 13+
+            // Launcher para múltiples permisos necesarios para el servicio de salud
             val permissionLauncher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.RequestPermission()
-            ) { isGranted ->
-                if (isGranted) {
+                contract = ActivityResultContracts.RequestMultiplePermissions()
+            ) { permissions ->
+                val activityRecognized = permissions[Manifest.permission.ACTIVITY_RECOGNITION] ?: true
+                val notificationsGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    permissions[Manifest.permission.POST_NOTIFICATIONS] ?: false
+                } else true
+
+                if (activityRecognized) {
+                    startStepCounterService()
+                }
+                
+                if (notificationsGranted) {
                     userData?.let { scheduleInitialNotifications(it.workoutReminderHour, it.workoutReminderMinute) }
                 }
             }
 
             LaunchedEffect(Unit) {
+                val permissionsToRequest = mutableListOf<String>()
+                
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    if (ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
+                        permissionsToRequest.add(Manifest.permission.ACTIVITY_RECOGNITION)
+                    } else {
+                        // Si ya tenemos el permiso, iniciamos el servicio
+                        startStepCounterService()
+                    }
+                } else {
+                    // En versiones antiguas no se requiere permiso en runtime
+                    startStepCounterService()
+                }
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    if (ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                        permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
+                    }
+                }
+
+                if (permissionsToRequest.isNotEmpty()) {
+                    permissionLauncher.launch(permissionsToRequest.toTypedArray())
                 } else {
                     userData?.let { scheduleInitialNotifications(it.workoutReminderHour, it.workoutReminderMinute) }
                 }
             }
 
-            // Reprogramar si el usuario cambia la hora del recordatorio de entrenamiento
-            LaunchedEffect(userData?.workoutReminderHour, userData?.workoutReminderMinute) {
-                userData?.let {
-                    scheduleInitialNotifications(it.workoutReminderHour, it.workoutReminderMinute)
-                }
-            }
-
+            // ... resto del código del tema e idioma ...
             val darkTheme = when (userData?.darkThemeConfig) {
                 DarkThemeConfig.LIGHT -> false
                 DarkThemeConfig.DARK -> true
                 else -> isSystemInDarkTheme()
             }
-
             val dynamicColor = userData?.useDynamicColor ?: false
 
-            // Aplicar Idioma
             LaunchedEffect(userData?.languageConfig) {
                 userData?.languageConfig?.let { config ->
                     val locale = when (config) {
@@ -110,10 +131,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            FitlogTheme(
-                darkTheme = darkTheme,
-                dynamicColor = dynamicColor
-            ) {
+            FitlogTheme(darkTheme = darkTheme, dynamicColor = dynamicColor) {
                 val navController = rememberNavController()
                 Surface(modifier = Modifier.fillMaxSize()) {
                     if (viewModel.isLoading) {
@@ -131,6 +149,13 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun startStepCounterService() {
+        // Doble verificación de seguridad para evitar crashes en Android 14+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
+                return
+            }
+        }
+
         val intent = Intent(this, StepCounterService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(intent)
@@ -140,13 +165,8 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun scheduleInitialNotifications(reminderHour: Int, reminderMinute: Int) {
-        // Motivación diaria fija a las 8:30 AM
         notificationScheduler.scheduleDailyMotivationalNotification()
-        
-        // Recordatorio de entrenamiento configurable por el usuario
         notificationScheduler.scheduleWorkoutReminder(hour = reminderHour, minute = reminderMinute)
-        
-        // Resumen nocturno a las 9:00 PM
         notificationScheduler.scheduleDailySummaryNotification(hour = 21, minute = 0)
     }
 
@@ -176,7 +196,6 @@ private fun MainContainer(
             gymWorkGraph(navController = navController)
             settingGraph(navController = navController)
             stepsHistoryGraph(navController = navController)
-
         }
     }
 }

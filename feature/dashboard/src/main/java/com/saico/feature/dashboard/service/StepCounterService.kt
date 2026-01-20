@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
@@ -90,7 +91,11 @@ class StepCounterService : Service() {
             .setContentIntent(pendingIntent)
             .build()
 
-        startForeground(1, notification)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startForeground(1, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH)
+        } else {
+            startForeground(1, notification)
+        }
     }
 
     private fun observeSteps() {
@@ -100,7 +105,6 @@ class StepCounterService : Service() {
                 stepCounterDataStore.stepOffset,
                 stepCounterDataStore.lastResetDate
             ) { totalStepsSinceReboot, offset, lastResetDate ->
-                // Lógica de cálculo de pasos diarios
                 if (stepCounterDataStore.isNewDay(lastResetDate)) {
                     savePreviousDayWorkout(offset, totalStepsSinceReboot, lastResetDate)
                     stepCounterDataStore.saveStepCounterData(totalStepsSinceReboot)
@@ -109,10 +113,7 @@ class StepCounterService : Service() {
                     (totalStepsSinceReboot - offset).coerceAtLeast(0)
                 }
             }.collect { dailySteps ->
-                // 1. Guardamos pasos para el resumen nocturno
                 stepCounterDataStore.updateCurrentSteps(dailySteps)
-
-                // 2. Comprobamos metas de progreso (50% y 100%)
                 checkProgressNotifications(dailySteps)
             }
         }

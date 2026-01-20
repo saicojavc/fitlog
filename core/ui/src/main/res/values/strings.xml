@@ -35,6 +35,8 @@
     <string name="times_a_week">3x a week</string>
     <string name="level">Level</string>
     <string name="beginner">Beginner</string>
+    <string name="intermediate">Intermediate</string>
+    <string name="professional">Professional</string>
     <string name="next">Next</string>
     <string name="save_and_continue">Save and continue</string>
 

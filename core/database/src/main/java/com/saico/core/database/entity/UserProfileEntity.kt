@@ -17,4 +17,5 @@ class UserProfileEntity(
     val gender: String,
     val dailyStepsGoal: Int = 10000,
     val dailyCaloriesGoal: Int = 500,
+    val level: String = "Beginner"
 ) : Parcelable
