@@ -4,7 +4,7 @@
 
 Track your daily steps, log outdoor activities, record gym sessions manually, monitor progress, and stay motivated with gentle daily notifications.
 
-**Current date reference**: Built and analyzed as of January 2026.
+
 
 ## Features
 
