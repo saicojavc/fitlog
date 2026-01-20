@@ -2,7 +2,7 @@
 
 **FitLog** is a lightweight, **offline-first** Android fitness tracking app built with modern Kotlin and Jetpack Compose. Designed specifically for people just starting their fitness journey (gym workouts, walking, and running), it focuses on simplicity, motivation, and privacy — no ads, no accounts, no internet required.
 
-Track your daily steps, log outdoor activities with GPS, record gym sessions manually, monitor progress, and stay motivated with gentle daily notifications.
+Track your daily steps, log outdoor activities, record gym sessions manually, monitor progress, and stay motivated with gentle daily notifications.
 
 **Current date reference**: Built and analyzed as of January 2026.
 
