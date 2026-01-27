@@ -22,7 +22,7 @@ import com.saico.core.common.util.UnitsConverter
 import com.saico.core.model.UnitsConfig
 import com.saico.core.model.UserProfile
 import com.saico.core.ui.R
-import com.saico.core.ui.components.CrmAlertDialog
+import com.saico.core.ui.components.FitlogAlertDialog
 import com.saico.core.ui.components.FitlogButton
 import com.saico.core.ui.components.FitlogCard
 import com.saico.core.ui.components.FitlogIcon
@@ -75,7 +75,7 @@ fun ProfileContent(
     }
 
     if (showConfirmDialog) {
-        CrmAlertDialog(
+        FitlogAlertDialog(
             onDismissRequest = { showConfirmDialog = false },
             title = { FitlogText(text = stringResource(id = R.string.update_profile_title)) },
             text = { FitlogText(text = stringResource(id = R.string.update_profile_message)) },
