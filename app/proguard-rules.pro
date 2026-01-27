@@ -1,21 +1,61 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# --- Reglas Base de Android y Kotlin ---
+-keepattributes SourceFile,LineNumberTable,Signature,InnerClasses,EnclosingMethod,*Annotation*
+-dontwarn javax.annotation.**
+-dontwarn org.jetbrains.annotations.**
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# --- Jetpack Compose ---
+-keep class androidx.compose.material3.** { *; }
+-keep class androidx.compose.ui.platform.** { *; }
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# --- Kotlin Coroutines ---
+-keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
+-keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
+-keepnames class kotlinx.coroutines.android.AndroidDispatcherFactory {}
+-keep class kotlinx.coroutines.android.AndroidExceptionPreHandler {
+    <init>(...);
+}
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# --- Dagger Hilt ---
+-keep class com.saico.** { *; }
+-keep class dagger.hilt.android.internal.managers.** { *; }
+-keep @dagger.hilt.android.lifecycle.HiltViewModel class * extends androidx.lifecycle.ViewModel
+-keep class * extends androidx.lifecycle.ViewModel {
+    <init>(...);
+}
+
+# --- Room Database ---
+#-keep class * extends androidx.room.Database
+#-keep class * extends androidx.room.Entity
+#-keep interface * extends androidx.room.Dao
+-dontwarn androidx.room.paging.**
+
+# --- DataStore / Moshi / Serialization ---
+# Si usas Moshi para JSON en DataStore
+-keep class com.squareup.moshi.** { *; }
+-keepnames class com.saico.core.model.** { *; }
+-keep class com.saico.core.model.** { *; }
+-keepclassmembers class com.saico.core.model.** {
+    <fields>;
+    <init>(...);
+}
+
+# --- Firebase ---
+-keep class com.google.firebase.** { *; }
+-dontwarn com.google.firebase.**
+-keep class com.google.android.gms.** { *; }
+-dontwarn com.google.android.gms.**
+
+# --- Reglas Específicas del Proyecto Fitlog ---
+# Mantener clases de dominio y modelos para evitar fallos en persistencia/mapping
+-keep class com.saico.core.model.** { *; }
+-keep class com.saico.core.database.entity.** { *; }
+-keep class com.saico.core.database.dao.** { *; }
+
+# Optimización: eliminar logs en release si usas android.util.Log
+-assumenosideeffects class android.util.Log {
+    public static int v(...);
+    public static int d(...);
+    public static int i(...);
+    public static int w(...);
+    public static int e(...);
+}
