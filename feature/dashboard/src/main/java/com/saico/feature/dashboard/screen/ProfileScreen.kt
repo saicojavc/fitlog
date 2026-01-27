@@ -1,4 +1,4 @@
-package com.saico.feature.dashboard.components
+package com.saico.feature.dashboard.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

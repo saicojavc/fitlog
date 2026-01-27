@@ -1,4 +1,4 @@
-package com.saico.feature.dashboard.components
+package com.saico.feature.dashboard.screen
 
 import android.text.format.DateUtils
 import androidx.compose.animation.AnimatedVisibility

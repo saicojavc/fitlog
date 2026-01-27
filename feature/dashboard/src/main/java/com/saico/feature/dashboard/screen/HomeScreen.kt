@@ -1,4 +1,4 @@
-package com.saico.feature.dashboard.components
+package com.saico.feature.dashboard.screen
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -6,6 +6,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import com.saico.feature.dashboard.components.RegisterWork
+import com.saico.feature.dashboard.components.StepsDailyCard
+import com.saico.feature.dashboard.components.WeeklyActivityCard
 import com.saico.feature.dashboard.state.DashboardUiState
 
 @Composable
