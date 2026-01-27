@@ -1,11 +1,14 @@
 package com.saico.core.ui.components
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
@@ -24,12 +27,12 @@ import com.saico.core.ui.theme.FitlogTheme
 @Composable
 fun FitlogNavigationBar(
     modifier: Modifier = Modifier,
-    containerColor: Color = BottomAppBarDefaults.containerColor,
+    containerColor: Color = if (isSystemInDarkTheme()) Color.Black.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surface,
     contentColor: Color = contentColorFor(containerColor),
     tonalElevation: Dp = BottomAppBarDefaults.ContainerElevation,
     content: @Composable RowScope.() -> Unit,
 ) {
-    NavigationBar(
+    FitlogBottomAppBar(
         modifier = modifier,
         containerColor = containerColor,
         contentColor = contentColor,
@@ -41,7 +44,7 @@ fun FitlogNavigationBar(
 @Composable
 fun FitlogBottomAppBar(
     modifier: Modifier = Modifier,
-    containerColor: Color = BottomAppBarDefaults.containerColor,
+    containerColor: Color = if (isSystemInDarkTheme()) Color.Black.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surface,
     contentColor: Color = contentColorFor(containerColor),
     tonalElevation: Dp = BottomAppBarDefaults.ContainerElevation,
     content: @Composable RowScope.() -> Unit,
@@ -73,6 +76,9 @@ fun RowScope.FitlogNavigationBarItem(
         enabled = enabled,
         label = label,
         alwaysShowLabel = alwaysShowLabel,
+        colors = NavigationBarItemDefaults.colors(
+            indicatorColor = if (isSystemInDarkTheme()) Color.Black.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surface
+        )
     )
 }
 

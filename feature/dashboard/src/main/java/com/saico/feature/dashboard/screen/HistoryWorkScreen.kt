@@ -254,6 +254,10 @@ fun FilterRow(
                 modifier = Modifier.padding(horizontal = 4.dp),
                 selected = selectedFilter == filter,
                 onClick = { onFilterSelected(filter) },
+                colors = FilterChipDefaults.filterChipColors(
+                    containerColor = if (isSystemInDarkTheme()) Color.Black.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surface,
+                    selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                ),
                 label = {
                     FitlogText(
                         text = when (filter) {
@@ -279,7 +283,7 @@ fun GymExerciseCard(gymExercise: GymExercise, units: UnitsConfig) {
             .fillMaxWidth()
             .clickable { expanded = !expanded },
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+        colors = CardDefaults.cardColors(containerColor = if (isSystemInDarkTheme()) Color.Black.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
     ) {
         Column(modifier = Modifier.padding(PaddingDim.MEDIUM)) {
             Row(
@@ -353,7 +357,7 @@ fun WorkoutSessionCard(session: WorkoutSession, units: UnitsConfig) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f))
+        colors = CardDefaults.cardColors(containerColor = if (isSystemInDarkTheme()) Color.Black.copy(alpha = 0.3f) else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f))
     ) {
         Column(modifier = Modifier.padding(PaddingDim.MEDIUM)) {
             Text(
