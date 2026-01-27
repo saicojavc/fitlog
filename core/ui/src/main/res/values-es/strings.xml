@@ -54,7 +54,7 @@
     <string name="calories">Calorias</string>
     <string name="average_pace">Ritmo medio (Km/h)</string>
 
-    <string name="register_session">Registrar secion</string>
+    <string name="register_session">Registrar sesión</string>
 
     <!-- History Filters -->
     <string name="today">Hoy</string>
@@ -149,4 +149,22 @@
     <string name="weekly">Semanal</string>
     <string name="monthly">Mensual</string>
     <string name="yearly">Anual</string>
+
+    <!-- GymWork -->
+    <string name="gym">Gimnasio</string>
+    <string name="exercises">Ejercicios</string>
+    <string name="add_exercise">Agregar Ejercicio</string>
+    <string name="edit_exercise">Editar Ejercicio</string>
+    <string name="exercise_name">Nombre del ejercicio</string>
+    <string name="sets">Series</string>
+    <string name="reps">Reps</string>
+    <string name="weight_lb">Peso (Lb)</string>
+    <string name="add">Agregar</string>
+    <string name="update">Actualizar</string>
+    <string name="delete">Eliminar</string>
+    <string name="edit">Editar</string>
+    <string name="save_session">Guardar sesión</string>
+    <string name="total_time">Tiempo total</string>
+    <string name="expand">Expandir</string>
+    <string name="collapse">Contraer</string>
 </resources>

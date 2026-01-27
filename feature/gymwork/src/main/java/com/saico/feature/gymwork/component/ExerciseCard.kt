@@ -18,8 +18,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.saico.core.ui.R
 import com.saico.core.ui.components.FitlogCard
 import com.saico.core.ui.components.FitlogIcon
 import com.saico.core.ui.components.FitlogTextButtonBorder
@@ -58,14 +60,14 @@ fun ExerciseCard(
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "${exercise.sets} series",
+                        text = "${exercise.sets} ${stringResource(id = R.string.sets).lowercase()}",
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
                 IconButton(onClick = onToggleExpansion) {
                     Icon(
                         imageVector = if (exercise.isExpanded) FitlogIcons.ArrowUp else FitlogIcons.ArrowDown,
-                        contentDescription = if (exercise.isExpanded) "Contraer" else "Expandir"
+                        contentDescription = if (exercise.isExpanded) stringResource(id = R.string.collapse) else stringResource(id = R.string.expand)
                     )
                 }
             }
@@ -77,9 +79,9 @@ fun ExerciseCard(
                         modifier = Modifier.fillMaxWidth().padding(PaddingDim.SMALL),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        StatItem(label = "Peso", value = "${exercise.weightLb} Lb")
-                        StatItem(label = "Reps", value = "${exercise.reps}")
-                        StatItem(label = "Series", value = "${exercise.sets}")
+                        StatItem(label = stringResource(id = R.string.weight), value = "${exercise.weightLb} Lb")
+                        StatItem(label = stringResource(id = R.string.reps), value = "${exercise.reps}")
+                        StatItem(label = stringResource(id = R.string.sets), value = "${exercise.sets}")
                     }
                     Spacer(modifier = Modifier.height(PaddingDim.MEDIUM))
                     Row(
@@ -90,26 +92,26 @@ fun ExerciseCard(
                         FitlogTextButtonBorder(
                             modifier = Modifier.fillMaxWidth().weight(1f),
                             textButtonStyle = TextButtonStyle.DISMISS,
-                            label = "Eliminar",
+                            label = stringResource(id = R.string.delete),
                             onClick = onRemove,
                             content = {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(imageVector = FitlogIcons.Delete, contentDescription = null)
                                     Spacer(modifier = Modifier.width(PaddingDim.VERY_SMALL))
-                                    Text(text = "Eliminar")
+                                    Text(text = stringResource(id = R.string.delete))
                                 }
                             }
                         )
                         Spacer(modifier = Modifier.width(PaddingDim.SMALL))
                         FitlogTextButtonBorder(
                             modifier = Modifier.fillMaxWidth().weight(1f),
-                            label = "Editar",
+                            label = stringResource(id = R.string.edit),
                             onClick = onEdit,
                             content = {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(imageVector = FitlogIcons.Edit, contentDescription = null)
                                     Spacer(modifier = Modifier.width(PaddingDim.VERY_SMALL))
-                                    Text(text = "Editar")
+                                    Text(text = stringResource(id = R.string.edit))
                                 }
                             }
                         )

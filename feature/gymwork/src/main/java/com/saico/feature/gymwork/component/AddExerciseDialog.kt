@@ -19,9 +19,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.window.Dialog
+import com.saico.core.ui.R
 import com.saico.core.ui.theme.PaddingDim
 import com.saico.feature.gymwork.state.GymExerciseItem
 
@@ -49,7 +51,7 @@ fun AddExerciseDialog(
                 verticalArrangement = Arrangement.spacedBy(PaddingDim.SMALL)
             ) {
                 Text(
-                    text = if (initialExercise == null) "Agregar Ejercicio" else "Editar Ejercicio",
+                    text = if (initialExercise == null) stringResource(id = R.string.add_exercise) else stringResource(id = R.string.edit_exercise),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -59,7 +61,7 @@ fun AddExerciseDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Nombre del ejercicio") },
+                    label = { Text(stringResource(id = R.string.exercise_name)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
@@ -71,7 +73,7 @@ fun AddExerciseDialog(
                     OutlinedTextField(
                         value = sets,
                         onValueChange = { if (it.all { char -> char.isDigit() }) sets = it },
-                        label = { Text("Series") },
+                        label = { Text(stringResource(id = R.string.sets)) },
                         modifier = Modifier.weight(1f),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true
@@ -79,7 +81,7 @@ fun AddExerciseDialog(
                     OutlinedTextField(
                         value = reps,
                         onValueChange = { if (it.all { char -> char.isDigit() }) reps = it },
-                        label = { Text("Reps") },
+                        label = { Text(stringResource(id = R.string.reps)) },
                         modifier = Modifier.weight(1f),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true
@@ -89,7 +91,7 @@ fun AddExerciseDialog(
                 OutlinedTextField(
                     value = weight,
                     onValueChange = { weight = it },
-                    label = { Text("Peso (Lb)") },
+                    label = { Text(stringResource(id = R.string.weight_lb)) },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true
@@ -102,7 +104,7 @@ fun AddExerciseDialog(
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = onDismiss) {
-                        Text("Cancelar")
+                        Text(stringResource(id = R.string.cancel))
                     }
                     TextButton(
                         onClick = { 
@@ -112,7 +114,7 @@ fun AddExerciseDialog(
                         },
                         enabled = name.isNotBlank() && sets.isNotBlank() && reps.isNotBlank()
                     ) {
-                        Text(if (initialExercise == null) "Agregar" else "Actualizar")
+                        Text(if (initialExercise == null) stringResource(id = R.string.add) else stringResource(id = R.string.update))
                     }
                 }
             }

@@ -159,4 +159,22 @@
     <string name="weekly">Weekly</string>
     <string name="monthly">Monthly</string>
     <string name="yearly">Yearly</string>
+
+    <!-- GymWork -->
+    <string name="gym">Gym</string>
+    <string name="exercises">Exercises</string>
+    <string name="add_exercise">Add Exercise</string>
+    <string name="edit_exercise">Edit Exercise</string>
+    <string name="exercise_name">Exercise Name</string>
+    <string name="sets">Sets</string>
+    <string name="reps">Reps</string>
+    <string name="weight_lb">Weight (Lb)</string>
+    <string name="add">Add</string>
+    <string name="update">Update</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="save_session">Save Session</string>
+    <string name="total_time">Total Time</string>
+    <string name="expand">Expand</string>
+    <string name="collapse">Collapse</string>
 </resources>

@@ -15,7 +15,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import com.saico.core.ui.R
 import com.saico.core.ui.components.FitlogButton
 import com.saico.core.ui.icon.FitlogIcons
 import com.saico.core.ui.theme.LightSuccess
@@ -40,7 +42,7 @@ fun GymBottomBar(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
-                Text(text = "Tiempo total", style = MaterialTheme.typography.labelSmall)
+                Text(text = stringResource(id = R.string.total_time), style = MaterialTheme.typography.labelSmall)
                 Text(
                     text = formatElapsedTime(uiState.elapsedTime),
                     style = MaterialTheme.typography.titleMedium,
@@ -52,7 +54,7 @@ fun GymBottomBar(
                     horizontalAlignment = Alignment.End,
                     modifier = Modifier.padding(end = PaddingDim.MEDIUM)
                 ) {
-                    Text(text = "Calorías", style = MaterialTheme.typography.labelSmall)
+                    Text(text = stringResource(id = R.string.calories), style = MaterialTheme.typography.labelSmall)
                     Text(
                         text = "${uiState.totalCalories} kcal",
                         style = MaterialTheme.typography.titleMedium,
@@ -76,13 +78,11 @@ fun GymBottomBar(
                     Color.Transparent,
                     Color.Transparent
                 ),
-//                        label = "Guardar sesión",
                 onClick = onSaveSession,
-//                        icon = FitlogIcons.Save
                 content = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(imageVector = FitlogIcons.Save, contentDescription = null)
-                        Text(text = "Guardar sesión")
+                        Text(text = stringResource(id = R.string.save_session))
                     }
 
                 },

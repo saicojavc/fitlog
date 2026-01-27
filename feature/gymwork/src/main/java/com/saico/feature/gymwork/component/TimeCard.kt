@@ -16,7 +16,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import com.saico.core.ui.R
 import com.saico.core.ui.components.FitlogCard
 import com.saico.core.ui.components.FitlogIcon
 import com.saico.core.ui.icon.FitlogIcons
@@ -41,7 +43,7 @@ fun TimeCard(uiState: GymWorkUiState, onToggleTimer: () -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = "Tiempo transcurrido",
+                    text = stringResource(id = R.string.elapsed_time),
                     style = MaterialTheme.typography.titleSmall
                 )
                 Text(
@@ -59,7 +61,7 @@ fun TimeCard(uiState: GymWorkUiState, onToggleTimer: () -> Unit) {
             ) {
                 FitlogIcon(
                     imageVector = if (uiState.isTimerRunning) FitlogIcons.Stop else FitlogIcons.Play,
-                    contentDescription = null, // La función del botón es visual
+                    contentDescription = null,
                     tint = Color.White,
                     background = Color.Transparent
                 )

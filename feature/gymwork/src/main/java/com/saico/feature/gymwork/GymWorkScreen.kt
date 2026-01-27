@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -122,7 +123,7 @@ fun Content(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             FitlogTopAppBar(
-                title = "Gimnasio",
+                title = stringResource(id = R.string.gym),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = if (isSystemInDarkTheme()) Color.Black.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surface
                 ),
@@ -143,7 +144,7 @@ fun Content(
                 contentColor = MaterialTheme.colorScheme.onPrimary,
                 shape = CircleShape
             ) {
-                Icon(imageVector = FitlogIcons.Add, contentDescription = "Agregar ejercicio")
+                Icon(imageVector = FitlogIcons.Add, contentDescription = stringResource(id = R.string.add_exercise))
             }
         },
         bottomBar = {
@@ -170,7 +171,7 @@ fun Content(
 
             item {
                 Text(
-                    text = "Ejercicios",
+                    text = stringResource(id = R.string.exercises),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(vertical = PaddingDim.SMALL)
