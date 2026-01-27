@@ -235,28 +235,28 @@ fun SettingsContent(
     HorizontalDivider(modifier = Modifier.padding(vertical = PaddingDim.MEDIUM))
 
     // Color Dinámico
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            FitlogText(
-                text = stringResource(id = R.string.dynamic_color),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-            FitlogText(
-                text = stringResource(id = R.string.dynamic_color_desc),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        Switch(
-            checked = settings.useDynamicColor,
-            onCheckedChange = onDynamicColorChange
-        )
-    }
+//    Row(
+//        modifier = Modifier.fillMaxWidth(),
+//        verticalAlignment = Alignment.CenterVertically,
+//        horizontalArrangement = Arrangement.SpaceBetween
+//    ) {
+//        Column(modifier = Modifier.weight(1f)) {
+//            FitlogText(
+//                text = stringResource(id = R.string.dynamic_color),
+//                style = MaterialTheme.typography.titleMedium,
+//                fontWeight = FontWeight.Bold
+//            )
+//            FitlogText(
+//                text = stringResource(id = R.string.dynamic_color_desc),
+//                style = MaterialTheme.typography.bodySmall,
+//                color = MaterialTheme.colorScheme.onSurfaceVariant
+//            )
+//        }
+//        Switch(
+//            checked = settings.useDynamicColor,
+//            onCheckedChange = onDynamicColorChange
+//        )
+//    }
 }
 
 @Composable
