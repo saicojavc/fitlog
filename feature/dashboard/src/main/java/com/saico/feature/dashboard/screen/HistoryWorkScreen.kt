@@ -1,4 +1,4 @@
-package com.saico.feature.dashboard.components
+package com.saico.feature.dashboard.screen
 
 import android.text.format.DateUtils
 import androidx.compose.animation.AnimatedVisibility
@@ -50,7 +50,6 @@ fun HistoryWorkScreen(
         listOf(LightPrimary, LightSuccess, LightBackground)
     }
 
-
     Scaffold(
         modifier = Modifier.background(Brush.verticalGradient(gradientColors)),
         floatingActionButton = {
@@ -66,7 +65,9 @@ fun HistoryWorkScreen(
             }
         }
     ) { padding ->
-        Box(modifier = Modifier.background(Brush.verticalGradient(gradientColors)).padding(padding)) {
+        Box(modifier = Modifier
+            .background(Brush.verticalGradient(gradientColors))
+            .padding(padding)) {
             HistoryContent(
                 uiState = uiState,
                 units = units,
@@ -253,6 +254,10 @@ fun FilterRow(
                 modifier = Modifier.padding(horizontal = 4.dp),
                 selected = selectedFilter == filter,
                 onClick = { onFilterSelected(filter) },
+                colors = FilterChipDefaults.filterChipColors(
+                    containerColor = if (isSystemInDarkTheme()) Color.Black.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surface,
+                    selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                ),
                 label = {
                     FitlogText(
                         text = when (filter) {
@@ -278,7 +283,7 @@ fun GymExerciseCard(gymExercise: GymExercise, units: UnitsConfig) {
             .fillMaxWidth()
             .clickable { expanded = !expanded },
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+        colors = CardDefaults.cardColors(containerColor = if (isSystemInDarkTheme()) Color.Black.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
     ) {
         Column(modifier = Modifier.padding(PaddingDim.MEDIUM)) {
             Row(
@@ -314,16 +319,27 @@ fun GymExerciseCard(gymExercise: GymExercise, units: UnitsConfig) {
 
             AnimatedVisibility(visible = expanded) {
                 Column(modifier = Modifier.padding(top = PaddingDim.MEDIUM)) {
-                    Divider(modifier = Modifier.padding(vertical = PaddingDim.SMALL))
+                    HorizontalDivider(modifier = Modifier.padding(vertical = PaddingDim.SMALL))
                     gymExercise.exercises.forEach { exercise ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 4.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(text = exercise.name, fontWeight = FontWeight.Medium)
-                            Text(text = "${exercise.sets}x${exercise.reps} - ${UnitsConverter.formatWeight(exercise.weightKg, units)}")
+                            // Nombre del ejercicio con peso para permitir salto de línea
+                            Text(
+                                text = exercise.name, 
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Spacer(modifier = Modifier.width(PaddingDim.MEDIUM))
+                            // Detalles técnicos alineados a la derecha
+                            Text(
+                                text = "${exercise.sets}x${exercise.reps} - ${UnitsConverter.formatWeight(exercise.weightKg, units)}",
+                                style = MaterialTheme.typography.bodySmall
+                            )
                         }
                     }
                 }
@@ -341,7 +357,7 @@ fun WorkoutSessionCard(session: WorkoutSession, units: UnitsConfig) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f))
+        colors = CardDefaults.cardColors(containerColor = if (isSystemInDarkTheme()) Color.Black.copy(alpha = 0.3f) else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f))
     ) {
         Column(modifier = Modifier.padding(PaddingDim.MEDIUM)) {
             Text(
@@ -379,23 +395,30 @@ sealed class HistoryItem(val date: Long) {
 }
 
 private fun <T> filterData(data: List<T>, filter: HistoryFilter, dateSelector: (T) -> Long): List<T> {
-    val now = Calendar.getInstance()
-    val today = now.apply {
-        set(Calendar.HOUR_OF_DAY, 0)
-        set(Calendar.MINUTE, 0)
-        set(Calendar.SECOND, 0)
-        set(Calendar.MILLISECOND, 0)
-    }.timeInMillis
+    val cal = Calendar.getInstance()
+    // Resetear a 00:00:00.000 de hoy
+    cal.set(Calendar.HOUR_OF_DAY, 0)
+    cal.set(Calendar.MINUTE, 0)
+    cal.set(Calendar.SECOND, 0)
+    cal.set(Calendar.MILLISECOND, 0)
 
     return when (filter) {
-        HistoryFilter.TODAY -> data.filter { dateSelector(it) >= today }
+        HistoryFilter.TODAY -> {
+            data.filter { dateSelector(it) >= cal.timeInMillis }
+        }
         HistoryFilter.LAST_WEEK -> {
-            val weekAgo = today - (7 * 24 * 60 * 60 * 1000L)
-            data.filter { dateSelector(it) >= weekAgo }
+            // Ajustar al lunes de la semana actual
+            cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
+            // Si hoy es domingo, retroceder 7 días para estar en la semana que acaba
+            if (Calendar.getInstance().get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+                cal.add(Calendar.DAY_OF_YEAR, -7)
+            }
+            data.filter { dateSelector(it) >= cal.timeInMillis }
         }
         HistoryFilter.LAST_MONTH -> {
-            val monthAgo = today - (30 * 24 * 60 * 60 * 1000L)
-            data.filter { dateSelector(it) >= monthAgo }
+            // Ajustar al día 1 del mes actual
+            cal.set(Calendar.DAY_OF_MONTH, 1)
+            data.filter { dateSelector(it) >= cal.timeInMillis }
         }
         HistoryFilter.ALL -> data
     }

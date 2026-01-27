@@ -38,6 +38,18 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
+    fun onAgeValidated(age: String) {
+        _uiState.update { it.copy(age = age) }
+    }
+
+    fun onWeightValidated(weight: String) {
+        _uiState.update { it.copy(weight = weight) }
+    }
+
+    fun onHeightValidated(height: String) {
+        _uiState.update { it.copy(height = height) }
+    }
+
     fun onHeightChange(newHeight: String) {
         if (newHeight.all { it.isDigit() }) {
             _uiState.update { it.copy(height = newHeight) }
@@ -65,13 +77,23 @@ class OnboardingViewModel @Inject constructor(
     fun saveUserProfile() {
         viewModelScope.launch {
             val state = _uiState.value
+            val steps = state.dailySteps
+            val cals = state.caloriesToBurn
+            
+            val calculatedLevel = when {
+                steps > 19000 || cals > 1500 -> "Professional"
+                steps > 10000 || cals > 500 -> "Intermediate"
+                else -> "Beginner"
+            }
+
             val userProfile = UserProfile(
                 age = state.age.toIntOrNull() ?: 0,
                 weightKg = state.weight.toDoubleOrNull() ?: 0.0,
                 heightCm = state.height.toDoubleOrNull() ?: 0.0,
                 gender = state.gender,
                 dailyStepsGoal = state.dailySteps,
-                dailyCaloriesGoal = state.caloriesToBurn
+                dailyCaloriesGoal = state.caloriesToBurn,
+                level = calculatedLevel
             )
             userProfileUseCase.insertUserProfileUseCase(userProfile)
             setOnboardingCompletedUseCase(true)

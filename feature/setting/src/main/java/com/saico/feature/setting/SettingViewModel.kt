@@ -6,6 +6,7 @@ import com.saico.core.datastore.UserSettingsDataStore
 import com.saico.core.model.DarkThemeConfig
 import com.saico.core.model.LanguageConfig
 import com.saico.core.model.UnitsConfig
+import com.saico.core.notification.NotificationScheduler
 import com.saico.feature.setting.state.SettingUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -17,7 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingViewModel @Inject constructor(
-    private val userDataStore: UserSettingsDataStore
+    private val userDataStore: UserSettingsDataStore,
+    private val notificationScheduler: NotificationScheduler
 ) : ViewModel() {
 
     val uiState: StateFlow<SettingUiState> = userDataStore.userData
@@ -54,7 +56,10 @@ class SettingViewModel @Inject constructor(
 
     fun updateWorkoutReminderTime(hour: Int, minute: Int) {
         viewModelScope.launch {
+            // 1. Guardamos en persistencia
             userDataStore.setWorkoutReminderTime(hour, minute)
+            // 2. Programamos la nueva alarma inmediatamente
+            notificationScheduler.scheduleWorkoutReminder(hour, minute)
         }
     }
 }

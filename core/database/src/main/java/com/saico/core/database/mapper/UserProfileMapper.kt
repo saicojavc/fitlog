@@ -10,14 +10,16 @@ fun UserProfileEntity.toDomain() = UserProfile(
     gender = gender,
     dailyStepsGoal = dailyStepsGoal,
     dailyCaloriesGoal = dailyCaloriesGoal,
+    level = level
 )
 
 fun UserProfile.toEntity() = UserProfileEntity(
-    id = 1, // Usamos ID fijo para asegurar que siempre se actualice el mismo registro
+    id = 1,
     age = age,
     weightKg = weightKg,
     heightCm = heightCm,
     gender = gender,
     dailyStepsGoal = dailyStepsGoal,
     dailyCaloriesGoal = dailyCaloriesGoal,
+    level = level
 )

@@ -1,6 +1,7 @@
 package com.saico.core.ui.components
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,9 +16,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -26,7 +27,7 @@ import com.saico.core.ui.theme.PaddingDim
 
 @Composable
 fun InfoDialog(@StringRes title: Int, @StringRes text: Int, onDismiss: () -> Unit) {
-    CrmAlertDialog(
+    FitlogAlertDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
@@ -41,14 +42,14 @@ fun InfoDialog(@StringRes title: Int, @StringRes text: Int, onDismiss: () -> Uni
 }
 
 @Composable
-fun CrmInfoDialog(
+fun FitlogInfoDialog(
     isVisible: Boolean,
     @StringRes title: Int,
     text: String,
     onDismiss: () -> Unit,
 ) {
     if (isVisible) {
-        CrmAlertDialog(
+        FitlogAlertDialog(
             onDismissRequest = onDismiss,
             title = {
                 Text(
@@ -92,7 +93,7 @@ fun LoadingDialog(@StringRes textMsg: Int? = null) {
 }
 
 @Composable
-fun CrmDialog(
+fun FitlogDialog(
     onDismiss: () -> Unit,
     @StringRes title: Int,
     text: String,
@@ -154,7 +155,7 @@ fun CrmDialog(
 }
 
 @Composable
-fun CrmAlertDialog(
+fun FitlogAlertDialog(
     onDismissRequest: () -> Unit,
     confirmButton: @Composable () -> Unit,
     modifier: Modifier = Modifier,
@@ -162,6 +163,8 @@ fun CrmAlertDialog(
     icon: @Composable (() -> Unit)? = null,
     title: @Composable (() -> Unit)? = null,
     text: @Composable (() -> Unit)? = null,
+    containerColor: Color = if (isSystemInDarkTheme()) Color.Black.copy(alpha = 0.5f)
+    else MaterialTheme.colorScheme.surface,
 ) {
     AlertDialog(
         onDismissRequest = onDismissRequest,
@@ -171,30 +174,7 @@ fun CrmAlertDialog(
         icon = icon,
         title = title,
         text = text,
-        tonalElevation = 0.dp
+        tonalElevation = 0.dp,
+        containerColor = containerColor
     )
 }
-
-/*
-@Composable
-fun CrmLoadingDialog(
-    isVisible: Boolean,
-) {
-    // This dialog is commented out because it requires the Lottie dependency and
-    // the R.raw.square_loader resource, which may not be available in this module.
-    // You will need to ensure the dependency is added to this module's build.gradle.kts
-    // and the raw resource file is present in core/ui/src/main/res/raw/
-    val composition by rememberLottieComposition(
-        LottieCompositionSpec.RawRes(R.raw.square_loader)
-    )
-    if (isVisible) {
-        Dialog(onDismissRequest = {}) {
-            LottieAnimation(
-                composition = composition,
-                iterations = LottieConstants.IterateForever,
-                modifier = Modifier
-            )
-        }
-    }
-}
-*/

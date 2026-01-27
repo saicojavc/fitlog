@@ -7,4 +7,5 @@ data class UserProfile(
     val gender: String,
     val dailyStepsGoal: Int,
     val dailyCaloriesGoal: Int,
+    val level: String = "Beginner"
 )
