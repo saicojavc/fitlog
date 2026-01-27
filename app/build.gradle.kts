@@ -4,6 +4,10 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.com.google.ksp)
     alias(libs.plugins.com.dagger.hilt)
+    //    Firebase
+    id("com.google.gms.google-services") version "4.4.4" apply false
+// Add the dependency for the Google services Gradle plugin
+//    id("com.google.gms.google-services") version "4.4.4" apply false
 }
 
 android {
@@ -55,6 +59,10 @@ dependencies {
     implementation(project(":feature:gymwork"))
     implementation(project(":feature:setting"))
     implementation(project(":feature:stepshistory"))
+
+//Firebase
+    implementation(platform("com.google.firebase:firebase-bom:34.8.0"))
+    implementation("com.google.firebase:firebase-analytics")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
