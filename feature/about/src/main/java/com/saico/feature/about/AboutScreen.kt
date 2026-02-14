@@ -101,7 +101,10 @@ fun AboutScreen(navController: NavHostController) {
                         Color.Transparent,
                         Color.Transparent
                     ),
-                    onClick = {},
+                    onClick = {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://fitlog-terms-and-conditi-3e77f.web.app"))
+                        context.startActivity(intent)
+                    },
                     content = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(text = stringResource(id = R.string.terms_and_conditions))
