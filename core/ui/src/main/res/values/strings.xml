@@ -94,7 +94,7 @@
     <string name="spanish">Spanish</string>
     <string name="dynamic_color">Dynamic Color</string>
     <string name="dynamic_color_desc">Use colors based on your wallpaper</string>
-    <string name="about_me">About Fitlog"</string>
+    <string name="about_me">About Fitlog</string>
     
     <!-- Measurement Units -->
     <string name="measurement_units">Measurement Units</string>
@@ -178,4 +178,10 @@
     <string name="total_time">Total Time</string>
     <string name="expand">Expand</string>
     <string name="collapse">Collapse</string>
+
+    <string name="terms_and_conditions">Terms and Conditions</string>
+
+    <!-- About Screen -->
+    <string name="developed_by">Developed by %1$s</string>
+    <string name="version">Version</string>
 </resources>

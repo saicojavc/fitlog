@@ -88,7 +88,7 @@
     <string name="spanish">Español</string>
     <string name="dynamic_color">Color Dinámico</string>
     <string name="dynamic_color_desc">Usa colores basados en tu fondo de pantalla</string>
-    <string name="about_me">Sobre Fitlog"</string>
+    <string name="about_me">Sobre Fitlog</string>
     
     <!-- Measurement Units -->
     <string name="measurement_units">Unidades de medida</string>
@@ -168,4 +168,10 @@
     <string name="total_time">Tiempo total</string>
     <string name="expand">Expandir</string>
     <string name="collapse">Contraer</string>
+
+    <string name="terms_and_conditions">Términos y Condiciones</string>
+
+    <!-- About Screen -->
+    <string name="developed_by">Desarrollado por %1$s</string>
+    <string name="version">Versión</string>
 </resources>

@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Male
 import androidx.compose.material.icons.filled.Map
@@ -77,4 +78,6 @@ object FitlogIcons {
     val Location : ImageVector = Icons.Default.LocationOn
 
     val Download : ImageVector = Icons.Default.Download
+
+    val Link : ImageVector = Icons.Default.Link
 }
