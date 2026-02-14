@@ -1,6 +1,7 @@
 package com.saico.feature.workout
 
 import android.content.Context
+import android.os.SystemClock
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.saico.core.common.util.FitnessCalculator
@@ -46,7 +47,10 @@ class WorkoutViewModel @Inject constructor(
     private var timerJob: Job? = null
     private var sensorJob: Job? = null
     private var initialSteps: Int? = null
-    private var accumulatedStepsBeforePause: Int = 0
+
+    // Variables para el cálculo exacto del tiempo
+    private var startTimeMillis: Long = 0L
+    private var pausedTimeMillis: Long = 0L
 
     init {
         loadUserData()
@@ -73,6 +77,14 @@ class WorkoutViewModel @Inject constructor(
     fun startWorkout() {
         if (_uiState.value.workoutState == WorkoutState.RUNNING) return
 
+        if (_uiState.value.workoutState == WorkoutState.IDLE) {
+            startTimeMillis = SystemClock.elapsedRealtime()
+        } else if (_uiState.value.workoutState == WorkoutState.PAUSED) {
+            // Ajustamos el tiempo de inicio para ignorar el periodo pausado
+            val timeSpentPaused = SystemClock.elapsedRealtime() - pausedTimeMillis
+            startTimeMillis += timeSpentPaused
+        }
+
         _uiState.update { it.copy(workoutState = WorkoutState.RUNNING) }
 
         if (timerJob == null) {
@@ -82,6 +94,8 @@ class WorkoutViewModel @Inject constructor(
         if (sensorJob == null) {
             startSensorObservation()
         }
+
+        updateWorkoutNotification(_uiState.value)
     }
 
     private fun startTimer() {
@@ -89,11 +103,11 @@ class WorkoutViewModel @Inject constructor(
             while (true) {
                 delay(1000L)
                 if (_uiState.value.workoutState == WorkoutState.RUNNING) {
+                    val currentElapsed = (SystemClock.elapsedRealtime() - startTimeMillis) / 1000
                     _uiState.update { state ->
-                        val newTime = state.elapsedTimeInSeconds + 1
                         val newState = state.copy(
-                            elapsedTimeInSeconds = newTime,
-                            averagePace = calculateAverageSpeed(state.distance, newTime)
+                            elapsedTimeInSeconds = currentElapsed,
+                            averagePace = calculateAverageSpeed(state.distance, currentElapsed)
                         )
                         updateWorkoutNotification(newState)
                         newState
@@ -111,20 +125,21 @@ class WorkoutViewModel @Inject constructor(
                         initialSteps = totalStepsSinceReboot
                     }
 
+                    // En lugar de usar una variable acumulada manual, el sensor sigue siendo relativo
+                    // pero el tiempo ahora es absoluto.
                     val currentStepsInSession = (totalStepsSinceReboot - (initialSteps ?: totalStepsSinceReboot)).coerceAtLeast(0)
-                    val totalSteps = accumulatedStepsBeforePause + currentStepsInSession
 
                     _uiState.update { state ->
                         val userProfile = state.userProfile
                         val distance = FitnessCalculator.calculateDistanceKm(
-                            steps = totalSteps,
+                            steps = currentStepsInSession,
                             heightCm = userProfile?.heightCm?.toInt() ?: 170,
                             genderString = userProfile?.gender ?: "male"
                         )
-                        val calories = FitnessCalculator.calculateCaloriesBurned(totalSteps, userProfile?.weightKg ?: 70.0)
+                        val calories = FitnessCalculator.calculateCaloriesBurned(currentStepsInSession, userProfile?.weightKg ?: 70.0)
                         
                         val newState = state.copy(
-                            stepsTaken = totalSteps,
+                            stepsTaken = currentStepsInSession,
                             distance = distance,
                             calories = calories,
                             averagePace = calculateAverageSpeed(distance, state.elapsedTimeInSeconds)
@@ -138,7 +153,6 @@ class WorkoutViewModel @Inject constructor(
     }
 
     private fun updateWorkoutNotification(state: WorkoutUiState) {
-        val timeStr = formatElapsedTime(state.elapsedTimeInSeconds)
         val distStr = UnitsConverter.formatDistance(state.distance.toDouble(), state.unitsConfig)
         val speedStr = if (state.unitsConfig == UnitsConfig.IMPERIAL) {
             String.format(Locale.getDefault(), "%.2f mph", state.averagePace * 0.621371f)
@@ -146,9 +160,25 @@ class WorkoutViewModel @Inject constructor(
             String.format(Locale.getDefault(), "%.2f km/h", state.averagePace)
         }
 
-        // Estructura visual con iconos (emojis) para estética y claridad
-        val content = "⏱️ $timeStr   📍 $distStr\n🔥 ${state.calories} kcal   ⚡ $speedStr"
+        val isPaused = state.workoutState == WorkoutState.PAUSED
+        val title = if (isPaused) {
+            "⏸️ " + context.getString(R.string.workout_paused_title)
+        } else {
+            "🏃 " + context.getString(R.string.workout_ongoing_title)
+        }
+
+        val content = if (isPaused) {
+            "⏱️ ${formatElapsedTime(state.elapsedTimeInSeconds)}  |  📍 $distStr\n🔥 ${state.calories} kcal  |  ⚡ $speedStr"
+        } else {
+            "📍 $distStr  |  🔥 ${state.calories} kcal  |  ⚡ $speedStr"
+        }
         
+        val baseTime = if (!isPaused) {
+            SystemClock.elapsedRealtime() - (state.elapsedTimeInSeconds * 1000)
+        } else {
+            null
+        }
+
         notificationHelper.showNotification(
             title = context.getString(R.string.workout_ongoing_title),
             message = content,
@@ -173,17 +203,9 @@ class WorkoutViewModel @Inject constructor(
 
     fun pauseWorkout() {
         if (_uiState.value.workoutState == WorkoutState.RUNNING) {
-            accumulatedStepsBeforePause = _uiState.value.stepsTaken
-            initialSteps = null
+            pausedTimeMillis = SystemClock.elapsedRealtime()
             _uiState.update { it.copy(workoutState = WorkoutState.PAUSED) }
-            
-            notificationHelper.showNotification(
-                title = "⏸️ " + context.getString(R.string.workout_paused_title),
-                message = context.getString(R.string.workout_paused_msg),
-                channelId = NotificationHelper.WORKOUT_CHANNEL_ID,
-                notificationId = NotificationHelper.WORKOUT_NOTIFICATION_ID,
-                isOngoing = true
-            )
+            updateWorkoutNotification(_uiState.value)
         }
     }
 
@@ -209,7 +231,7 @@ class WorkoutViewModel @Inject constructor(
         sensorJob?.cancel()
         sensorJob = null
         initialSteps = null
-        accumulatedStepsBeforePause = 0
+        startTimeMillis = 0L
     }
 
     fun onDialogDismissed() {
@@ -217,13 +239,12 @@ class WorkoutViewModel @Inject constructor(
             userProfile = _uiState.value.userProfile,
             unitsConfig = _uiState.value.unitsConfig
         )
-        accumulatedStepsBeforePause = 0
         initialSteps = null
+        startTimeMillis = 0L
     }
 
     override fun onCleared() {
         super.onCleared()
-        // Asegurar que la notificación se limpie si se cierra la app bruscamente o se destruye el VM
         notificationHelper.cancelNotification(NotificationHelper.WORKOUT_NOTIFICATION_ID)
     }
 }

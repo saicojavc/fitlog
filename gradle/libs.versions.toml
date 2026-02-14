@@ -35,7 +35,7 @@ firebase-crashlytics-plugin = "3.0.3"
 firebaseCommon = "21.0.0"
 
 #config
-compileSdk = "35"
+compileSdk = "36"
 targetSdk = "35"
 minSdk = "23"
 appcompat = "1.6.1"
