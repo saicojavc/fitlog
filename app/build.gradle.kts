@@ -5,9 +5,8 @@ plugins {
     alias(libs.plugins.com.google.ksp)
     alias(libs.plugins.com.dagger.hilt)
     //    Firebase
-    id("com.google.gms.google-services") version "4.4.4" apply false
-// Add the dependency for the Google services Gradle plugin
-//    id("com.google.gms.google-services") version "4.4.4" apply false
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
 }
 
 android {
@@ -19,7 +18,7 @@ android {
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 1
-        versionName = "0.0.1"
+        versionName = "0.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -61,9 +60,11 @@ dependencies {
     implementation(project(":feature:setting"))
     implementation(project(":feature:stepshistory"))
 
-//Firebase
-    implementation(platform("com.google.firebase:firebase-bom:34.8.0"))
-    implementation("com.google.firebase:firebase-analytics")
+
+    //    firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.crashlytics)
+
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

@@ -25,6 +25,15 @@ moshi = "1.15.2"
 lifecycleViewModelCompose = "2.10.0"
 accompanist = "0.34.0"
 
+
+#firebase
+firebaseAuthKtx = "23.2.0"
+firebaseBom = "33.13.0"
+googleServices = "4.4.2"
+firebaseDatabase = "21.0.0"
+firebase-crashlytics-plugin = "3.0.3"
+firebaseCommon = "21.0.0"
+
 #config
 compileSdk = "35"
 targetSdk = "35"
@@ -61,6 +70,17 @@ material = { group = "com.google.android.material", name = "material", version.r
 androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "materialIcons" }
 accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanist" }
 
+#firebase
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+#firebase-common = { group = "com.google.firebase", name = "firebase-common", version.ref = "firebaseCommon" }
+firebase-auth = { module = "com.google.firebase:firebase-auth" }
+firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
+firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
+firebase-crashlytics = {module = "com.google.firebase:firebase-crashlytics"}
+google-services = { module = "com.google.gms:google-services", version.ref = "googleServices" }
+firabase-firestore = {module = "com.google.firebase:firebase-firestore"}
+firebase-perf = { module = "com.google.firebase:firebase-perf" }
+
 # Room
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
@@ -93,3 +113,7 @@ nl-littlerobots-catalog-update = { id = "nl.littlerobots.version-catalog-update"
 com-dagger-hilt = { id = "com.google.dagger.hilt.android", version.ref = "android-dagger-hilt" }
 com-google-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt-version" }  ## for lint detekt
+
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebase-crashlytics-plugin" }
