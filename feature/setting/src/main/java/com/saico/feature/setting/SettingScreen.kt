@@ -59,11 +59,8 @@ fun SettingScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    val gradientColors = if (isSystemInDarkTheme()) {
-        listOf(LightPrimary, LightSuccess)
-    } else {
-        listOf(LightPrimary, LightSuccess, LightBackground)
-    }
+    val gradientColors = listOf(LightPrimary, LightSuccess)
+
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -71,8 +68,7 @@ fun SettingScreen(
             FitlogTopAppBar(
                 title = stringResource(id = R.string.settings),
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = if (isSystemInDarkTheme()) Color.Black.copy(alpha = 0.3f)
-                    else MaterialTheme.colorScheme.surface
+                    containerColor = Color.Black.copy(alpha = 0.3f)
                 ),
                 navigationIcon = {
                     FitlogIcon(
@@ -134,32 +130,32 @@ fun SettingsContent(
     }
 
     // Modo Oscuro
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        FitlogText(
-            text = stringResource(id = R.string.theme),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
-        )
-        Switch(
-            checked = settings.darkThemeConfig == DarkThemeConfig.DARK,
-            onCheckedChange = { isDark ->
-                onThemeChange(if (isDark) DarkThemeConfig.DARK else DarkThemeConfig.LIGHT)
-            },
-            thumbContent = {
-                Icon(
-                    imageVector = if (settings.darkThemeConfig == DarkThemeConfig.DARK) FitlogIcons.Moon else FitlogIcons.Sun,
-                    contentDescription = null,
-                    modifier = Modifier.size(SwitchDefaults.IconSize)
-                )
-            }
-        )
-    }
+//    Row(
+//        modifier = Modifier.fillMaxWidth(),
+//        verticalAlignment = Alignment.CenterVertically,
+//        horizontalArrangement = Arrangement.SpaceBetween
+//    ) {
+//        FitlogText(
+//            text = stringResource(id = R.string.theme),
+//            style = MaterialTheme.typography.titleMedium,
+//            fontWeight = FontWeight.Bold
+//        )
+//        Switch(
+//            checked = settings.darkThemeConfig == DarkThemeConfig.DARK,
+//            onCheckedChange = { isDark ->
+//                onThemeChange(if (isDark) DarkThemeConfig.DARK else DarkThemeConfig.LIGHT)
+//            },
+//            thumbContent = {
+//                Icon(
+//                    imageVector = if (settings.darkThemeConfig == DarkThemeConfig.DARK) FitlogIcons.Moon else FitlogIcons.Sun,
+//                    contentDescription = null,
+//                    modifier = Modifier.size(SwitchDefaults.IconSize)
+//                )
+//            }
+//        )
+//    }
 
-    HorizontalDivider(modifier = Modifier.padding(vertical = PaddingDim.MEDIUM))
+//    HorizontalDivider(modifier = Modifier.padding(vertical = PaddingDim.MEDIUM))
 
     // Recordatorio de Entrenamiento (Configurable)
     SettingSectionTitle(title = stringResource(id = R.string.notifications))

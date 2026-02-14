@@ -86,11 +86,8 @@ fun Content(
     onSaveSession: () -> Unit,
     onDismissSuccessDialog: () -> Unit
 ) {
-    val gradientColors = if (isSystemInDarkTheme()) {
-        listOf(LightPrimary, LightSuccess)
-    } else {
-        listOf(LightPrimary, LightSuccess, LightBackground)
-    }
+    val gradientColors = listOf(LightPrimary, LightSuccess)
+
 
     if (uiState.showAddExerciseDialog) {
         AddExerciseDialog(
@@ -125,7 +122,7 @@ fun Content(
             FitlogTopAppBar(
                 title = stringResource(id = R.string.gym),
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = if (isSystemInDarkTheme()) Color.Black.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surface
+                    containerColor = Color.Black.copy(alpha = 0.3f)
                 ),
                 navigationIcon = {
                     FitlogIcon(

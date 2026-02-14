@@ -13,7 +13,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
@@ -26,7 +25,6 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import com.saico.core.model.DarkThemeConfig
 import com.saico.core.model.LanguageConfig
 import com.saico.core.notification.NotificationHelper
 import com.saico.core.notification.NotificationScheduler
@@ -91,11 +89,9 @@ class MainActivity : ComponentActivity() {
                     if (ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
                         permissionsToRequest.add(Manifest.permission.ACTIVITY_RECOGNITION)
                     } else {
-                        // Si ya tenemos el permiso, iniciamos el servicio
                         startStepCounterService()
                     }
                 } else {
-                    // En versiones antiguas no se requiere permiso en runtime
                     startStepCounterService()
                 }
 
@@ -112,14 +108,9 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            // ... resto del código del tema e idioma ...
-            val darkTheme = when (userData?.darkThemeConfig) {
-                DarkThemeConfig.LIGHT -> false
-                DarkThemeConfig.DARK -> true
-                else -> isSystemInDarkTheme()
-            }
             val dynamicColor = userData?.useDynamicColor ?: false
 
+            // Aplicar Idioma
             LaunchedEffect(userData?.languageConfig) {
                 userData?.languageConfig?.let { config ->
                     val locale = when (config) {
@@ -131,7 +122,8 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            FitlogTheme(darkTheme = darkTheme, dynamicColor = dynamicColor) {
+            // FORZADO: Siempre tema oscuro (darkTheme = true)
+            FitlogTheme(dynamicColor = dynamicColor) {
                 val navController = rememberNavController()
                 Surface(modifier = Modifier.fillMaxSize()) {
                     if (viewModel.isLoading) {
@@ -149,7 +141,6 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun startStepCounterService() {
-        // Doble verificación de seguridad para evitar crashes en Android 14+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
                 return

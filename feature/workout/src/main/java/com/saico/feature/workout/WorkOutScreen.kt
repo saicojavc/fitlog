@@ -73,11 +73,8 @@ fun Content(
 ) {
     val elapsedTime = formatElapsedTime(uiState.elapsedTimeInSeconds)
 
-    val gradientColors = if (isSystemInDarkTheme()) {
-        listOf(LightPrimary, LightSuccess)
-    } else {
-        listOf(LightPrimary, LightSuccess, LightBackground)
-    }
+    val gradientColors = listOf(LightPrimary, LightSuccess)
+
 
     if (uiState.showWorkoutSavedDialog) {
         InfoDialog(
@@ -93,7 +90,7 @@ fun Content(
             FitlogTopAppBar(
                 title = stringResource(id = R.string.register_session),
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = if (isSystemInDarkTheme()) Color.Black.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surface
+                    containerColor = Color.Black.copy(alpha = 0.3f)
                 ),
                 navigationIcon = {
                     FitlogIcon(

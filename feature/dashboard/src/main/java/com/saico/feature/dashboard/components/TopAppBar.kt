@@ -35,7 +35,7 @@ fun TopAppBar(navController: NavHostController) {
     FitlogTopAppBar(
         title = stringResource(id = R.string.app_name),
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = if (isSystemInDarkTheme()) Color.Black.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surface
+            containerColor =  Color.Black.copy(alpha = 0.3f)
         ),
         actions = {
             Row(

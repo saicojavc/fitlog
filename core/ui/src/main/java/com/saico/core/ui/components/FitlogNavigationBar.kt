@@ -27,7 +27,7 @@ import com.saico.core.ui.theme.FitlogTheme
 @Composable
 fun FitlogNavigationBar(
     modifier: Modifier = Modifier,
-    containerColor: Color = if (isSystemInDarkTheme()) Color.Black.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surface,
+    containerColor: Color = Color.Black.copy(alpha = 0.3f),
     contentColor: Color = contentColorFor(containerColor),
     tonalElevation: Dp = BottomAppBarDefaults.ContainerElevation,
     content: @Composable RowScope.() -> Unit,
@@ -44,7 +44,7 @@ fun FitlogNavigationBar(
 @Composable
 fun FitlogBottomAppBar(
     modifier: Modifier = Modifier,
-    containerColor: Color = if (isSystemInDarkTheme()) Color.Black.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surface,
+    containerColor: Color = Color.Black.copy(alpha = 0.3f) ,
     contentColor: Color = contentColorFor(containerColor),
     tonalElevation: Dp = BottomAppBarDefaults.ContainerElevation,
     content: @Composable RowScope.() -> Unit,
@@ -77,7 +77,7 @@ fun RowScope.FitlogNavigationBarItem(
         label = label,
         alwaysShowLabel = alwaysShowLabel,
         colors = NavigationBarItemDefaults.colors(
-            indicatorColor = if (isSystemInDarkTheme()) Color.Black.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surface
+            indicatorColor = Color.Black.copy(alpha = 0.3f)
         )
     )
 }

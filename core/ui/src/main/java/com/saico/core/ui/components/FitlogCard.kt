@@ -27,7 +27,7 @@ import com.saico.core.ui.theme.FitlogTheme
 fun FitlogCard(
     modifier: Modifier = Modifier,
     shape: Shape = ShapeDefaults.Medium,
-    color: Color = if (isSystemInDarkTheme()) Color.Black.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surface,
+    color: Color =  Color.Black.copy(alpha = 0.3f) ,
     contentColor: Color = contentColorFor(color),
     elevation: Dp = 0.dp, // Replaced ElevationDim.MEDIUM
     border: BorderStroke? = null,

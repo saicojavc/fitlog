@@ -79,11 +79,8 @@ fun Content(
     val pagerState = rememberPagerState { 3 }
     val scope = rememberCoroutineScope()
 
-    val gradientColors = if (isSystemInDarkTheme()) {
-        listOf(LightPrimary, LightSuccess)
-    } else {
-        listOf(LightPrimary, LightSuccess, LightBackground)
-    }
+    val gradientColors = listOf(LightPrimary, LightSuccess)
+
 
     Column(
         modifier = Modifier

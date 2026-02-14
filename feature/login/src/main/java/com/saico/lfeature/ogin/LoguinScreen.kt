@@ -53,11 +53,8 @@ fun LoginScreen(
 @Composable
 fun Content(navController: NavHostController){
 
-    val gradientColors = if (isSystemInDarkTheme()) {
-        listOf(LightPrimary, LightSuccess)
-    } else {
-        listOf(LightPrimary, LightSuccess, LightBackground)
-    }
+    val gradientColors = listOf(LightPrimary, LightSuccess)
+
 
     Column(
         modifier = Modifier

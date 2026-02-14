@@ -28,7 +28,6 @@ import com.saico.core.ui.R
 import com.saico.core.ui.components.FitlogIcon
 import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.icon.FitlogIcons
-import com.saico.core.ui.theme.LightBackground
 import com.saico.core.ui.theme.LightPrimary
 import com.saico.core.ui.theme.LightSuccess
 import com.saico.core.ui.theme.PaddingDim
@@ -44,11 +43,8 @@ fun HistoryWorkScreen(
     onExportPdf: () -> Unit
 ) {
     val units = uiState.userData?.unitsConfig ?: UnitsConfig.METRIC
-    val gradientColors = if (isSystemInDarkTheme()) {
-        listOf(LightPrimary, LightSuccess)
-    } else {
-        listOf(LightPrimary, LightSuccess, LightBackground)
-    }
+    val gradientColors = listOf(LightPrimary, LightSuccess)
+
 
     Scaffold(
         modifier = Modifier.background(Brush.verticalGradient(gradientColors)),
@@ -255,7 +251,7 @@ fun FilterRow(
                 selected = selectedFilter == filter,
                 onClick = { onFilterSelected(filter) },
                 colors = FilterChipDefaults.filterChipColors(
-                    containerColor = if (isSystemInDarkTheme()) Color.Black.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surface,
+                    containerColor = Color.Black.copy(alpha = 0.3f),
                     selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
                 ),
                 label = {
@@ -283,7 +279,7 @@ fun GymExerciseCard(gymExercise: GymExercise, units: UnitsConfig) {
             .fillMaxWidth()
             .clickable { expanded = !expanded },
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = if (isSystemInDarkTheme()) Color.Black.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+        colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.3f))
     ) {
         Column(modifier = Modifier.padding(PaddingDim.MEDIUM)) {
             Row(

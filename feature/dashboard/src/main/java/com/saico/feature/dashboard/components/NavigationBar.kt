@@ -22,8 +22,8 @@ fun NavigationBar(
     FitlogNavigationBar(
         modifier = Modifier
             .fillMaxWidth(),
-        containerColor = if (isSystemInDarkTheme()) Color.Black.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surface,
-        contentColor = if (isSystemInDarkTheme()) Color.Black.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surface,
+        containerColor = Color.Black.copy(alpha = 0.3f),
+        contentColor = Color.Black.copy(alpha = 0.3f),
         content = {
             FitlogNavigationBarItem(
                 isSelected = selectedBottomAppBarItem == BottomAppBarItems.HOME,
