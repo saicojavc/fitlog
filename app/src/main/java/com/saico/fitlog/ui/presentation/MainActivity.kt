@@ -30,6 +30,7 @@ import com.saico.core.notification.NotificationHelper
 import com.saico.core.notification.NotificationScheduler
 import com.saico.core.ui.navigation.Navigator
 import com.saico.core.ui.theme.FitlogTheme
+import com.saico.feature.about.navigation.aboutGraph
 import com.saico.feature.dashboard.navigation.dashboardGraph
 import com.saico.feature.dashboard.service.StepCounterService
 import com.saico.feature.gymwork.navigation.gymWorkGraph
@@ -187,6 +188,8 @@ private fun MainContainer(
             gymWorkGraph(navController = navController)
             settingGraph(navController = navController)
             stepsHistoryGraph(navController = navController)
+            aboutGraph(navController = navController)
+
         }
     }
 }

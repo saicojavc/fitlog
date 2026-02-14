@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -35,12 +34,14 @@ import androidx.navigation.NavHostController
 import com.saico.core.model.DarkThemeConfig
 import com.saico.core.model.LanguageConfig
 import com.saico.core.model.UnitsConfig
+import com.saico.core.model.UserData
 import com.saico.core.ui.R
 import com.saico.core.ui.components.FitlogCard
 import com.saico.core.ui.components.FitlogIcon
 import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.components.FitlogTopAppBar
 import com.saico.core.ui.icon.FitlogIcons
+import com.saico.core.ui.navigation.routes.about.AboutRoute
 import com.saico.core.ui.theme.LightPrimary
 import com.saico.core.ui.theme.LightSuccess
 import com.saico.core.ui.theme.PaddingDim
@@ -95,7 +96,8 @@ fun SettingScreen(
                         onLanguageChange = viewModel::updateLanguageConfig,
                         onUnitsChange = viewModel::updateUnitsConfig,
                         onDynamicColorChange = viewModel::updateDynamicColorPreference,
-                        onTimeChange = viewModel::updateWorkoutReminderTime
+                        onTimeChange = viewModel::updateWorkoutReminderTime,
+                        navController = navController
                     )
                 }
             }
@@ -105,12 +107,13 @@ fun SettingScreen(
 
 @Composable
 fun SettingsContent(
-    settings: com.saico.core.model.UserData,
+    settings: UserData,
     onThemeChange: (DarkThemeConfig) -> Unit,
     onLanguageChange: (LanguageConfig) -> Unit,
     onUnitsChange: (UnitsConfig) -> Unit,
     onDynamicColorChange: (Boolean) -> Unit,
-    onTimeChange: (Int, Int) -> Unit
+    onTimeChange: (Int, Int) -> Unit,
+    navController: NavHostController
 ) {
     val context = LocalContext.current
     val isSystem24Hour = remember { DateFormat.is24HourFormat(context) }
@@ -249,7 +252,9 @@ fun SettingsContent(
     }
 
     FitlogCard(
-        modifier = Modifier.padding(vertical = PaddingDim.SMALL)
+        modifier = Modifier.padding(vertical = PaddingDim.SMALL).clickable{
+            navController.navigate(AboutRoute.AboutScreenRoute.route)
+        }
     ) {
         Row(
             modifier = Modifier
