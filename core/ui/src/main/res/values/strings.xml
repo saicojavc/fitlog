@@ -94,6 +94,7 @@
     <string name="spanish">Spanish</string>
     <string name="dynamic_color">Dynamic Color</string>
     <string name="dynamic_color_desc">Use colors based on your wallpaper</string>
+    <string name="about_me">About Fitlog"</string>
     
     <!-- Measurement Units -->
     <string name="measurement_units">Measurement Units</string>

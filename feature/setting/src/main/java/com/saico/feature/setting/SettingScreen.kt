@@ -4,14 +4,12 @@ import android.app.TimePickerDialog
 import android.text.format.DateFormat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -20,8 +18,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,7 +29,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -41,11 +36,11 @@ import com.saico.core.model.DarkThemeConfig
 import com.saico.core.model.LanguageConfig
 import com.saico.core.model.UnitsConfig
 import com.saico.core.ui.R
+import com.saico.core.ui.components.FitlogCard
 import com.saico.core.ui.components.FitlogIcon
 import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.components.FitlogTopAppBar
 import com.saico.core.ui.icon.FitlogIcons
-import com.saico.core.ui.theme.LightBackground
 import com.saico.core.ui.theme.LightPrimary
 import com.saico.core.ui.theme.LightSuccess
 import com.saico.core.ui.theme.PaddingDim
@@ -90,7 +85,9 @@ fun SettingScreen(
                 .padding(PaddingDim.MEDIUM)
         ) {
             when (val state = uiState) {
-                is SettingUiState.Loading -> { /* Loading indicator */ }
+                is SettingUiState.Loading -> { /* Loading indicator */
+                }
+
                 is SettingUiState.Success -> {
                     SettingsContent(
                         settings = state.settings,
@@ -119,15 +116,21 @@ fun SettingsContent(
     val isSystem24Hour = remember { DateFormat.is24HourFormat(context) }
 
     // Formateo visual de la hora del recordatorio
-    val displayTime = remember(settings.workoutReminderHour, settings.workoutReminderMinute, isSystem24Hour) {
-        if (isSystem24Hour) {
-            String.format("%02d:%02d", settings.workoutReminderHour, settings.workoutReminderMinute)
-        } else {
-            val hour = if (settings.workoutReminderHour % 12 == 0) 12 else settings.workoutReminderHour % 12
-            val amPm = if (settings.workoutReminderHour < 12) "AM" else "PM"
-            String.format("%d:%02d %s", hour, settings.workoutReminderMinute, amPm)
+    val displayTime =
+        remember(settings.workoutReminderHour, settings.workoutReminderMinute, isSystem24Hour) {
+            if (isSystem24Hour) {
+                String.format(
+                    "%02d:%02d",
+                    settings.workoutReminderHour,
+                    settings.workoutReminderMinute
+                )
+            } else {
+                val hour =
+                    if (settings.workoutReminderHour % 12 == 0) 12 else settings.workoutReminderHour % 12
+                val amPm = if (settings.workoutReminderHour < 12) "AM" else "PM"
+                String.format("%d:%02d %s", hour, settings.workoutReminderMinute, amPm)
+            }
         }
-    }
 
     // Modo Oscuro
 //    Row(
@@ -158,77 +161,111 @@ fun SettingsContent(
 //    HorizontalDivider(modifier = Modifier.padding(vertical = PaddingDim.MEDIUM))
 
     // Recordatorio de Entrenamiento (Configurable)
-    SettingSectionTitle(title = stringResource(id = R.string.notifications))
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                TimePickerDialog(
-                    context,
-                    { _, hour, minute -> onTimeChange(hour, minute) },
-                    settings.workoutReminderHour,
-                    settings.workoutReminderMinute,
-                    isSystem24Hour
-                ).show()
-            }
-            .padding(vertical = PaddingDim.SMALL),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+    FitlogCard(
+        modifier = Modifier.padding(vertical = PaddingDim.SMALL)
     ) {
-        Column {
-            FitlogText(
-                text = stringResource(id = R.string.workout_reminder),
-                style = MaterialTheme.typography.bodyLarge
+        SettingSectionTitle(title = stringResource(id = R.string.notifications))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(PaddingDim.MEDIUM)
+                .clickable {
+                    TimePickerDialog(
+                        context,
+                        { _, hour, minute -> onTimeChange(hour, minute) },
+                        settings.workoutReminderHour,
+                        settings.workoutReminderMinute,
+                        isSystem24Hour
+                    ).show()
+                }
+                .padding(vertical = PaddingDim.SMALL),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column {
+                FitlogText(
+                    text = stringResource(id = R.string.workout_reminder),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                FitlogText(
+                    text = displayTime,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+            Icon(imageVector = FitlogIcons.Clock, contentDescription = null)
+        }
+    }
+
+
+    FitlogCard(
+        modifier = Modifier.padding(vertical = PaddingDim.SMALL)
+    ) {
+        // Idioma
+        SettingSectionTitle(title = stringResource(id = R.string.language))
+        Column(
+            modifier = Modifier
+                .padding(PaddingDim.MEDIUM)
+        ) {
+            SettingOption(
+                label = stringResource(id = R.string.follow_system),
+                selected = settings.languageConfig == LanguageConfig.FOLLOW_SYSTEM,
+                onClick = { onLanguageChange(LanguageConfig.FOLLOW_SYSTEM) }
             )
-            FitlogText(
-                text = displayTime,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.primary
+            SettingOption(
+                label = stringResource(id = R.string.english),
+                selected = settings.languageConfig == LanguageConfig.ENGLISH,
+                onClick = { onLanguageChange(LanguageConfig.ENGLISH) }
+            )
+            SettingOption(
+                label = stringResource(id = R.string.spanish),
+                selected = settings.languageConfig == LanguageConfig.SPANISH,
+                onClick = { onLanguageChange(LanguageConfig.SPANISH) }
             )
         }
-        Icon(imageVector = FitlogIcons.Clock, contentDescription = null)
+
     }
 
-    HorizontalDivider(modifier = Modifier.padding(vertical = PaddingDim.MEDIUM))
-
-    // Idioma
-    SettingSectionTitle(title = stringResource(id = R.string.language))
-    Column {
-        SettingOption(
-            label = stringResource(id = R.string.follow_system),
-            selected = settings.languageConfig == LanguageConfig.FOLLOW_SYSTEM,
-            onClick = { onLanguageChange(LanguageConfig.FOLLOW_SYSTEM) }
-        )
-        SettingOption(
-            label = stringResource(id = R.string.english),
-            selected = settings.languageConfig == LanguageConfig.ENGLISH,
-            onClick = { onLanguageChange(LanguageConfig.ENGLISH) }
-        )
-        SettingOption(
-            label = stringResource(id = R.string.spanish),
-            selected = settings.languageConfig == LanguageConfig.SPANISH,
-            onClick = { onLanguageChange(LanguageConfig.SPANISH) }
-        )
+    FitlogCard(
+        modifier = Modifier.padding(vertical = PaddingDim.SMALL)
+    ) {
+        // Unidades de Medida
+        SettingSectionTitle(title = stringResource(id = R.string.measurement_units))
+        Column(
+            modifier = Modifier
+                .padding(PaddingDim.MEDIUM)
+        ) {
+            SettingOption(
+                label = stringResource(id = R.string.metric_system),
+                selected = settings.unitsConfig == UnitsConfig.METRIC,
+                onClick = { onUnitsChange(UnitsConfig.METRIC) }
+            )
+            SettingOption(
+                label = stringResource(id = R.string.imperial_system),
+                selected = settings.unitsConfig == UnitsConfig.IMPERIAL,
+                onClick = { onUnitsChange(UnitsConfig.IMPERIAL) }
+            )
+        }
     }
 
-    HorizontalDivider(modifier = Modifier.padding(vertical = PaddingDim.MEDIUM))
+    FitlogCard(
+        modifier = Modifier.padding(vertical = PaddingDim.SMALL)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(PaddingDim.MEDIUM),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            FitlogText(
+                text = stringResource(id = R.string.about_me),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
 
-    // Unidades de Medida
-    SettingSectionTitle(title = stringResource(id = R.string.measurement_units))
-    Column {
-        SettingOption(
-            label = stringResource(id = R.string.metric_system),
-            selected = settings.unitsConfig == UnitsConfig.METRIC,
-            onClick = { onUnitsChange(UnitsConfig.METRIC) }
-        )
-        SettingOption(
-            label = stringResource(id = R.string.imperial_system),
-            selected = settings.unitsConfig == UnitsConfig.IMPERIAL,
-            onClick = { onUnitsChange(UnitsConfig.IMPERIAL) }
-        )
+        }
     }
-
-    HorizontalDivider(modifier = Modifier.padding(vertical = PaddingDim.MEDIUM))
 
     // Color Dinámico
 //    Row(
@@ -262,7 +299,7 @@ fun SettingSectionTitle(title: String) {
         style = MaterialTheme.typography.titleMedium,
         fontWeight = FontWeight.Bold,
         color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(vertical = PaddingDim.SMALL)
+        modifier = Modifier.padding(PaddingDim.SMALL)
     )
 }
 

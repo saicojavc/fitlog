@@ -88,6 +88,7 @@
     <string name="spanish">Español</string>
     <string name="dynamic_color">Color Dinámico</string>
     <string name="dynamic_color_desc">Usa colores basados en tu fondo de pantalla</string>
+    <string name="about_me">Sobre Fitlog"</string>
     
     <!-- Measurement Units -->
     <string name="measurement_units">Unidades de medida</string>
