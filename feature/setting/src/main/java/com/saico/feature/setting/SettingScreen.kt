@@ -42,8 +42,7 @@ import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.components.FitlogTopAppBar
 import com.saico.core.ui.icon.FitlogIcons
 import com.saico.core.ui.navigation.routes.about.AboutRoute
-import com.saico.core.ui.theme.LightPrimary
-import com.saico.core.ui.theme.LightSuccess
+import com.saico.core.ui.theme.GradientColors
 import com.saico.core.ui.theme.PaddingDim
 import com.saico.feature.setting.state.SettingUiState
 
@@ -55,7 +54,6 @@ fun SettingScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    val gradientColors = listOf(LightPrimary, LightSuccess)
 
 
     Scaffold(
@@ -80,7 +78,7 @@ fun SettingScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Brush.verticalGradient(gradientColors))
+                .background(Brush.verticalGradient(GradientColors))
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
                 .padding(PaddingDim.MEDIUM)

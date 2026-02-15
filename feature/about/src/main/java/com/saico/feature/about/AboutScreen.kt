@@ -40,7 +40,7 @@ import com.saico.core.ui.components.FitlogIcon
 import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.components.FitlogTopAppBar
 import com.saico.core.ui.icon.FitlogIcons
-import com.saico.core.ui.theme.LightPrimary
+import com.saico.core.ui.theme.GradientColors
 import com.saico.core.ui.theme.LightSuccess
 import com.saico.core.ui.theme.PaddingDim
 
@@ -48,7 +48,6 @@ import com.saico.core.ui.theme.PaddingDim
 @Composable
 fun AboutScreen(navController: NavHostController) {
 
-    val gradientColors = listOf(LightPrimary, LightSuccess)
     val context = LocalContext.current
     
     val appVersion = remember {
@@ -120,7 +119,7 @@ fun AboutScreen(navController: NavHostController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Brush.verticalGradient(gradientColors))
+                .background(Brush.verticalGradient(GradientColors))
                 .padding(paddingValues)
                 .padding(PaddingDim.LARGE),
             horizontalAlignment = Alignment.CenterHorizontally,

@@ -26,8 +26,9 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.saico.core.model.UserProfile
-import com.saico.core.ui.theme.LightBackground
+import com.saico.core.ui.theme.GradientColors
 import com.saico.core.ui.theme.LightPrimary
+import com.saico.core.ui.theme.LightPrimaryVariant
 import com.saico.core.ui.theme.LightSuccess
 import com.saico.feature.dashboard.screen.HistoryWorkScreen
 import com.saico.feature.dashboard.screen.HomeScreen
@@ -92,7 +93,6 @@ fun Content(
 ) {
 
     var selectedBottomAppBarItem by remember { mutableStateOf(BottomAppBarItems.HOME) }
-    val gradientColors = listOf(LightPrimary, LightSuccess)
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -109,7 +109,7 @@ fun Content(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Brush.verticalGradient(gradientColors))
+                .background(Brush.verticalGradient(GradientColors))
                 .padding(paddingValues)
 
         ) {

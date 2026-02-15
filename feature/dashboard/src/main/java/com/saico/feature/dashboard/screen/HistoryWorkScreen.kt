@@ -28,6 +28,7 @@ import com.saico.core.ui.R
 import com.saico.core.ui.components.FitlogIcon
 import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.icon.FitlogIcons
+import com.saico.core.ui.theme.GradientColors
 import com.saico.core.ui.theme.LightPrimary
 import com.saico.core.ui.theme.LightSuccess
 import com.saico.core.ui.theme.PaddingDim
@@ -43,11 +44,10 @@ fun HistoryWorkScreen(
     onExportPdf: () -> Unit
 ) {
     val units = uiState.userData?.unitsConfig ?: UnitsConfig.METRIC
-    val gradientColors = listOf(LightPrimary, LightSuccess)
 
 
     Scaffold(
-        modifier = Modifier.background(Brush.verticalGradient(gradientColors)),
+        modifier = Modifier.background(Brush.verticalGradient(GradientColors)),
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onExportPdf,
@@ -62,7 +62,7 @@ fun HistoryWorkScreen(
         }
     ) { padding ->
         Box(modifier = Modifier
-            .background(Brush.verticalGradient(gradientColors))
+            .background(Brush.verticalGradient(GradientColors))
             .padding(padding)) {
             HistoryContent(
                 uiState = uiState,

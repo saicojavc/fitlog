@@ -2,7 +2,6 @@ package com.saico.feature.workout
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,8 +34,7 @@ import com.saico.core.ui.components.InfoDialog
 import com.saico.core.ui.components.SpacerHeight
 import com.saico.core.ui.icon.FitlogIcons
 import com.saico.core.ui.theme.DarkSurface
-import com.saico.core.ui.theme.LightBackground
-import com.saico.core.ui.theme.LightPrimary
+import com.saico.core.ui.theme.GradientColors
 import com.saico.core.ui.theme.LightSuccess
 import com.saico.core.ui.theme.PaddingDim
 import com.saico.feature.workout.component.CircularControlButton
@@ -73,7 +71,6 @@ fun Content(
 ) {
     val elapsedTime = formatElapsedTime(uiState.elapsedTimeInSeconds)
 
-    val gradientColors = listOf(LightPrimary, LightSuccess)
 
 
     if (uiState.showWorkoutSavedDialog) {
@@ -108,7 +105,7 @@ fun Content(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Brush.verticalGradient(gradientColors))
+                .background(Brush.verticalGradient(GradientColors))
                 .padding(paddingValues)
                 .padding(PaddingDim.MEDIUM),
             horizontalAlignment = Alignment.CenterHorizontally

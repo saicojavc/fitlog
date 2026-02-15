@@ -3,15 +3,17 @@ package com.saico.core.ui.theme
 import androidx.compose.ui.graphics.Color
 
 // Light Mode
-val LightPrimary = Color(0xFF003366)
+val LightPrimary = Color(0xFF0F172A)
 val LightPrimaryVariant = Color(0xFF002851)
-val LightSuccess = Color(0xFF00CC66)
+val LightSuccess = Color(0xFF10B981)
 val LightBackground = Color(0xFFF0F0F0)
 val LightSurface = Color(0xFFFFFFFF)
 val LightOnPrimary = Color(0xFFFFFFFF)
 val LightOnBackground = Color(0xFF000000)
 val LightSecondaryText = Color(0xFF666666)
 val LightInfo = Color(0xFFE3F2FD) // A light blue color for info cards
+
+val GradientColors = listOf(LightPrimary, LightPrimaryVariant, LightSuccess)
 
 // Dark Mode
 val DarkPrimary = Color(0xFF004C99)

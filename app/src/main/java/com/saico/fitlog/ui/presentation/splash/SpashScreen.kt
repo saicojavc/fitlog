@@ -3,10 +3,8 @@ package com.saico.fitlog.ui.presentation.splash
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -24,28 +22,21 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.saico.core.ui.R
-import com.saico.core.ui.components.FitlogButton
-import com.saico.core.ui.components.FitlogIcon
 import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.components.SpacerHeight
-import com.saico.core.ui.icon.FitlogIcons
-import com.saico.core.ui.navigation.routes.onboarding.OnboardingRoute
 import com.saico.core.ui.theme.AppDim
 import com.saico.core.ui.theme.FontSizes
-import com.saico.core.ui.theme.LightBackground
-import com.saico.core.ui.theme.LightPrimary
-import com.saico.core.ui.theme.LightSuccess
+import com.saico.core.ui.theme.GradientColors
 import com.saico.core.ui.theme.PaddingDim
 
 @Composable
 fun SplashScreen(){
-    val gradientColors = listOf(LightPrimary, LightSuccess)
 
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(gradientColors))
+            .background(Brush.verticalGradient(GradientColors))
             .padding(PaddingDim.LARGE),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

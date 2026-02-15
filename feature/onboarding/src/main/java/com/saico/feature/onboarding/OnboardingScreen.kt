@@ -2,7 +2,6 @@ package com.saico.feature.onboarding
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,9 +30,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.saico.core.ui.R
 import com.saico.core.ui.theme.CornerDim
-import com.saico.core.ui.theme.LightBackground
-import com.saico.core.ui.theme.LightPrimary
-import com.saico.core.ui.theme.LightSuccess
+import com.saico.core.ui.theme.GradientColors
 import com.saico.core.ui.theme.PaddingDim
 import com.saico.feature.onboarding.components.OnboardingDailyGoal
 import com.saico.feature.onboarding.components.OnboardingFinish
@@ -79,13 +76,12 @@ fun Content(
     val pagerState = rememberPagerState { 3 }
     val scope = rememberCoroutineScope()
 
-    val gradientColors = listOf(LightPrimary, LightSuccess)
 
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(gradientColors)),
+            .background(Brush.verticalGradient(GradientColors)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 

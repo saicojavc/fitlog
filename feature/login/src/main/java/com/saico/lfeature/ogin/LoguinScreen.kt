@@ -3,7 +3,6 @@ package com.saico.lfeature.ogin
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,9 +34,7 @@ import com.saico.core.ui.icon.FitlogIcons
 import com.saico.core.ui.navigation.routes.onboarding.OnboardingRoute
 import com.saico.core.ui.theme.AppDim
 import com.saico.core.ui.theme.FontSizes
-import com.saico.core.ui.theme.LightBackground
-import com.saico.core.ui.theme.LightPrimary
-import com.saico.core.ui.theme.LightSuccess
+import com.saico.core.ui.theme.GradientColors
 import com.saico.core.ui.theme.PaddingDim
 
 @Composable
@@ -53,13 +50,12 @@ fun LoginScreen(
 @Composable
 fun Content(navController: NavHostController){
 
-    val gradientColors = listOf(LightPrimary, LightSuccess)
 
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(gradientColors))
+            .background(Brush.verticalGradient(GradientColors))
             .padding(PaddingDim.LARGE),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

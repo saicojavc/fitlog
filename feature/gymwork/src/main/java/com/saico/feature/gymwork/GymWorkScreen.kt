@@ -2,7 +2,6 @@ package com.saico.feature.gymwork
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,9 +32,7 @@ import com.saico.core.ui.components.FitlogIcon
 import com.saico.core.ui.components.FitlogTopAppBar
 import com.saico.core.ui.components.InfoDialog
 import com.saico.core.ui.icon.FitlogIcons
-import com.saico.core.ui.theme.LightBackground
-import com.saico.core.ui.theme.LightPrimary
-import com.saico.core.ui.theme.LightSuccess
+import com.saico.core.ui.theme.GradientColors
 import com.saico.core.ui.theme.PaddingDim
 import com.saico.feature.gymwork.component.AddExerciseDialog
 import com.saico.feature.gymwork.component.ExerciseCard
@@ -86,7 +83,6 @@ fun Content(
     onSaveSession: () -> Unit,
     onDismissSuccessDialog: () -> Unit
 ) {
-    val gradientColors = listOf(LightPrimary, LightSuccess)
 
 
     if (uiState.showAddExerciseDialog) {
@@ -154,7 +150,7 @@ fun Content(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Brush.verticalGradient(gradientColors))
+                .background(Brush.verticalGradient(GradientColors))
                 .padding(paddingValues)
                 .padding(PaddingDim.MEDIUM),
             verticalArrangement = Arrangement.spacedBy(PaddingDim.MEDIUM)
