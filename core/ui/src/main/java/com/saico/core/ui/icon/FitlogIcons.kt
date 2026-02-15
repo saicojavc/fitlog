@@ -27,8 +27,10 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Scale
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.Visibility
@@ -80,4 +82,8 @@ object FitlogIcons {
     val Download : ImageVector = Icons.Default.Download
 
     val Link : ImageVector = Icons.Default.Link
+
+    val Scale : ImageVector = Icons.Default.Scale
+
+    val Star : ImageVector = Icons.Default.Star
 }
