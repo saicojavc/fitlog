@@ -1,5 +1,6 @@
 package com.saico.feature.dashboard.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,8 @@ import com.saico.core.ui.theme.LightSuccess
 import com.saico.core.ui.R
 import com.saico.core.ui.navigation.routes.gymwork.GymWorkRoute
 import com.saico.core.ui.navigation.routes.workout.WorkoutRoute
+import com.saico.core.ui.theme.DarkPrimary
+import com.saico.core.ui.theme.LightBackground
 
 @Composable
 fun RegisterWork(navController: NavHostController) {
@@ -40,8 +43,9 @@ fun RegisterWork(navController: NavHostController) {
                 .clickable{
                     navController.navigate(WorkoutRoute.WorkoutScreenRoute.route)
                 },
-            color = LightSuccess,
-            elevation = 1.dp
+            color = Color(0xFF1E293B),
+            elevation = 1.dp,
+            border = BorderStroke(1.dp, LightBackground.copy(alpha = 0.7f))
         ) {
             Column(
                 modifier = Modifier
@@ -52,7 +56,8 @@ fun RegisterWork(navController: NavHostController) {
             ) {
                 FitlogIcon(
                     imageVector = FitlogIcons.Walk,
-                    background = Color.Black.copy(alpha = 0.3f),
+                    background = Color.Unspecified,
+                    tint = LightSuccess
                 )
                 FitlogText(
                     text = stringResource(id = R.string.register_workout)
@@ -67,8 +72,9 @@ fun RegisterWork(navController: NavHostController) {
                 .clickable{
                     navController.navigate(GymWorkRoute.GymWorkScreenRoute.route)
                 },
-            color = LightPrimaryVariant,
-            elevation = 1.dp
+            color =  Color(0xFF1E293B),
+            elevation = 1.dp,
+            border = BorderStroke(1.dp, LightBackground.copy(alpha = 0.7f))
         ) {
             Column(
                 modifier = Modifier
@@ -79,7 +85,8 @@ fun RegisterWork(navController: NavHostController) {
             ) {
                 FitlogIcon(
                     imageVector = FitlogIcons.Weight,
-                    background = Color.Black.copy(alpha = 0.3f),
+                    background = Color.Unspecified,
+                    tint = DarkPrimary
                 )
                 FitlogText(
                     text = stringResource(id = R.string.register_gym)

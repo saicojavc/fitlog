@@ -27,6 +27,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -52,20 +53,21 @@ fun WeeklyActivityCard(
     FitlogCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(PaddingDim.SMALL)
-            .clickable{
+            .padding(8.dp) // PaddingDim.SMALL
+            .clickable {
                 navController.navigate(StepsHistoryRoute.RootRoute.route)
             },
-        shape = MaterialTheme.shapes.extraLarge
+        shape = RoundedCornerShape(24.dp) // Bordes más redondeados
     ) {
         Column(
-            modifier = Modifier.padding(PaddingDim.MEDIUM)
+            modifier = Modifier.padding(16.dp) // PaddingDim.MEDIUM
         ) {
             Text(
                 text = stringResource(id = R.string.weekly_activity),
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.White // Texto principal siempre blanco
             )
-            Spacer(modifier = Modifier.height(PaddingDim.MEDIUM))
+            Spacer(modifier = Modifier.height(16.dp))
 
             val workoutsByDate = workouts.associateBy { workout ->
                 val cal = Calendar.getInstance().apply { timeInMillis = workout.date }
@@ -75,15 +77,15 @@ fun WeeklyActivityCard(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(150.dp)
+                    .height(180.dp) // Un poco más alto para mejor visualización
             ) {
-                // Background Scale Lines
+                // Líneas de escala de fondo
                 ScaleBackground(targetSteps = targetSteps)
 
                 Row(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 8.dp),
+                        .padding(horizontal = 4.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.Bottom
                 ) {
@@ -117,44 +119,48 @@ fun WeeklyActivityCard(
 
 @Composable
 private fun ScaleBackground(targetSteps: Int) {
-    val lineColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
-    val textColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+    // Usamos el Cool Gray para las líneas con baja opacidad
+    val lineColor = Color(0xFF94A3B8).copy(alpha = 0.15f)
+    val textColor = Color(0xFF94A3B8)
 
     Box(modifier = Modifier.fillMaxSize()) {
         Canvas(modifier = Modifier.fillMaxSize()) {
-            val canvasHeight = size.height - 30.dp.toPx() // Account for day label height
-            
-            // Positions: 200% (top), 100% (middle), 50% (quarter from bottom)
-            val heights = listOf(0f, 0.5f, 0.75f) 
-            
+            val canvasHeight = size.height - 40.dp.toPx()
+
+            // Dibujamos líneas en 0%, 50% y 100% de la escala
+            val heights = listOf(0f, 0.5f, 0.75f)
+
             heights.forEach { hRatio ->
                 val y = hRatio * canvasHeight
                 drawLine(
                     color = lineColor,
                     start = Offset(0f, y),
                     end = Offset(size.width, y),
-                    strokeWidth = 1.dp.toPx(),
-                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
+                    strokeWidth = 1.dp.toPx()
                 )
             }
         }
-        
-        // Labels
+
         Column(
-            modifier = Modifier.fillMaxHeight().padding(bottom = 30.dp),
+            modifier = Modifier.fillMaxHeight().padding(bottom = 40.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = "${targetSteps * 2}", fontSize = 8.sp, color = textColor)
-            Text(text = "$targetSteps", fontSize = 8.sp, color = textColor)
-            Text(text = "${targetSteps / 2}", fontSize = 8.sp, color = textColor)
+            Text(text = "${targetSteps * 2}", fontSize = 9.sp, color = textColor)
+            Text(text = "$targetSteps", fontSize = 9.sp, color = textColor)
+            Text(text = "0", fontSize = 9.sp, color = textColor)
         }
     }
 }
 
 @Composable
 private fun Bar(day: String, steps: Int, maxScaleSteps: Int, isToday: Boolean) {
-    val barMaxHeight = 120.dp
-    val barHeightRatio = (steps.toFloat() / maxScaleSteps.toFloat()).coerceIn(0.05f, 1f)
+    val barMaxHeight = 140.dp
+    // Calculamos la altura. CoerceIn asegura que siempre haya una pequeña marca aunque sea 0
+    val barHeightRatio = (steps.toFloat() / maxScaleSteps.toFloat()).coerceIn(0.02f, 1f)
+
+    // Color Emerald Green para hoy, y una versión más apagada para los otros días
+    val activeColor = Color(0xFF10B981)
+    val inactiveColor = Color(0xFF10B981).copy(alpha = 0.3f)
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -164,28 +170,27 @@ private fun Bar(day: String, steps: Int, maxScaleSteps: Int, isToday: Boolean) {
         Box(
             modifier = Modifier
                 .height(barMaxHeight * barHeightRatio)
-                .width(18.dp)
-                .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                .background(
-                    if (isToday) MaterialTheme.colorScheme.primary 
-                    else MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
-                )
+                .width(28.dp) // Más anchas para look moderno
+                .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp, bottomStart = 4.dp, bottomEnd = 4.dp))
+                .background(if (isToday) activeColor else inactiveColor)
         )
-        Spacer(modifier = Modifier.height(4.dp))
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         Box(
             modifier = Modifier
-                .size(22.dp)
+                .size(28.dp)
                 .background(
-                    color = if (isToday) MaterialTheme.colorScheme.primary else Color.Transparent,
+                    color = if (isToday) activeColor else Color.Transparent,
                     shape = CircleShape
                 ),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = day,
-                style = MaterialTheme.typography.labelSmall,
-                color = if (isToday) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
+                color = if (isToday) Color(0xFF0F172A) else Color(0xFF94A3B8),
                 textAlign = TextAlign.Center
             )
         }

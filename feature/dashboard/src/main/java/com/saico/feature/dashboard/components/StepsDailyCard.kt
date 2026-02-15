@@ -30,6 +30,7 @@ import com.saico.core.model.UnitsConfig
 import com.saico.core.ui.components.FitlogCard
 import com.saico.core.ui.icon.FitlogIcons
 import com.saico.core.ui.navigation.routes.stepshistory.StepsHistoryRoute
+import com.saico.core.ui.theme.DarkPrimary
 import com.saico.core.ui.theme.PaddingDim
 import com.saico.feature.dashboard.state.DashboardUiState
 
@@ -77,7 +78,8 @@ fun StepsDailyCard(uiState: DashboardUiState, navController: NavHostController) 
                     modifier = Modifier.size(150.dp),
                     strokeWidth = 12.dp,
                     strokeCap = StrokeCap.Round,
-                    color = MaterialTheme.colorScheme.primary
+                    color = Color(0xFF10B981),
+                    trackColor = Color(0x2610B981)
                 )
 
                 if (dailySteps >= dailyStepsGoal) {
@@ -130,13 +132,15 @@ fun StepsDailyCard(uiState: DashboardUiState, navController: NavHostController) 
                 StatInfo(
                     icon = FitlogIcons.Map,
                     value = distanceParts[0],
-                    unit = distanceParts[1].uppercase()
+                    unit = distanceParts[1].uppercase(),
+                    tint = DarkPrimary
                 )
                 
                 StatInfo(
                     icon = FitlogIcons.Clock,
                     value = activeTime.toString(),
-                    unit = "Min"
+                    unit = "Min",
+                    tint = DarkPrimary
                 )
             }
 
