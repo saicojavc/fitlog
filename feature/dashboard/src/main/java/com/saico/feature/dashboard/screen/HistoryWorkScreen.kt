@@ -2,6 +2,7 @@ package com.saico.feature.dashboard.screen
 
 import android.text.format.DateUtils
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -25,10 +26,12 @@ import com.saico.core.model.GymExercise
 import com.saico.core.model.UnitsConfig
 import com.saico.core.model.WorkoutSession
 import com.saico.core.ui.R
+import com.saico.core.ui.components.FitlogCard
 import com.saico.core.ui.components.FitlogIcon
 import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.icon.FitlogIcons
 import com.saico.core.ui.theme.GradientColors
+import com.saico.core.ui.theme.LightBackground
 import com.saico.core.ui.theme.LightPrimary
 import com.saico.core.ui.theme.LightSuccess
 import com.saico.core.ui.theme.PaddingDim
@@ -143,10 +146,10 @@ fun SummaryCard(
         HistoryFilter.ALL -> stringResource(id = R.string.total_history)
     }
 
-    Card(
+    FitlogCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
+        contentColor = MaterialTheme.colorScheme.primary
     ) {
         Box(
             modifier = Modifier
@@ -199,28 +202,29 @@ fun SummaryStat(
     tint: Color
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(
+        FitlogIcon(
             imageVector = icon,
             contentDescription = null,
             modifier = Modifier.size(32.dp),
-            tint = tint
+            tint = tint,
+            background = Color.Unspecified
         )
         Spacer(modifier = Modifier.width(PaddingDim.SMALL))
         Column {
-            Text(
+            FitlogText(
                 text = label,
                 style = MaterialTheme.typography.labelSmall,
                 color = Color.White.copy(alpha = 0.7f)
             )
             Row(verticalAlignment = Alignment.Bottom) {
-                Text(
+                FitlogText(
                     text = value,
                     style = MaterialTheme.typography.headlineSmall,
                     color = Color.White,
                     fontWeight = FontWeight.Black
                 )
                 if (unit.isNotEmpty()) {
-                    Text(
+                    FitlogText(
                         text = " $unit",
                         style = MaterialTheme.typography.labelMedium,
                         color = Color.White.copy(alpha = 0.9f),
@@ -274,12 +278,12 @@ fun GymExerciseCard(gymExercise: GymExercise, units: UnitsConfig) {
     var expanded by remember { mutableStateOf(false) }
     val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
 
-    Card(
+    FitlogCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { expanded = !expanded },
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.3f))
+        border = BorderStroke(1.dp, LightBackground.copy(alpha = 0.7f))
     ) {
         Column(modifier = Modifier.padding(PaddingDim.MEDIUM)) {
             Row(
@@ -325,14 +329,14 @@ fun GymExerciseCard(gymExercise: GymExercise, units: UnitsConfig) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             // Nombre del ejercicio con peso para permitir salto de línea
-                            Text(
+                            FitlogText(
                                 text = exercise.name, 
                                 fontWeight = FontWeight.Medium,
                                 modifier = Modifier.weight(1f)
                             )
                             Spacer(modifier = Modifier.width(PaddingDim.MEDIUM))
                             // Detalles técnicos alineados a la derecha
-                            Text(
+                            FitlogText(
                                 text = "${exercise.sets}x${exercise.reps} - ${UnitsConverter.formatWeight(exercise.weightKg, units)}",
                                 style = MaterialTheme.typography.bodySmall
                             )
@@ -350,18 +354,18 @@ fun WorkoutSessionCard(session: WorkoutSession, units: UnitsConfig) {
     val calendar = remember { Calendar.getInstance().apply { timeInMillis = session.date } }
     val dayOfWeek = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()) ?: ""
 
-    Card(
+    FitlogCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = if (isSystemInDarkTheme()) Color.Black.copy(alpha = 0.3f) else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f))
+        border = BorderStroke(1.dp, LightBackground.copy(alpha = 0.7f))
     ) {
         Column(modifier = Modifier.padding(PaddingDim.MEDIUM)) {
-            Text(
+            FitlogText(
                 text = stringResource(id = R.string.cardio_session),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-            Text(
+            FitlogText(
                 text = "$dayOfWeek, ${dateFormat.format(Date(session.date))}",
                 style = MaterialTheme.typography.bodySmall
             )
@@ -380,8 +384,8 @@ fun WorkoutSessionCard(session: WorkoutSession, units: UnitsConfig) {
 @Composable
 fun StatItem(label: String, value: String) {
     Column {
-        Text(text = label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(text = value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+        FitlogText(text = label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        FitlogText(text = value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
     }
 }
 
