@@ -1,8 +1,8 @@
 package com.saico.feature.setting
 
-import android.app.TimePickerDialog
+
+import android.annotation.SuppressLint
 import android.text.format.DateFormat
-import android.view.ContextThemeWrapper
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -35,11 +35,7 @@ import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TimePicker
-import androidx.compose.material3.TimePickerDefaults
-import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -60,7 +56,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.saico.core.model.DarkThemeConfig
 import com.saico.core.model.LanguageConfig
 import com.saico.core.model.UnitsConfig
 import com.saico.core.model.UserData
@@ -131,6 +126,7 @@ fun SettingScreen(
 }
 
 
+@SuppressLint("DefaultLocale")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsContent(
