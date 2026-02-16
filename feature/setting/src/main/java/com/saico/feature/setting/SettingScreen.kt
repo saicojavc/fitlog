@@ -2,32 +2,61 @@ package com.saico.feature.setting
 
 import android.app.TimePickerDialog
 import android.text.format.DateFormat
+import android.view.ContextThemeWrapper
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDefaults
+import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -90,10 +119,8 @@ fun SettingScreen(
                 is SettingUiState.Success -> {
                     SettingsContent(
                         settings = state.settings,
-                        onThemeChange = viewModel::updateDarkThemeConfig,
                         onLanguageChange = viewModel::updateLanguageConfig,
                         onUnitsChange = viewModel::updateUnitsConfig,
-                        onDynamicColorChange = viewModel::updateDynamicColorPreference,
                         onTimeChange = viewModel::updateWorkoutReminderTime,
                         navController = navController
                     )
@@ -103,18 +130,32 @@ fun SettingScreen(
     }
 }
 
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsContent(
     settings: UserData,
-    onThemeChange: (DarkThemeConfig) -> Unit,
     onLanguageChange: (LanguageConfig) -> Unit,
     onUnitsChange: (UnitsConfig) -> Unit,
-    onDynamicColorChange: (Boolean) -> Unit,
     onTimeChange: (Int, Int) -> Unit,
     navController: NavHostController
 ) {
     val context = LocalContext.current
     val isSystem24Hour = remember { DateFormat.is24HourFormat(context) }
+    var showTimePicker by remember { mutableStateOf(false) }
+
+
+    if (showTimePicker) {
+        FitlogTimePickerDialog(
+            initialHour = settings.workoutReminderHour,
+            initialMinute = settings.workoutReminderMinute,
+            onDismissRequest = { showTimePicker = false },
+            onConfirm = { hour, minute ->
+                onTimeChange(hour, minute)
+                showTimePicker = false
+            }
+        )
+    }
 
     // Formateo visual de la hora del recordatorio
     val displayTime =
@@ -132,82 +173,57 @@ fun SettingsContent(
                 String.format("%d:%02d %s", hour, settings.workoutReminderMinute, amPm)
             }
         }
-
-    // Modo Oscuro
-//    Row(
-//        modifier = Modifier.fillMaxWidth(),
-//        verticalAlignment = Alignment.CenterVertically,
-//        horizontalArrangement = Arrangement.SpaceBetween
-//    ) {
-//        FitlogText(
-//            text = stringResource(id = R.string.theme),
-//            style = MaterialTheme.typography.titleMedium,
-//            fontWeight = FontWeight.Bold
-//        )
-//        Switch(
-//            checked = settings.darkThemeConfig == DarkThemeConfig.DARK,
-//            onCheckedChange = { isDark ->
-//                onThemeChange(if (isDark) DarkThemeConfig.DARK else DarkThemeConfig.LIGHT)
-//            },
-//            thumbContent = {
-//                Icon(
-//                    imageVector = if (settings.darkThemeConfig == DarkThemeConfig.DARK) FitlogIcons.Moon else FitlogIcons.Sun,
-//                    contentDescription = null,
-//                    modifier = Modifier.size(SwitchDefaults.IconSize)
-//                )
-//            }
-//        )
-//    }
-
-//    HorizontalDivider(modifier = Modifier.padding(vertical = PaddingDim.MEDIUM))
-
-    // Recordatorio de Entrenamiento (Configurable)
     FitlogCard(
-        modifier = Modifier.padding(vertical = PaddingDim.SMALL)
+        modifier = Modifier.padding(vertical = PaddingDim.SMALL),
+        color = Color(0xFF1E293B).copy(alpha = 0.6f), // Glassmorphism base
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f)) // Borde sutil
     ) {
-        SettingSectionTitle(title = stringResource(id = R.string.notifications))
+        SettingSectionTitle(
+            title = stringResource(id = R.string.notifications).uppercase(),
+            icon = FitlogIcons.Notifications
+        )
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(PaddingDim.MEDIUM)
                 .clickable {
-                    TimePickerDialog(
-                        context,
-                        { _, hour, minute -> onTimeChange(hour, minute) },
-                        settings.workoutReminderHour,
-                        settings.workoutReminderMinute,
-                        isSystem24Hour
-                    ).show()
+                    showTimePicker = true
                 }
-                .padding(vertical = PaddingDim.SMALL),
+                .padding(PaddingDim.MEDIUM),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
                 FitlogText(
                     text = stringResource(id = R.string.workout_reminder),
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.White
                 )
                 FitlogText(
                     text = displayTime,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary
+                    color = Color(0xFF10B981) // Emerald Green para el valor activo
                 )
             }
-            Icon(imageVector = FitlogIcons.Clock, contentDescription = null)
+
+            Icon(
+                imageVector = FitlogIcons.Clock,
+                contentDescription = null,
+                tint = Color(0xFF10B981)
+            )
         }
     }
 
-
+    // --- IDIOMA ---
     FitlogCard(
-        modifier = Modifier.padding(vertical = PaddingDim.SMALL)
+        modifier = Modifier.padding(vertical = PaddingDim.SMALL),
+        color = Color(0xFF1E293B).copy(alpha = 0.6f),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
     ) {
-        // Idioma
-        SettingSectionTitle(title = stringResource(id = R.string.language))
-        Column(
-            modifier = Modifier
-                .padding(PaddingDim.MEDIUM)
-        ) {
+        SettingSectionTitle(
+            title = stringResource(id = R.string.language).uppercase(),
+            icon = FitlogIcons.Language
+        )
+        Column(modifier = Modifier.padding(bottom = PaddingDim.SMALL)) {
             SettingOption(
                 label = stringResource(id = R.string.follow_system),
                 selected = settings.languageConfig == LanguageConfig.FOLLOW_SYSTEM,
@@ -224,18 +240,19 @@ fun SettingsContent(
                 onClick = { onLanguageChange(LanguageConfig.SPANISH) }
             )
         }
-
     }
 
+    // --- UNIDADES ---
     FitlogCard(
-        modifier = Modifier.padding(vertical = PaddingDim.SMALL)
+        modifier = Modifier.padding(vertical = PaddingDim.SMALL),
+        color = Color(0xFF1E293B).copy(alpha = 0.6f),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
     ) {
-        // Unidades de Medida
-        SettingSectionTitle(title = stringResource(id = R.string.measurement_units))
-        Column(
-            modifier = Modifier
-                .padding(PaddingDim.MEDIUM)
-        ) {
+        SettingSectionTitle(
+            title = stringResource(id = R.string.measurement_units).uppercase(),
+            icon = FitlogIcons.Straighten // Icono de regla/medida
+        )
+        Column(modifier = Modifier.padding(bottom = PaddingDim.SMALL)) {
             SettingOption(
                 label = stringResource(id = R.string.metric_system),
                 selected = settings.unitsConfig == UnitsConfig.METRIC,
@@ -246,80 +263,165 @@ fun SettingsContent(
                 selected = settings.unitsConfig == UnitsConfig.IMPERIAL,
                 onClick = { onUnitsChange(UnitsConfig.IMPERIAL) }
             )
+
         }
     }
 
-    FitlogCard(
-        modifier = Modifier.padding(vertical = PaddingDim.SMALL).clickable{
-            navController.navigate(AboutRoute.AboutScreenRoute.route)
-        }
+    // --- BOTÓN SOBRIO DE ABOUT ---
+    Spacer(modifier = Modifier.height(PaddingDim.LARGE))
+    TextButton(
+        onClick = { navController.navigate(AboutRoute.AboutScreenRoute.route) },
+        modifier = Modifier.fillMaxWidth(),
+        colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF1E293B).copy(alpha = 0.6f))
     ) {
-        Row(
+        FitlogText(
+            text = stringResource(id = R.string.about_me),
+            style = MaterialTheme.typography.labelLarge,
+            color = Color(0xFF1E293B).copy(alpha = 0.6f),
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FitlogTimePickerDialog(
+    onDismissRequest: () -> Unit,
+    onConfirm: (Int, Int) -> Unit,
+    initialHour: Int,
+    initialMinute: Int,
+) {
+    //  estados locales para los números
+    var selectedHour by remember { mutableIntStateOf(initialHour) }
+    var selectedMinute by remember { mutableIntStateOf(initialMinute) }
+
+    Dialog(onDismissRequest = onDismissRequest) {
+        Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(PaddingDim.MEDIUM),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+                .padding(horizontal = 16.dp),
+            shape = RoundedCornerShape(32.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF111827)), // Casi negro
+            border = BorderStroke(0.5.dp, Color.White.copy(alpha = 0.15f))
         ) {
-            FitlogText(
-                text = stringResource(id = R.string.about_me),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                FitlogText(
+                    text = stringResource(id = R.string.workout_reminder),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color(0xFF94A3B8),
+                    letterSpacing = 2.sp
+                )
 
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // Selector de Tiempo Estilo Minimalista
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    // Hora
+                    TimeNumberColumn(
+                        value = selectedHour,
+                        range = 0..23,
+                        onValueChange = { selectedHour = it }
+                    )
+
+                    FitlogText(
+                        text = ":",
+                        style = MaterialTheme.typography.displayMedium,
+                        color = Color.White.copy(alpha = 0.5f),
+                        modifier = Modifier.padding(horizontal = 12.dp)
+                    )
+
+                    // Minutos
+                    TimeNumberColumn(
+                        value = selectedMinute,
+                        range = 0..59,
+                        onValueChange = { selectedMinute = it }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(40.dp))
+
+                // Botón de Confirmación Estilo "Pill"
+                Button(
+                    onClick = { onConfirm(selectedHour, selectedMinute) },
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    shape = CircleShape,
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981))
+                ) {
+                    Text(stringResource(id = R.string.done), fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                }
+            }
         }
     }
-
-    // Color Dinámico
-//    Row(
-//        modifier = Modifier.fillMaxWidth(),
-//        verticalAlignment = Alignment.CenterVertically,
-//        horizontalArrangement = Arrangement.SpaceBetween
-//    ) {
-//        Column(modifier = Modifier.weight(1f)) {
-//            FitlogText(
-//                text = stringResource(id = R.string.dynamic_color),
-//                style = MaterialTheme.typography.titleMedium,
-//                fontWeight = FontWeight.Bold
-//            )
-//            FitlogText(
-//                text = stringResource(id = R.string.dynamic_color_desc),
-//                style = MaterialTheme.typography.bodySmall,
-//                color = MaterialTheme.colorScheme.onSurfaceVariant
-//            )
-//        }
-//        Switch(
-//            checked = settings.useDynamicColor,
-//            onCheckedChange = onDynamicColorChange
-//        )
-//    }
 }
 
 @Composable
-fun SettingSectionTitle(title: String) {
-    FitlogText(
-        text = title,
-        style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(PaddingDim.SMALL)
-    )
+fun TimeNumberColumn(value: Int, range: IntRange, onValueChange: (Int) -> Unit) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        IconButton(onClick = { if (value < range.last) onValueChange(value + 1) }) {
+            Icon(Icons.Default.KeyboardArrowUp, null, tint = Color(0xFF10B981))
+        }
+        Text(
+            text = String.format("%02d", value),
+            style = MaterialTheme.typography.displayLarge,
+            fontWeight = FontWeight.Light, // El peso ligero da elegancia
+            color = Color.White
+        )
+        IconButton(onClick = { if (value > range.first) onValueChange(value - 1) }) {
+            Icon(Icons.Default.KeyboardArrowDown, null, tint = Color(0xFF10B981))
+        }
+    }
 }
 
+@Composable
+fun SettingSectionTitle(title: String, icon: ImageVector? = null) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(horizontal = PaddingDim.MEDIUM, vertical = PaddingDim.SMALL)
+    ) {
+        if (icon != null) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = Color(0xFF94A3B8), // Cool Gray
+                modifier = Modifier.size(20.dp).padding(end = PaddingDim.SMALL)
+            )
+        }
+        FitlogText(
+            text = title,
+            style = MaterialTheme.typography.titleSmall, // Un poco más pequeño para elegancia
+            fontWeight = FontWeight.SemiBold,
+            color = Color(0xFF94A3B8) // Cool Gray para un look sobrio
+        )
+    }
+}
 @Composable
 fun SettingOption(label: String, selected: Boolean, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(vertical = PaddingDim.EXTRA_SMALL),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = PaddingDim.MEDIUM, vertical = PaddingDim.SMALL),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        RadioButton(selected = selected, onClick = onClick)
         FitlogText(
             text = label,
             style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(start = PaddingDim.SMALL)
+            color = if (selected) Color.White else Color.White.copy(alpha = 0.6f)
+        )
+        RadioButton(
+            selected = selected,
+            onClick = onClick,
+            colors = RadioButtonDefaults.colors(
+                selectedColor = Color(0xFF10B981), // Emerald Green
+                unselectedColor = Color.White.copy(alpha = 0.3f)
+            )
         )
     }
 }

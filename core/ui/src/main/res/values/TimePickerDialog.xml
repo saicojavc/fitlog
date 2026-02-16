@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="FitlogTimePickerTheme" parent="Theme.Material3.Dark.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="colorSurface">#FF1E293B</item> <item name="colorOnSurface">#FFFFFFFF</item> <item name="colorPrimary">#FF10B981</item> <item name="colorOnPrimary">#FFFFFFFF</item> <item name="buttonBarPositiveButtonStyle">@style/FitlogTimePickerButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/FitlogTimePickerButton</item>
+    </style>
+
+    <style name="FitlogTimePickerButton" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">#FF10B981</item>
+    </style>
+</resources>

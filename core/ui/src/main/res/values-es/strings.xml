@@ -98,6 +98,10 @@
     <!-- Reminders -->
     <string name="notifications">Notificaciones</string>
     <string name="workout_reminder">Recordatorio de Entrenamiento</string>
+    <string name="set_reminder">ESTABLECER RECORDATORIO</string>
+    <string name="done">LISTO</string>
+    <string name="am">AM</string>
+    <string name="pm">PM</string>
 
     <!-- Notification Content -->
     <string name="daily_motivational_title">¡Es hora de moverse!</string>

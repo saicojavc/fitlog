@@ -27,6 +27,7 @@ fun FitlogText(
     textAlign: TextAlign? = null,
     fontWeight: FontWeight? = null,
     overflow: TextOverflow = TextOverflow.Clip,
+    letterSpacing: TextUnit = TextUnit.Unspecified
 ) {
     Text(
         text = text,
@@ -38,7 +39,8 @@ fun FitlogText(
         fontSize = fontSize,
         lineHeight = lineHeight,
         overflow = overflow,
-        fontWeight = fontWeight
+        fontWeight = fontWeight,
+                letterSpacing = letterSpacing
     )
 }
 
