@@ -1,5 +1,6 @@
 package com.saico.feature.stepshistory
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -13,11 +14,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
@@ -31,7 +35,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -46,7 +52,9 @@ import com.saico.core.ui.R
 import com.saico.core.ui.components.FitlogCard
 import com.saico.core.ui.components.FitlogIcon
 import com.saico.core.ui.components.FitlogTopAppBar
+import com.saico.core.ui.components.SpacerHeight
 import com.saico.core.ui.icon.FitlogIcons
+import com.saico.core.ui.theme.GradientColors
 import com.saico.core.ui.theme.PaddingDim
 import com.saico.feature.stepshistory.state.ChartData
 import com.saico.feature.stepshistory.state.StepsHistoryFilter
@@ -81,8 +89,7 @@ fun Content(
             FitlogTopAppBar(
                 title = stringResource(id = R.string.steps_history),
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = if (isSystemInDarkTheme()) Color.Black.copy(alpha = 0.3f)
-                    else MaterialTheme.colorScheme.surface
+                    containerColor = Color.Black.copy(alpha = 0.3f) // Siempre oscuro para consistencia
                 ),
                 navigationIcon = {
                     FitlogIcon(
@@ -98,47 +105,50 @@ fun Content(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(Brush.verticalGradient(GradientColors)) // Fondo unificado
                 .padding(paddingValues)
                 .padding(horizontal = PaddingDim.MEDIUM)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(PaddingDim.MEDIUM))
+            SpacerHeight(PaddingDim.MEDIUM)
 
+            // Selector de Filtro Minimalista
             FilterSelector(
                 selectedFilter = uiState.selectedFilter,
                 onFilterSelected = onFilterSelected
             )
 
-            Spacer(modifier = Modifier.height(PaddingDim.LARGE))
+            SpacerHeight(PaddingDim.LARGE)
 
             val chartData = processData(uiState)
 
+            // Fila de Estadísticas con diseño Glass
             SummaryStatsRow(
                 distance = UnitsConverter.formatDistance(chartData.totalDistanceKm.toDouble(), uiState.unitsConfig),
                 time = formatMinutes(chartData.totalTimeMinutes)
             )
 
-            Spacer(modifier = Modifier.height(PaddingDim.LARGE))
+            SpacerHeight(PaddingDim.LARGE)
 
+            // Gráficos Estilizados
             ChartCard(
-                title = if (uiState.selectedFilter == StepsHistoryFilter.MONTHLY) {
-                    val cal = Calendar.getInstance()
-                    "${stringResource(id = R.string.steps)} - ${cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault())}"
-                } else stringResource(id = R.string.steps),
+                title = stringResource(id = R.string.steps).uppercase(),
                 data = chartData.stepsData,
-                unit = ""
+                unit = "",
+                accentColor = Color(0xFF10B981) // Esmeralda
             )
 
-            Spacer(modifier = Modifier.height(PaddingDim.MEDIUM))
+            SpacerHeight(PaddingDim.MEDIUM)
 
             ChartCard(
-                title = stringResource(id = R.string.calories),
+                title = stringResource(id = R.string.calories).uppercase(),
                 data = chartData.caloriesData,
-                unit = "kcal"
+                unit = "kcal",
+                accentColor = Color(0xFFFF6F00) // Naranja
             )
-            
-            Spacer(modifier = Modifier.height(PaddingDim.MEDIUM))
+
+            SpacerHeight(PaddingDim.MEDIUM)
         }
     }
 }
@@ -172,36 +182,38 @@ fun StatCard(
     modifier: Modifier = Modifier,
     title: String,
     value: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector
+    icon: ImageVector
 ) {
     FitlogCard(
         modifier = modifier,
-        shape = MaterialTheme.shapes.large
+        color = Color(0xFF1E293B).copy(alpha = 0.6f),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
     ) {
         Column(
             modifier = Modifier.padding(PaddingDim.MEDIUM),
             horizontalAlignment = Alignment.Start
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                FitlogIcon(
+                Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    modifier = Modifier.width(20.dp),
-                    background = Color.Transparent,
-                    tint = MaterialTheme.colorScheme.primary
+                    modifier = Modifier.size(16.dp),
+                    tint = Color(0xFF10B981)
                 )
-                Spacer(modifier = Modifier.width(PaddingDim.SMALL))
+                Spacer(Modifier.width(8.dp))
                 Text(
-                    text = title,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    text = title.uppercase(),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color(0xFF94A3B8),
+                    letterSpacing = 1.sp
                 )
             }
-            Spacer(modifier = Modifier.height(PaddingDim.SMALL))
+            Spacer(Modifier.height(4.dp))
             Text(
                 text = value,
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Light, // Elegancia
+                color = Color.White
             )
         }
     }
@@ -214,24 +226,36 @@ fun FilterSelector(
     onFilterSelected: (StepsHistoryFilter) -> Unit
 ) {
     val options = StepsHistoryFilter.values()
-    SingleChoiceSegmentedButtonRow(
-        modifier = Modifier.fillMaxWidth()
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(CircleShape)
+            .background(Color.White.copy(alpha = 0.05f))
+            .padding(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        options.forEachIndexed { index, filter ->
-            SegmentedButton(
-                shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
-                onClick = { onFilterSelected(filter) },
-                selected = filter == selectedFilter,
-                label = {
-                    Text(
-                        text = when (filter) {
-                            StepsHistoryFilter.WEEKLY -> stringResource(R.string.weekly)
-                            StepsHistoryFilter.MONTHLY -> stringResource(R.string.monthly)
-                            StepsHistoryFilter.YEARLY -> stringResource(R.string.yearly)
-                        }
-                    )
-                }
-            )
+        options.forEach { filter ->
+            val isSelected = filter == selectedFilter
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(36.dp)
+                    .clip(CircleShape)
+                    .background(if (isSelected) Color(0xFF10B981) else Color.Transparent)
+                    .clickable { onFilterSelected(filter) },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = when (filter) {
+                        StepsHistoryFilter.WEEKLY -> stringResource(R.string.weekly)
+                        StepsHistoryFilter.MONTHLY -> stringResource(R.string.monthly)
+                        StepsHistoryFilter.YEARLY -> stringResource(R.string.yearly)
+                    },
+                    style = MaterialTheme.typography.labelMedium,
+                    color = if (isSelected) Color.White else Color(0xFF94A3B8),
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                )
+            }
         }
     }
 }
@@ -240,26 +264,29 @@ fun FilterSelector(
 fun ChartCard(
     title: String,
     data: List<ChartData>,
-    unit: String
+    unit: String,
+    accentColor: Color
 ) {
     FitlogCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge
+        color = Color(0xFF1E293B).copy(alpha = 0.6f),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
     ) {
         Column(modifier = Modifier.padding(PaddingDim.MEDIUM)) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.labelMedium,
+                color = Color(0xFF94A3B8),
+                letterSpacing = 1.5.sp
             )
             Spacer(modifier = Modifier.height(PaddingDim.LARGE))
 
             val maxValue = data.maxOfOrNull { it.value } ?: 1f
-            
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp),
+                    .height(180.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Bottom
             ) {
@@ -267,11 +294,58 @@ fun ChartCard(
                     BarItem(
                         item = item,
                         maxValue = maxValue,
+                        accentColor = accentColor,
                         modifier = Modifier.weight(1f)
                     )
                 }
             }
         }
+    }
+}
+
+@Composable
+fun BarItem(
+    item: ChartData,
+    maxValue: Float,
+    accentColor: Color,
+    modifier: Modifier = Modifier
+) {
+    val barHeightRatio = (item.value / maxValue).coerceIn(0.05f, 1f)
+
+    Column(
+        modifier = modifier.fillMaxHeight(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Bottom
+    ) {
+        if (item.isHighlighted) {
+            Text(
+                text = if (item.value >= 1000) "${(item.value / 1000).toInt()}k" else item.value.toInt().toString(),
+                style = MaterialTheme.typography.labelSmall,
+                color = accentColor,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(Modifier.height(4.dp))
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxHeight(barHeightRatio * 0.7f)
+                .width(8.dp) // Más delgadas para ser elegantes
+                .clip(CircleShape) // Cápsula completa
+                .background(
+                    if (item.isHighlighted) accentColor
+                    else accentColor.copy(alpha = 0.2f)
+                )
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = item.label,
+            style = MaterialTheme.typography.labelSmall,
+            color = if (item.isHighlighted) Color.White else Color(0xFF94A3B8),
+            fontSize = 10.sp
+        )
     }
 }
 
