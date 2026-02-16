@@ -86,10 +86,11 @@ fun StepsDailyCard(uiState: DashboardUiState, navController: NavHostController) 
                     // Anillo Exterior (Pasos Extra)
                     CircularProgressIndicator(
                         progress = { extraProgress },
-                        modifier = Modifier.size(170.dp),
+                        modifier = Modifier.size(150.dp),
                         strokeWidth = 12.dp,
                         strokeCap = StrokeCap.Round,
-                        color = Color(0xFFFF6F00)
+                        color = Color(0xFFFF6F00),
+                        trackColor = Color.Transparent
                     )
                 }
 

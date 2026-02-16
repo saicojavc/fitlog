@@ -24,6 +24,10 @@ android {
     }
 
     buildTypes {
+//        debug {
+//            applicationIdSuffix = ".debug"
+//            versionNameSuffix = "-debug"
+//        }
         release {
             isMinifyEnabled = true // Activa la optimización y ofuscación
             isShrinkResources = true // Elimina recursos no utilizados
