@@ -145,7 +145,7 @@ fun OnboardingFinish(
                 modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)
             )
 
-           
+
             LevelCard(levelText = levelText)
 
             Spacer(modifier = Modifier.weight(1f))
