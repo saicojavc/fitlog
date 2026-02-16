@@ -1,5 +1,6 @@
 package com.saico.feature.workout
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,6 +28,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.saico.core.ui.R
+import com.saico.core.ui.components.FitlogCard
 import com.saico.core.ui.components.FitlogIcon
 import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.components.FitlogTopAppBar
@@ -35,6 +37,7 @@ import com.saico.core.ui.components.SpacerHeight
 import com.saico.core.ui.icon.FitlogIcons
 import com.saico.core.ui.theme.DarkSurface
 import com.saico.core.ui.theme.GradientColors
+import com.saico.core.ui.theme.LightBackground
 import com.saico.core.ui.theme.LightSuccess
 import com.saico.core.ui.theme.PaddingDim
 import com.saico.feature.workout.component.CircularControlButton
@@ -136,36 +139,48 @@ fun Content(
             SpacerHeight(PaddingDim.LARGE)
 
             // -- ESTADÍSTICAS PRINCIPALES --
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+            FitlogCard(
+                border = BorderStroke(1.dp, LightBackground.copy(alpha = 0.7f))
             ) {
-                WorkoutStat(
-                    icon = FitlogIcons.Map,
-                    value = "%.2f".format(uiState.distance),
-                    unit = stringResource(id = R.string.km),
-                    tint = LightSuccess
-                )
-                WorkoutStat(
-                    icon = FitlogIcons.Fire,
-                    value = uiState.calories.toString(),
-                    unit = stringResource(id = R.string.calories),
-                    tint = Color(0xFFFF6F00)
-                )
+                Column(
+                    modifier = Modifier
+                        .padding(PaddingDim.MEDIUM),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        WorkoutStat(
+                            icon = FitlogIcons.Map,
+                            value = "%.2f".format(uiState.distance),
+                            unit = stringResource(id = R.string.km),
+                            tint = LightSuccess
+                        )
+                        WorkoutStat(
+                            icon = FitlogIcons.Fire,
+                            value = uiState.calories.toString(),
+                            unit = stringResource(id = R.string.calories),
+                            tint = Color(0xFFFF6F00)
+                        )
+                    }
+
+                    SpacerHeight(PaddingDim.LARGE)
+
+                    // -- RITMO MEDIO --
+                    WorkoutStat(
+                        icon = FitlogIcons.Speed,
+                        value = "%.1f".format(uiState.averagePace),
+                        unit = stringResource(id = R.string.average_pace),
+                        tint = DarkSurface
+                    )
+                }
+
+
+
             }
 
-            SpacerHeight(PaddingDim.LARGE)
-
-            // -- RITMO MEDIO --
-            WorkoutStat(
-                icon = FitlogIcons.Speed,
-                value = "%.1f".format(uiState.averagePace),
-                unit = stringResource(id = R.string.average_pace),
-                tint = DarkSurface
-            )
-
-            Spacer(modifier = Modifier.weight(1f)) // Empuja los botones hacia abajo
-
+                Spacer(modifier = Modifier.weight(1f)) // Empuja los botones hacia abajo
             // -- CONTROLES --
             Row(
                 modifier = Modifier.fillMaxWidth(),
