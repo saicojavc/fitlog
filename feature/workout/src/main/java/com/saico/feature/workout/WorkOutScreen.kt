@@ -196,7 +196,7 @@ fun Content(
                     icon = FitlogIcons.Stop,
                     onClick = onStop,
                     enabled = uiState.workoutState != WorkoutState.IDLE,
-                    size = 80.dp // Botón principal más grande
+                    size = 80.dp
                 )
                 CircularControlButton(
                     icon = if (uiState.workoutState == WorkoutState.PAUSED) FitlogIcons.Play else FitlogIcons.Play,
