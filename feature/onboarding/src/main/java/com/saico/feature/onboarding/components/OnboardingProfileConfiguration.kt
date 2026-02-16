@@ -1,17 +1,23 @@
 package com.saico.feature.onboarding.components
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -19,14 +25,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import com.saico.core.ui.R
 import com.saico.core.ui.components.FitlogCard
 import com.saico.core.ui.components.FitlogDropdown
-import com.saico.core.ui.components.FitlogOutlinedTextField
 import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.components.SpacerHeight
+import com.saico.core.ui.icon.FitlogIcons
 import com.saico.core.ui.theme.PaddingDim
 
 @Composable
@@ -44,137 +54,167 @@ fun OnboardingProfileConfiguration(
 ) {
     Column(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .padding(horizontal = PaddingDim.MEDIUM),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-         FitlogText(
-            text = stringResource(id = R.string.daily_goals),
+
+        FitlogText(
+            text = stringResource(id = R.string.personalize_your_experience),
             style = MaterialTheme.typography.headlineMedium,
-             color = Color.White,
+            fontWeight = FontWeight.Bold,
+            color = Color.White,
         )
 
         SpacerHeight(PaddingDim.SMALL)
 
         FitlogText(
-            text = stringResource(id = R.string.personalize_your_experience),
-            style = MaterialTheme.typography.bodyLarge,
-            color = Color.White,
+            text = stringResource(id = R.string.profile_metrics_description),
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color(0xFF94A3B8),
         )
 
-        SpacerHeight(PaddingDim.MEDIUM)
+        SpacerHeight(PaddingDim.LARGE)
 
+        // Tarjeta Principal Estilo Glassmorphism
         FitlogCard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(PaddingDim.SMALL),
+            modifier = Modifier.fillMaxWidth(),
+            color = Color(0xFF1E293B).copy(alpha = 0.6f),
+            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
         ) {
             Column(
-                modifier = Modifier.padding(PaddingDim.SMALL),
+                modifier = Modifier.padding(PaddingDim.MEDIUM),
                 horizontalAlignment = Alignment.Start
             ) {
-                FitlogText(
-                    modifier = Modifier.padding(PaddingDim.SMALL),
-                    text = stringResource(id = R.string.age)
-                )
-                FitlogOutlinedTextField(
-                    modifier = Modifier
-                        .padding(PaddingDim.SMALL)
-                        .fillMaxWidth(),
-                    value = age,
-                    onValueChange = onAgeChange,
+                // Sección EDAD
+                ProfileInputItem(
                     label = stringResource(id = R.string.age),
-                    shape = MaterialTheme.shapes.small,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    value = age,
+                    icon = FitlogIcons.CalendarToday,
+                    onValueChange = onAgeChange
                 )
 
-                SpacerHeight(PaddingDim.MEDIUM)
+                Divider(
+                    modifier = Modifier.padding(vertical = PaddingDim.MEDIUM),
+                    color = Color.White.copy(alpha = 0.05f)
+                )
 
+                // Sección PESO Y ALTURA en fila
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(PaddingDim.SMALL)
+                    horizontalArrangement = Arrangement.spacedBy(PaddingDim.MEDIUM)
                 ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        FitlogText(
-                            modifier = Modifier.padding(PaddingDim.SMALL),
-                            text = stringResource(id = R.string.weight)
-                        )
-                        FitlogOutlinedTextField(
-                            modifier = Modifier
-                                .padding(PaddingDim.SMALL)
-                                .fillMaxWidth(),
-                            value = weight,
-                            onValueChange = onWeightChange,
+                    Box(modifier = Modifier.weight(1f)) {
+                        ProfileInputItem(
                             label = stringResource(id = R.string.weight_kg),
-                            shape = MaterialTheme.shapes.small,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                            value = weight,
+                            icon = FitlogIcons.FitnessCenter,
+                            onValueChange = onWeightChange
                         )
                     }
-                    Column(modifier = Modifier.weight(1f)) {
-                        FitlogText(
-                            modifier = Modifier.padding(PaddingDim.SMALL),
-                            text = stringResource(id = R.string.height)
-                        )
-                        FitlogOutlinedTextField(
-                            modifier = Modifier
-                                .padding(PaddingDim.SMALL)
-                                .fillMaxWidth(),
-                            value = height,
-                            onValueChange = onHeightChange,
+                    Box(modifier = Modifier.weight(1f)) {
+                        ProfileInputItem(
                             label = stringResource(id = R.string.height_cm),
-                            shape = MaterialTheme.shapes.small,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                            value = height,
+                            icon = FitlogIcons.Height,
+                            onValueChange = onHeightChange
                         )
                     }
                 }
 
-                SpacerHeight(PaddingDim.MEDIUM)
-
-                FitlogText(
-                    modifier = Modifier.padding(PaddingDim.SMALL),
-                    text = stringResource(id = R.string.gender)
+                Divider(
+                    modifier = Modifier.padding(vertical = PaddingDim.MEDIUM),
+                    color = Color.White.copy(alpha = 0.05f)
                 )
+
+                // Sección GÉNERO
+                FitlogText(
+                    text = stringResource(id = R.string.gender),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = Color(0xFF94A3B8)
+                )
+
                 FitlogDropdown(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(PaddingDim.SMALL),
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                     expanded = isGenderMenuExpanded,
                     onExpandedChange = onGenderMenuExpanded,
                     placeholder = stringResource(id = R.string.select_option),
                     options = listOf(
                         stringResource(id = R.string.male),
-                        stringResource(id = R.string.female),
-                        stringResource(id = R.string.not_specified)
+                        stringResource(id = R.string.female)
                     ),
                     selectedOption = gender,
-                    onOptionSelected = onGenderSelected
+                    onOptionSelected = onGenderSelected,
                 )
             }
         }
 
-        SpacerHeight(PaddingDim.MEDIUM)
+        SpacerHeight(PaddingDim.LARGE)
 
-        // Informational Card
-        FitlogCard(
+
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(PaddingDim.SMALL),
-            color = MaterialTheme.colorScheme.tertiaryContainer
+                .background(Color(0xFF10B981).copy(alpha = 0.1f), CircleShape)
+                .padding(PaddingDim.MEDIUM),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.padding(PaddingDim.LARGE),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(PaddingDim.MEDIUM)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = null, // Decorative icon
-                    modifier = Modifier.size(PaddingDim.LARGE)
-                )
-                Text(
-                    text = stringResource(id = R.string.info_calorie_calculation),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
+            Icon(
+                imageVector = Icons.Default.Info,
+                contentDescription = null,
+                tint = Color(0xFF10B981),
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(Modifier.width(12.dp))
+            Text(
+                text = stringResource(id = R.string.info_calorie_calculation),
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.White.copy(alpha = 0.8f)
+            )
         }
+    }
+}
+
+@Composable
+fun ProfileInputItem(
+    label: String,
+    value: String,
+    icon: ImageVector,
+    onValueChange: (String) -> Unit
+) {
+    Column {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = Color(0xFF10B981),
+                modifier = Modifier.size(16.dp)
+            )
+            Spacer(Modifier.width(8.dp))
+            FitlogText(
+                text = label,
+                style = MaterialTheme.typography.labelMedium,
+                color = Color(0xFF94A3B8)
+            )
+        }
+
+
+        BasicTextField(
+            value = value,
+            onValueChange = onValueChange,
+            textStyle = MaterialTheme.typography.titleLarge.copy(
+                color = Color.White,
+                fontWeight = FontWeight.Light
+            ),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            cursorBrush = SolidColor(Color(0xFF10B981)),
+            decorationBox = { innerTextField ->
+                if (value.isEmpty()) {
+                    Text("0", style = MaterialTheme.typography.titleLarge, color = Color.White.copy(0.2f))
+                }
+                innerTextField()
+            },
+            modifier = Modifier.padding(top = 4.dp).fillMaxWidth()
+        )
     }
 }

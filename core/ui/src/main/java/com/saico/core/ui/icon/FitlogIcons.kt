@@ -4,9 +4,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Cake
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Edit
@@ -95,5 +97,11 @@ object FitlogIcons {
     val Language : ImageVector = Icons.Default.Language
 
     val Straighten : ImageVector = Icons.Default.Straighten
+
+
+    val CalendarToday : ImageVector = Icons.Default.CalendarToday
+
+    val ArrowDropDown : ImageVector = Icons.Default.ArrowDropDown
+
 
 }

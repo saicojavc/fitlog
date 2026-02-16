@@ -8,6 +8,7 @@
     <string name="get_started">Get Started</string>
     <string name="setup_your_profile">Set up your profile</string>
     <string name="personalize_your_experience">Personalize your Fitlog experience</string>
+    <string name="profile_metrics_description">Help us calculate your metrics accurately</string>
     <string name="age">Age</string>
     <string name="weight">Weight</string>
     <string name="height">Height</string>
@@ -188,4 +189,5 @@
     <!-- About Screen -->
     <string name="developed_by">Developed by %1$s</string>
     <string name="version">Version</string>
+    <string name="app_slogan">Your Ultimate Tracker</string>
 </resources>
