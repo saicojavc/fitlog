@@ -48,6 +48,7 @@ dependencies {
     implementation(project(":core:ui"))
     implementation(project(":core:domain"))
     implementation(project(":core:model"))
+    implementation(project(":core:datastore"))
 
     // AndroidX & Compose
     implementation(libs.androidx.core.ktx)

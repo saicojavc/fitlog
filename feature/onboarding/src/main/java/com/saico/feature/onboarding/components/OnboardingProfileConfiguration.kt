@@ -20,6 +20,9 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -31,6 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.saico.core.model.UnitsConfig
 import com.saico.core.ui.R
 import com.saico.core.ui.components.FitlogCard
 import com.saico.core.ui.components.FitlogDropdown
@@ -50,7 +54,9 @@ fun OnboardingProfileConfiguration(
     gender: String,
     onGenderSelected: (String) -> Unit,
     isGenderMenuExpanded: Boolean,
-    onGenderMenuExpanded: (Boolean) -> Unit
+    onGenderMenuExpanded: (Boolean) -> Unit,
+    unitsConfig: UnitsConfig,
+    onUnitsConfigSelected: (UnitsConfig) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -69,12 +75,42 @@ fun OnboardingProfileConfiguration(
         SpacerHeight(PaddingDim.SMALL)
 
         FitlogText(
-            text = stringResource(id = R.string.profile_metrics_description),
+            text = stringResource(id = R.string.info_calorie_calculation), // Usando string existente apropiado
             style = MaterialTheme.typography.bodyMedium,
             color = Color(0xFF94A3B8),
         )
 
         SpacerHeight(PaddingDim.LARGE)
+
+        // Selector de Unidades
+        SingleChoiceSegmentedButtonRow(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            UnitsConfig.values().forEachIndexed { index, config ->
+                SegmentedButton(
+                    shape = SegmentedButtonDefaults.itemShape(index = index, count = UnitsConfig.values().size),
+                    onClick = { onUnitsConfigSelected(config) },
+                    selected = config == unitsConfig,
+                    label = {
+                        Text(
+                            text = when (config) {
+                                UnitsConfig.METRIC -> stringResource(R.string.metric_system)
+                                UnitsConfig.IMPERIAL -> stringResource(R.string.imperial_system)
+                            },
+                            color = Color.White
+                        )
+                    },
+                    colors = SegmentedButtonDefaults.colors(
+                        activeContainerColor = Color(0xFF10B981),
+                        inactiveContainerColor = Color(0xFF1E293B).copy(alpha = 0.6f),
+                        activeContentColor = Color.White,
+                        inactiveContentColor = Color.White.copy(alpha = 0.6f)
+                    )
+                )
+            }
+        }
+
+        SpacerHeight(PaddingDim.MEDIUM)
 
         // Tarjeta Principal Estilo Glassmorphism
         FitlogCard(
@@ -106,7 +142,7 @@ fun OnboardingProfileConfiguration(
                 ) {
                     Box(modifier = Modifier.weight(1f)) {
                         ProfileInputItem(
-                            label = stringResource(id = R.string.weight_kg),
+                            label = if (unitsConfig == UnitsConfig.METRIC) stringResource(id = R.string.weight_kg) else "Weight (lb)",
                             value = weight,
                             icon = FitlogIcons.FitnessCenter,
                             onValueChange = onWeightChange
@@ -114,7 +150,7 @@ fun OnboardingProfileConfiguration(
                     }
                     Box(modifier = Modifier.weight(1f)) {
                         ProfileInputItem(
-                            label = stringResource(id = R.string.height_cm),
+                            label = if (unitsConfig == UnitsConfig.METRIC) stringResource(id = R.string.height_cm) else stringResource(id = R.string.height_in),
                             value = height,
                             icon = FitlogIcons.Height,
                             onValueChange = onHeightChange

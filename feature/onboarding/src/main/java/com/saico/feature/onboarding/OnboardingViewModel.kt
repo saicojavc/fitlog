@@ -2,9 +2,11 @@ package com.saico.feature.onboarding
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.saico.core.datastore.UserSettingsDataStore
 import com.saico.core.domain.usecase.onboarding.SetOnboardingCompletedUseCase
 import com.saico.core.domain.usecase.user_profile.InsertUserProfileUseCase
 import com.saico.core.domain.usecase.user_profile.UserProfileUseCase
+import com.saico.core.model.UnitsConfig
 import com.saico.core.model.UserProfile
 import com.saico.feature.onboarding.state.OnboardingUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,7 +20,8 @@ import javax.inject.Inject
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
     private val userProfileUseCase: UserProfileUseCase,
-    private val setOnboardingCompletedUseCase: SetOnboardingCompletedUseCase
+    private val setOnboardingCompletedUseCase: SetOnboardingCompletedUseCase,
+    private val userSettingsDataStore: UserSettingsDataStore
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OnboardingUiState())
@@ -32,26 +35,14 @@ class OnboardingViewModel @Inject constructor(
     }
 
     fun onWeightChange(newWeight: String) {
-        if (newWeight.all { it.isDigit() }) {
+        if (newWeight.all { it.isDigit() || it == '.' }) {
             _uiState.update { it.copy(weight = newWeight) }
             validateProfileConfiguration()
         }
     }
 
-    fun onAgeValidated(age: String) {
-        _uiState.update { it.copy(age = age) }
-    }
-
-    fun onWeightValidated(weight: String) {
-        _uiState.update { it.copy(weight = weight) }
-    }
-
-    fun onHeightValidated(height: String) {
-        _uiState.update { it.copy(height = height) }
-    }
-
     fun onHeightChange(newHeight: String) {
-        if (newHeight.all { it.isDigit() }) {
+        if (newHeight.all { it.isDigit() || it == '.' }) {
             _uiState.update { it.copy(height = newHeight) }
             validateProfileConfiguration()
         }
@@ -60,6 +51,10 @@ class OnboardingViewModel @Inject constructor(
     fun onGenderSelected(gender: String) {
         _uiState.update { it.copy(gender = gender) }
         validateProfileConfiguration()
+    }
+
+    fun onUnitsConfigSelected(unitsConfig: UnitsConfig) {
+        _uiState.update { it.copy(unitsConfig = unitsConfig) }
     }
 
     fun onGenderMenuExpanded(expanded: Boolean) {
@@ -96,6 +91,7 @@ class OnboardingViewModel @Inject constructor(
                 level = calculatedLevel
             )
             userProfileUseCase.insertUserProfileUseCase(userProfile)
+            userSettingsDataStore.setUnitsConfig(state.unitsConfig)
             setOnboardingCompletedUseCase(true)
         }
     }

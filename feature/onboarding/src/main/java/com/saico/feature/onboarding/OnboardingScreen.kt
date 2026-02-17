@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.saico.core.model.UnitsConfig
 import com.saico.core.ui.R
 import com.saico.core.ui.theme.GradientColors
 import com.saico.core.ui.theme.PaddingDim
@@ -59,6 +60,7 @@ fun OnboardingScreen(
         onDailyStepsChange = viewModel::onDailyStepsChange,
         onCaloriesToBurnChange = viewModel::onCaloriesToBurnChange,
         onSaveUserProfile = viewModel::saveUserProfile,
+        onUnitsConfigSelected = viewModel::onUnitsConfigSelected,
         navController = navController
     )
 }
@@ -75,6 +77,7 @@ fun Content(
     onDailyStepsChange: (Int) -> Unit,
     onCaloriesToBurnChange: (Int) -> Unit,
     onSaveUserProfile: () -> Unit,
+    onUnitsConfigSelected: (UnitsConfig) -> Unit,
     navController: NavHostController,
 ) {
     val pagerState = rememberPagerState { 3 }
@@ -131,7 +134,9 @@ fun Content(
                     gender = state.gender,
                     onGenderSelected = onGenderSelected,
                     isGenderMenuExpanded = state.isGenderMenuExpanded,
-                    onGenderMenuExpanded = onGenderMenuExpanded
+                    onGenderMenuExpanded = onGenderMenuExpanded,
+                    unitsConfig = state.unitsConfig,
+                    onUnitsConfigSelected = onUnitsConfigSelected
                 )
                 1 -> OnboardingDailyGoal(
                     dailySteps = state.dailySteps,
@@ -142,7 +147,8 @@ fun Content(
                 2 -> OnboardingFinish(
                     uiState = state,
                     onSaveUserProfile = onSaveUserProfile,
-                    navController = navController
+                    navController = navController,
+                    unitsConfig = state.unitsConfig,
                 )
             }
         }

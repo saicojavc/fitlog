@@ -11,6 +11,8 @@
     <string name="height">Altura</string>
     <string name="weight_kg">Peso (Kg)</string>
     <string name="height_cm">Altura (Cm)</string>
+    <string name="weight_lb">Peso (lb)</string>
+    <string name="height_in">Altura (ft/in)</string>
     <string name="gender">Género</string>
     <string name="select_option">Seleccione una opción</string>
     <string name="male">Hombre</string>
@@ -164,7 +166,6 @@
     <string name="exercise_name">Nombre del ejercicio</string>
     <string name="sets">Series</string>
     <string name="reps">Reps</string>
-    <string name="weight_lb">Peso (Lb)</string>
     <string name="add">Agregar</string>
     <string name="update">Actualizar</string>
     <string name="delete">Eliminar</string>

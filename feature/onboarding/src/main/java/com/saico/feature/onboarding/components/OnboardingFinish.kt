@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.saico.core.model.UnitsConfig
 import com.saico.core.ui.R
 import com.saico.core.ui.components.FitlogCard
 import com.saico.core.ui.components.FitlogIcon
@@ -50,6 +51,7 @@ fun OnboardingFinish(
     uiState: OnboardingUiState,
     onSaveUserProfile: () -> Unit,
     navController: NavHostController,
+    unitsConfig: UnitsConfig,
 ) {
     val userLevel = remember(uiState.dailySteps, uiState.caloriesToBurn) {
         when {
@@ -132,7 +134,7 @@ fun OnboardingFinish(
                 ) {
                     ProfileInfoItem(icon = FitlogIcons.Cake, label = stringResource(id = R.string.age), value = "${uiState.age} ${stringResource(id = R.string.years)}")
                     ProfileInfoItem(icon = if (uiState.gender == "Male") FitlogIcons.Male else FitlogIcons.Female, label = stringResource(id = R.string.gender), value = uiState.gender)
-                    ProfileInfoItem(icon = FitlogIcons.Weight, label = stringResource(id = R.string.weight), value = "${uiState.weight} kg")
+                    ProfileInfoItem(icon = FitlogIcons.Weight, label = stringResource(id = R.string.weight), value = "${uiState.weight} ${if (unitsConfig == UnitsConfig.METRIC) "kg" else "lb"}  ")
                 }
             }
 
