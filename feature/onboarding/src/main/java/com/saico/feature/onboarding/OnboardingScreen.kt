@@ -158,7 +158,7 @@ fun Content(
                 enabled = if (pagerState.currentPage == 0) state.isProfileConfigurationValid else true,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(PaddingDim.LARGE)
+                    .padding(bottom = PaddingDim.VERY_HUGE, start = PaddingDim.LARGE, end = PaddingDim.LARGE)
                     .height(56.dp),
                 shape = CircleShape,
                 colors = ButtonDefaults.buttonColors(

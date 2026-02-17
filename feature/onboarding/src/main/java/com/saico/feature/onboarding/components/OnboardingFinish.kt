@@ -158,8 +158,8 @@ fun OnboardingFinish(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(60.dp)
-                    .padding(bottom = PaddingDim.MEDIUM),
+                    .padding(bottom = PaddingDim.VERY_HUGE, start = PaddingDim.LARGE, end = PaddingDim.LARGE)
+                    .height(60.dp),
                 shape = CircleShape,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981))
             ) {
