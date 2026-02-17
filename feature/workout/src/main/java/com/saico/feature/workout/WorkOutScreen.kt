@@ -11,12 +11,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -27,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.saico.core.model.UnitsConfig
 import com.saico.core.ui.R
 import com.saico.core.ui.components.FitlogCard
 import com.saico.core.ui.components.FitlogIcon
@@ -43,8 +46,8 @@ import com.saico.core.ui.theme.PaddingDim
 import com.saico.feature.workout.component.CircularControlButton
 import com.saico.feature.workout.component.WorkoutStat
 import com.saico.feature.workout.state.WorkoutUiState
-
 enum class WorkoutState { IDLE, RUNNING, PAUSED }
+
 
 @Composable
 fun WorkoutScreen(
@@ -74,7 +77,19 @@ fun Content(
 ) {
     val elapsedTime = formatElapsedTime(uiState.elapsedTimeInSeconds)
 
+    // Lógica de conversión de unidades para la visualización
+    val isMetric = uiState.unitsConfig == UnitsConfig.METRIC
+    
+    val displayDistance = remember(uiState.distance, uiState.unitsConfig) {
+        if (isMetric) uiState.distance else uiState.distance * 0.621371f
+    }
+    
+    val displaySpeed = remember(uiState.averagePace, uiState.unitsConfig) {
+        if (isMetric) uiState.averagePace else uiState.averagePace * 0.621371f
+    }
 
+    val distanceUnit = if (isMetric) stringResource(id = R.string.km) else stringResource(id = R.string.mi)
+    val speedUnit = if (isMetric) stringResource(id = R.string.km_h) else stringResource(id = R.string.mph)
 
     if (uiState.showWorkoutSavedDialog) {
         InfoDialog(
@@ -140,7 +155,9 @@ fun Content(
 
             // -- ESTADÍSTICAS PRINCIPALES --
             FitlogCard(
-                border = BorderStroke(1.dp, LightBackground.copy(alpha = 0.7f))
+                color = Color(0xFF1E293B).copy(alpha = 0.6f),
+                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f)),
+                shape = RoundedCornerShape(32.dp),
             ) {
                 Column(
                     modifier = Modifier
@@ -153,8 +170,8 @@ fun Content(
                     ) {
                         WorkoutStat(
                             icon = FitlogIcons.Map,
-                            value = "%.2f".format(uiState.distance),
-                            unit = stringResource(id = R.string.km),
+                            value = "%.2f".format(displayDistance),
+                            unit = distanceUnit,
                             tint = LightSuccess
                         )
                         WorkoutStat(
@@ -170,17 +187,14 @@ fun Content(
                     // -- RITMO MEDIO --
                     WorkoutStat(
                         icon = FitlogIcons.Speed,
-                        value = "%.1f".format(uiState.averagePace),
-                        unit = stringResource(id = R.string.average_pace),
+                        value = "%.1f".format(displaySpeed),
+                        unit = speedUnit,
                         tint = DarkSurface
                     )
                 }
-
-
-
             }
 
-                Spacer(modifier = Modifier.weight(1f)) // Empuja los botones hacia abajo
+            Spacer(modifier = Modifier.weight(1f)) // Empuja los botones hacia abajo
             // -- CONTROLES --
             Row(
                 modifier = Modifier.fillMaxWidth(),
