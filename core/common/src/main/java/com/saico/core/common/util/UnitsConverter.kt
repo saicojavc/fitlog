@@ -14,6 +14,35 @@ object UnitsConverter {
     private const val CM_TO_IN = 0.393701
     private const val FT_TO_IN = 12
 
+    // --- Métodos de Conversión Pura ---
+
+    fun kmToMi(km: Double): Double = km * KM_TO_MI
+    fun miToKm(mi: Double): Double = mi / KM_TO_MI
+
+    fun kgToLb(kg: Double): Double = kg * KG_TO_LB
+    fun lbToKg(lb: Double): Double = lb / KG_TO_LB
+
+    fun cmToIn(cm: Double): Double = cm * CM_TO_IN
+    fun inToCm(inches: Double): Double = inches / CM_TO_IN
+
+    /**
+     * Convierte CM a Pies y Pulgadas.
+     */
+    fun cmToFtIn(cm: Double): Pair<Int, Int> {
+        val totalInches = cmToIn(cm)
+        val feet = (totalInches / FT_TO_IN).toInt()
+        val inches = (totalInches % FT_TO_IN).toInt()
+        return Pair(feet, inches)
+    }
+
+    /**
+     * Convierte Pies y Pulgadas a CM.
+     */
+    fun ftInToCm(feet: Int, inches: Int): Double {
+        val totalInches = (feet * FT_TO_IN) + inches
+        return inToCm(totalInches.toDouble())
+    }
+
     /**
      * Convierte y formatea la distancia.
      * @param km Distancia en kilómetros.
@@ -24,7 +53,7 @@ object UnitsConverter {
         return if (units == UnitsConfig.METRIC) {
             String.format(Locale.getDefault(), "%.2f km", km)
         } else {
-            val mi = km * KM_TO_MI
+            val mi = kmToMi(km)
             String.format(Locale.getDefault(), "%.2f mi", mi)
         }
     }
@@ -39,7 +68,7 @@ object UnitsConverter {
         return if (units == UnitsConfig.METRIC) {
             String.format(Locale.getDefault(), "%.1f kg", kg)
         } else {
-            val lb = kg * KG_TO_LB
+            val lb = kgToLb(kg)
             String.format(Locale.getDefault(), "%.1f lb", lb)
         }
     }
@@ -54,9 +83,7 @@ object UnitsConverter {
         return if (units == UnitsConfig.METRIC) {
             String.format(Locale.getDefault(), "%.0f cm", cm)
         } else {
-            val totalInches = cm * CM_TO_IN
-            val feet = (totalInches / FT_TO_IN).toInt()
-            val inches = (totalInches % FT_TO_IN).toInt()
+            val (feet, inches) = cmToFtIn(cm)
             "$feet ft $inches in"
         }
     }

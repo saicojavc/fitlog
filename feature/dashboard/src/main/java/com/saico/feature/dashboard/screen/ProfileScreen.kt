@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -30,19 +29,14 @@ import com.saico.core.model.UnitsConfig
 import com.saico.core.model.UserProfile
 import com.saico.core.ui.R
 import com.saico.core.ui.components.FitlogAlertDialog
-import com.saico.core.ui.components.FitlogButton
 import com.saico.core.ui.components.FitlogCard
-import com.saico.core.ui.components.FitlogIcon
 import com.saico.core.ui.components.FitlogText
-import com.saico.core.ui.components.FitlogTextField
-import com.saico.core.ui.components.SpacerHeight
 import com.saico.core.ui.icon.FitlogIcons
-import com.saico.core.ui.theme.CornerDim
 import com.saico.core.ui.theme.LightPrimary
 import com.saico.core.ui.theme.LightSuccess
 import com.saico.core.ui.theme.PaddingDim
 import com.saico.feature.dashboard.state.DashboardUiState
-import java.time.format.TextStyle
+import androidx.compose.foundation.text.BasicTextField
 
 @Composable
 fun ProfileScreen(
@@ -67,11 +61,33 @@ fun ProfileContent(
     onSave: (UserProfile) -> Unit
 ) {
     // Estados para la edición
-    var age by remember { mutableStateOf(profile.age.toString()) }
-    var weight by remember { mutableStateOf(profile.weightKg.toString()) }
-    var height by remember { mutableStateOf(profile.heightCm.toString()) }
-    var dailyStepsGoal by remember { mutableStateOf(profile.dailyStepsGoal.toString()) }
-    var caloriesGoal by remember { mutableStateOf(profile.dailyCaloriesGoal.toString()) }
+    var age by remember(profile) { mutableStateOf(profile.age.toString()) }
+    
+    // Peso: Se convierte si es imperial
+    var weight by remember(profile, units) { 
+        val displayWeight = if (units == UnitsConfig.METRIC) {
+            profile.weightKg
+        } else {
+            UnitsConverter.kgToLb(profile.weightKg)
+        }
+        mutableStateOf("%.1f".format(displayWeight).replace(",", "."))
+    }
+    
+    // Altura: Se maneja cm o ft/in
+    var heightCm by remember(profile, units) { 
+        mutableStateOf("%.1f".format(profile.heightCm).replace(",", "."))
+    }
+    var heightFt by remember(profile, units) { 
+        val (ft, _) = UnitsConverter.cmToFtIn(profile.heightCm)
+        mutableStateOf(ft.toString())
+    }
+    var heightIn by remember(profile, units) { 
+        val (_, inc) = UnitsConverter.cmToFtIn(profile.heightCm)
+        mutableStateOf(inc.toString())
+    }
+    
+    var dailyStepsGoal by remember(profile) { mutableStateOf(profile.dailyStepsGoal.toString()) }
+    var caloriesGoal by remember(profile) { mutableStateOf(profile.dailyCaloriesGoal.toString()) }
 
     var showConfirmDialog by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
@@ -93,6 +109,19 @@ fun ProfileContent(
                         val steps = dailyStepsGoal.toIntOrNull() ?: profile.dailyStepsGoal
                         val cals = caloriesGoal.toIntOrNull() ?: profile.dailyCaloriesGoal
 
+                        // Conversión inversa para guardar en base de datos (siempre métrico)
+                        val weightValue = weight.toDoubleOrNull() ?: profile.weightKg
+                        val weightKg = if (units == UnitsConfig.METRIC) weightValue else UnitsConverter.lbToKg(weightValue)
+                        
+                        val finalHeightCm = if (units == UnitsConfig.METRIC) {
+                            heightCm.toDoubleOrNull() ?: profile.heightCm
+                        } else {
+                            UnitsConverter.ftInToCm(
+                                heightFt.toIntOrNull() ?: 0,
+                                heightIn.toIntOrNull() ?: 0
+                            )
+                        }
+
                         val newLevel = when {
                             steps > 19000 || cals > 1500 -> "Professional"
                             steps > 10000 || cals > 500 -> "Intermediate"
@@ -101,8 +130,8 @@ fun ProfileContent(
 
                         val updatedProfile = profile.copy(
                             age = age.toIntOrNull() ?: profile.age,
-                            weightKg = weight.toDoubleOrNull() ?: profile.weightKg,
-                            heightCm = height.toDoubleOrNull() ?: profile.heightCm,
+                            weightKg = weightKg,
+                            heightCm = finalHeightCm,
                             dailyStepsGoal = steps,
                             dailyCaloriesGoal = cals,
                             level = newLevel
@@ -130,11 +159,11 @@ fun ProfileContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(PaddingDim.MEDIUM)
     ) {
-        // --- HEADER CON AVATAR REFINADO ---
+        // Avatar
         Box(
             modifier = Modifier
                 .size(100.dp)
-                .border(2.dp, Color(0xFF10B981), CircleShape) // Borde esmeralda fino
+                .border(2.dp, Color(0xFF10B981), CircleShape)
                 .padding(4.dp),
             contentAlignment = Alignment.Center
         ) {
@@ -153,33 +182,67 @@ fun ProfileContent(
             color = Color.White
         )
 
-        // --- TARJETA DE NIVEL (Estilo Dark) ---
         LevelCard(levelText = levelText)
 
-        // --- SECCIÓN: INFORMACIÓN PERSONAL ---
+        // Sección: Información Personal
         ProfileSectionCard(title = stringResource(id = R.string.personal_info)) {
-            // Editores de fila en lugar de TextFields grandes
             EditableInfoRow(
-                icon = FitlogIcons.Cake, // Asumiendo iconos existentes
+                icon = FitlogIcons.Cake,
                 label = stringResource(id = R.string.age),
                 value = age,
                 onValueChange = { age = it }
             )
             EditableInfoRow(
-                icon = FitlogIcons.Scale,
+                icon = FitlogIcons.Weight,
                 label = if (units == UnitsConfig.METRIC) "kg" else "lb",
                 value = weight,
                 onValueChange = { weight = it }
             )
-            EditableInfoRow(
-                icon = FitlogIcons.Height,
-                label = if (units == UnitsConfig.METRIC) "cm" else "ft/in",
-                value = height,
-                onValueChange = { height = it }
-            )
+            
+            // Altura adaptativa
+            if (units == UnitsConfig.METRIC) {
+                EditableInfoRow(
+                    icon = FitlogIcons.Height,
+                    label = "cm",
+                    value = heightCm,
+                    onValueChange = { heightCm = it }
+                )
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(imageVector = FitlogIcons.Height, contentDescription = null, tint = Color(0xFF94A3B8), modifier = Modifier.size(20.dp))
+                        Spacer(modifier = Modifier.width(12.dp))
+                        FitlogText(text = "Height", color = Color(0xFF94A3B8))
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        BasicTextField(
+                            value = heightFt,
+                            onValueChange = { heightFt = it },
+                            textStyle = androidx.compose.ui.text.TextStyle(color = Color.White, fontWeight = FontWeight.Bold, textAlign = TextAlign.End, fontSize = 16.sp),
+                            modifier = Modifier.width(30.dp),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            cursorBrush = SolidColor(Color(0xFF10B981))
+                        )
+                        FitlogText(text = " ft ", color = Color.White, style = MaterialTheme.typography.bodySmall)
+                        BasicTextField(
+                            value = heightIn,
+                            onValueChange = { heightIn = it },
+                            textStyle = androidx.compose.ui.text.TextStyle(color = Color.White, fontWeight = FontWeight.Bold, textAlign = TextAlign.End, fontSize = 16.sp),
+                            modifier = Modifier.width(30.dp),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            cursorBrush = SolidColor(Color(0xFF10B981))
+                        )
+                        FitlogText(text = " in", color = Color.White, style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+            }
         }
 
-        // --- SECCIÓN: METAS DIARIAS ---
+        // Sección: Metas Diarias
         ProfileSectionCard(title = stringResource(id = R.string.daily_goals)) {
             EditableInfoRow(
                 icon = FitlogIcons.Walk,
@@ -197,7 +260,6 @@ fun ProfileContent(
 
         Spacer(modifier = Modifier.height(PaddingDim.MEDIUM))
 
-        // --- BOTÓN PRINCIPAL (Emerald Green) ---
         Button(
             onClick = { showConfirmDialog = true },
             modifier = Modifier
@@ -205,7 +267,7 @@ fun ProfileContent(
                 .height(56.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF10B981), // Emerald Green
+                containerColor = Color(0xFF10B981),
                 contentColor = Color.White
             )
         ) {
@@ -218,40 +280,36 @@ fun ProfileContent(
         Spacer(modifier = Modifier.height(PaddingDim.LARGE))
     }
 }
+
 @Composable
 fun LevelCard(levelText: String) {
-    // Usamos FitlogCard pero sobreescribimos con el nuevo estilo Dark
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF1E293B) // Slate Gray Dark para consistencia
-        ),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f)) // Efecto cristal
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B)),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // Fila Superior: Título de la sección
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Icon(
-                    imageVector = FitlogIcons.Star, // Cambié Walk por Star para que se sienta como "Nivel"
+                    imageVector = FitlogIcons.Star,
                     contentDescription = null,
-                    tint = Color(0xFF10B981), // Acento esmeralda
+                    tint = Color(0xFF10B981),
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 FitlogText(
                     text = stringResource(id = R.string.your_main_goal),
-                    color = Color(0xFF94A3B8), // Cool Gray para que sea un subtítulo
+                    color = Color(0xFF94A3B8),
                     style = MaterialTheme.typography.labelMedium
                 )
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Fila Central: Actividad principal
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -264,7 +322,6 @@ fun LevelCard(levelText: String) {
                     fontWeight = FontWeight.Bold
                 )
 
-                // Un "Badge" para la frecuencia
                 Surface(
                     color = Color(0xFF10B981).copy(alpha = 0.2f),
                     shape = RoundedCornerShape(8.dp)
@@ -284,7 +341,6 @@ fun LevelCard(levelText: String) {
                 thickness = 1.dp
             )
 
-            // Fila Inferior: Nivel
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -295,7 +351,6 @@ fun LevelCard(levelText: String) {
                     color = Color(0xFF94A3B8)
                 )
 
-                // Resaltamos el nivel con el color de acento
                 FitlogText(
                     text = levelText.uppercase(),
                     color = Color(0xFF10B981),
@@ -306,6 +361,7 @@ fun LevelCard(levelText: String) {
         }
     }
 }
+
 @Composable
 fun EditableInfoRow(
     icon: ImageVector,
@@ -324,14 +380,13 @@ fun EditableInfoRow(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = Color(0xFF94A3B8), // Cool Gray
+                tint = Color(0xFF94A3B8),
                 modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.width(12.dp))
             FitlogText(text = label, color = Color(0xFF94A3B8))
         }
 
-        // Input minimalista a la derecha
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
@@ -342,7 +397,7 @@ fun EditableInfoRow(
                 fontSize = 16.sp
             ),
             modifier = Modifier.width(100.dp),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             cursorBrush = SolidColor(Color(0xFF10B981))
         )
     }
@@ -356,10 +411,8 @@ fun ProfileSectionCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF1E293B) // Slate Gray Dark
-        ),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f)) // Efecto cristal
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B)),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
