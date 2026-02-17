@@ -84,11 +84,13 @@ class NotificationReceiver : BroadcastReceiver() {
             stepCounterDataStore.currentSteps.first()
         }
         val title = context.getString(R.string.daily_summary_title)
-        val message = if (steps < 10000) {
-            context.getString(R.string.daily_summary_msg_incomplete, steps)
-        } else {
-            context.getString(R.string.daily_summary_msg_complete, steps)
+        
+        val message = when {
+            steps < 1000 -> context.getString(R.string.daily_summary_msg_low, steps)
+            steps in 1000..<10000 -> context.getString(R.string.daily_summary_msg_incomplete, steps)
+            else -> context.getString(R.string.daily_summary_msg_complete, steps)
         }
+
         notificationHelper.showNotification(
             title,
             message,

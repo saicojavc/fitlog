@@ -120,7 +120,8 @@
     <string name="half_goal_title">¡Mitad del camino! 🔥</string>
     <string name="half_goal_msg">Ya llevas %1$d pasos. ¡Sigue así!</string>
     <string name="daily_summary_title">Resumen del día</string>
-    <string name="daily_summary_msg_incomplete">Hoy hiciste %1$d pasos. ¡Buen esfuerzo! Mañana por el objetivo 😊</string>
+    <string name="daily_summary_msg_incomplete">Hoy hiciste %1$d pasos. ¡Buen esfuerzo! Mañana a por más 😊</string>
+    <string name="daily_summary_msg_low">Hoy solo hiciste %1$d pasos. ¡Debes moverte más! Mañana es una nueva oportunidad 😊</string>
     <string name="daily_summary_msg_complete">Hoy hiciste %1$d pasos. ¡Te has superado! ¡Felicidades! 😊</string>
 
     <!-- Workout Tracking -->
