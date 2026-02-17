@@ -16,9 +16,9 @@ Here are some clean onboarding flows similar to FitLog's style:
 
 ![Onboarding 1](https://res.cloudinary.com/ds4ko1uws/image/upload/v1771309402/dashboard1_dr6csw.jpg)  
 
-![Onboarding 2](https://res.cloudinary.com/ds4ko1uws/image/upload/v1768878936/daschboard2_fraui1.jpg)
+![Onboarding 2](https://res.cloudinary.com/ds4ko1uws/image/upload/v1771309350/daschboard2_fraui1.jpg)
 
-![Onboarding 3](https://res.cloudinary.com/ds4ko1uws/image/upload/v1768878936/dashboard3_cdqmff.jpg)
+![Onboarding 3](https://res.cloudinary.com/ds4ko1uws/image/upload/v1771309379/dashboard3_cdqmff.jpg)
 
 
 ### Dashboard (Home Screen)
@@ -28,7 +28,7 @@ Real-time overview of:
 - Approximate distance
 - Progress rings & simple weekly charts
 
-  ![Dashboard HomeScreen](https://res.cloudinary.com/ds4ko1uws/image/upload/v1768879212/HomeScreen_xvkgru.jpg)
+  ![Dashboard HomeScreen](https://res.cloudinary.com/ds4ko1uws/image/upload/v1771309420/HomeScreen_xvkgru.jpg)
 
 
 
@@ -38,7 +38,7 @@ Real-time GPS tracking for walking, running, or cycling:
 - Live timer, distance, pace, calories
 - Automatic save to history
 
- ![Workout](https://res.cloudinary.com/ds4ko1uws/image/upload/v1768879315/Workout_cs4tyw.jpg)
+ ![Workout](https://res.cloudinary.com/ds4ko1uws/image/upload/v1771309305/Workout_cs4tyw.jpg)
 
 ### Gym / Strength Training Log
 Manual entry of workouts:
@@ -46,7 +46,7 @@ Manual entry of workouts:
 - Track sets, reps, weight
 - Grouped by muscle or custom name
 
-  ![Gym Work](https://res.cloudinary.com/ds4ko1uws/image/upload/v1768879417/GymWork_cifz9n.jpg)
+  ![Gym Work](https://res.cloudinary.com/ds4ko1uws/image/upload/v1771309437/GymWork_cifz9n.jpg)
 
 ### History & Progress
 Filter sessions by:
@@ -54,7 +54,7 @@ Filter sessions by:
 - Detailed expandable cards
 - **Export current filtered view as PDF** (via FAB)
 
-![History](https://res.cloudinary.com/ds4ko1uws/image/upload/v1768879481/History_bz6uik.jpg)
+![History](https://res.cloudinary.com/ds4ko1uws/image/upload/v1771309452/History_bz6uik.jpg)
 
 ### Settings & Personalization
 - Theme: Light / Dark / System
@@ -62,7 +62,12 @@ Filter sessions by:
 - Units: Metric (km/kg/cm) ↔ Imperial (mi/lb/ft-in) with live conversion
 - Motivational notifications toggle + daily reminder time
 
-  ![History](https://res.cloudinary.com/ds4ko1uws/image/upload/v1768879597/settings_yuqxsi.jpg)
+   ![Settings](https://res.cloudinary.com/ds4ko1uws/image/upload/v1771309474/settings_yuqxsi.jpg)
+
+### Profile
+-Information about you
+
+![Profile](https://res.cloudinary.com/ds4ko1uws/image/upload/v1771309481/WhatsApp_Image_2026-02-16_at_1.51.25_AM_1_ikhxi6.jpg)
 
 ### Motivational Notifications (Local)
 - Daily morning encouragement
