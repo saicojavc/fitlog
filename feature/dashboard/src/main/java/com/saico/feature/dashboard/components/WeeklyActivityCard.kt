@@ -1,5 +1,6 @@
 package com.saico.feature.dashboard.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,6 +18,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,6 +38,7 @@ import androidx.navigation.NavHostController
 import com.saico.core.model.Workout
 import com.saico.core.ui.R
 import com.saico.core.ui.components.FitlogCard
+import com.saico.core.ui.icon.FitlogIcons
 import com.saico.core.ui.navigation.routes.stepshistory.StepsHistoryRoute
 import com.saico.core.ui.theme.PaddingDim
 import java.util.Calendar
@@ -47,70 +51,73 @@ fun WeeklyActivityCard(
     dailyStepsGoal: Int,
     navController: NavHostController
 ) {
-    val targetSteps = if (dailyStepsGoal > 0) dailyStepsGoal else 10000
-    val maxScaleSteps = targetSteps * 2
+    // 1. Procesar datos para obtener los pasos de los últimos 7 días
+    val calendar = Calendar.getInstance()
+    val workoutsByDate = workouts.associateBy { workout ->
+        val cal = Calendar.getInstance().apply { timeInMillis = workout.date }
+        "${cal.get(Calendar.YEAR)}-${cal.get(Calendar.DAY_OF_YEAR)}"
+    }
 
+    val weeklyData = (6 downTo 0).map { i ->
+        val cal = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -i) }
+        val dateKey = "${cal.get(Calendar.YEAR)}-${cal.get(Calendar.DAY_OF_YEAR)}"
+        val isToday = i == 0
+        val steps = if (isToday) dailySteps else workoutsByDate[dateKey]?.steps ?: 0
+        val dayName = cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.getDefault())?.take(1) ?: ""
+
+        ChartData(dayName, steps.toFloat(), isToday)
+    }
+
+    val maxSteps = weeklyData.maxOfOrNull { it.value }?.takeIf { it > 0 } ?: 1000f
+
+    // 2. Diseño de la Card con Estética Premium
     FitlogCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp) // PaddingDim.SMALL
-            .clickable {
-                navController.navigate(StepsHistoryRoute.RootRoute.route)
-            },
-        shape = RoundedCornerShape(24.dp) // Bordes más redondeados
+            .padding(horizontal = PaddingDim.LARGE, vertical = PaddingDim.SMALL)
+            .clickable { navController.navigate(StepsHistoryRoute.RootRoute.route) },
+        color = Color(0xFF1E293B).copy(alpha = 0.6f),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f)),
+        shape = RoundedCornerShape(32.dp)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp) // PaddingDim.MEDIUM
+            modifier = Modifier.padding(24.dp)
         ) {
-            Text(
-                text = stringResource(id = R.string.weekly_activity),
-                style = MaterialTheme.typography.titleMedium,
-                color = Color.White // Texto principal siempre blanco
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            val workoutsByDate = workouts.associateBy { workout ->
-                val cal = Calendar.getInstance().apply { timeInMillis = workout.date }
-                "${cal.get(Calendar.YEAR)}-${cal.get(Calendar.MONTH)}-${cal.get(Calendar.DAY_OF_MONTH)}"
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(id = R.string.weekly_activity).uppercase(),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = Color(0xFF94A3B8),
+                    letterSpacing = 1.5.sp
+                )
+                Icon(
+                    imageVector = FitlogIcons.ChevronRight,
+                    contentDescription = null,
+                    tint = Color(0xFF94A3B8),
+                    modifier = Modifier.size(20.dp)
+                )
             }
 
-            Box(
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Contenedor de las barras
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(180.dp) // Un poco más alto para mejor visualización
+                    .height(160.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom
             ) {
-                // Líneas de escala de fondo
-                ScaleBackground(targetSteps = targetSteps)
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Bottom
-                ) {
-                    for (i in 6 downTo 0) {
-                        val calendar = Calendar.getInstance().apply {
-                            add(Calendar.DAY_OF_YEAR, -i)
-                        }
-
-                        val dayInitial = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.getDefault())?.take(1) ?: "?"
-                        val isToday = i == 0
-
-                        val stepsForDay = if (isToday) {
-                            dailySteps
-                        } else {
-                            val dateKey = "${calendar.get(Calendar.YEAR)}-${calendar.get(Calendar.MONTH)}-${calendar.get(Calendar.DAY_OF_MONTH)}"
-                            workoutsByDate[dateKey]?.steps ?: 0
-                        }
-
-                        Bar(
-                            day = dayInitial,
-                            steps = stepsForDay,
-                            maxScaleSteps = maxScaleSteps,
-                            isToday = isToday
-                        )
-                    }
+                weeklyData.forEach { data ->
+                    WeeklyBarItem(
+                        item = data,
+                        maxValue = maxSteps,
+                        modifier = Modifier.weight(1f)
+                    )
                 }
             }
         }
@@ -118,81 +125,57 @@ fun WeeklyActivityCard(
 }
 
 @Composable
-private fun ScaleBackground(targetSteps: Int) {
-    // Usamos el Cool Gray para las líneas con baja opacidad
-    val lineColor = Color(0xFF94A3B8).copy(alpha = 0.15f)
-    val textColor = Color(0xFF94A3B8)
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val canvasHeight = size.height - 40.dp.toPx()
-
-            // Dibujamos líneas en 0%, 50% y 100% de la escala
-            val heights = listOf(0f, 0.5f, 0.75f)
-
-            heights.forEach { hRatio ->
-                val y = hRatio * canvasHeight
-                drawLine(
-                    color = lineColor,
-                    start = Offset(0f, y),
-                    end = Offset(size.width, y),
-                    strokeWidth = 1.dp.toPx()
-                )
-            }
-        }
-
-        Column(
-            modifier = Modifier.fillMaxHeight().padding(bottom = 40.dp),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(text = "${targetSteps * 2}", fontSize = 9.sp, color = textColor)
-            Text(text = "$targetSteps", fontSize = 9.sp, color = textColor)
-            Text(text = "0", fontSize = 9.sp, color = textColor)
-        }
-    }
-}
-
-@Composable
-private fun Bar(day: String, steps: Int, maxScaleSteps: Int, isToday: Boolean) {
-    val barMaxHeight = 140.dp
-    // Calculamos la altura. CoerceIn asegura que siempre haya una pequeña marca aunque sea 0
-    val barHeightRatio = (steps.toFloat() / maxScaleSteps.toFloat()).coerceIn(0.02f, 1f)
-
-    // Color Emerald Green para hoy, y una versión más apagada para los otros días
-    val activeColor = Color(0xFF10B981)
-    val inactiveColor = Color(0xFF10B981).copy(alpha = 0.3f)
+private fun WeeklyBarItem(
+    item: ChartData,
+    maxValue: Float,
+    modifier: Modifier = Modifier
+) {
+    val barHeightRatio = (item.value / maxValue).coerceIn(0.05f, 1f)
+    val accentColor = Color(0xFF10B981)
 
     Column(
+        modifier = modifier.fillMaxHeight(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Bottom,
-        modifier = Modifier.fillMaxHeight()
+        verticalArrangement = Arrangement.Bottom
     ) {
-        Box(
-            modifier = Modifier
-                .height(barMaxHeight * barHeightRatio)
-                .width(28.dp) // Más anchas para look moderno
-                .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp, bottomStart = 4.dp, bottomEnd = 4.dp))
-                .background(if (isToday) activeColor else inactiveColor)
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Box(
-            modifier = Modifier
-                .size(28.dp)
-                .background(
-                    color = if (isToday) activeColor else Color.Transparent,
-                    shape = CircleShape
-                ),
-            contentAlignment = Alignment.Center
-        ) {
+        // Valor numérico encima de la barra (Solo si hay pasos o es hoy)
+        if (item.value > 0 || item.isHighlighted) {
             Text(
-                text = day,
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
-                color = if (isToday) Color(0xFF0F172A) else Color(0xFF94A3B8),
-                textAlign = TextAlign.Center
+                text = if (item.value >= 1000) "${(item.value / 1000).toInt()}k" else item.value.toInt().toString(),
+                style = MaterialTheme.typography.labelSmall,
+                fontSize = 10.sp,
+                color = if (item.isHighlighted) Color.White else Color(0xFF94A3B8),
+                fontWeight = if (item.isHighlighted) FontWeight.Bold else FontWeight.Normal
             )
         }
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        // Barra Estilo Cápsula
+        Box(
+            modifier = Modifier
+                .fillMaxHeight(barHeightRatio * 0.75f)
+                .width(10.dp) // Grosor elegante
+                .clip(CircleShape) // Cápsula total
+                .background(
+                    if (item.isHighlighted) accentColor
+                    else accentColor.copy(alpha = 0.2f)
+                )
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Inicial del día
+        Text(
+            text = item.label,
+            style = MaterialTheme.typography.labelSmall,
+            color = if (item.isHighlighted) accentColor else Color(0xFF94A3B8).copy(alpha = 0.6f),
+            fontWeight = if (item.isHighlighted) FontWeight.Black else FontWeight.Normal
+        )
     }
 }
+data class ChartData(
+    val label: String,      // Ej: "M", "T", "W" o "12-18"
+    val value: Float,       // El valor numérico (pasos, kcal, etc.)
+    val isHighlighted: Boolean = false // Para saber si es el día actual o el seleccionado
+)

@@ -1,5 +1,6 @@
 package com.saico.feature.dashboard.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -59,11 +61,13 @@ fun StepsDailyCard(uiState: DashboardUiState, navController: NavHostController) 
     FitlogCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(PaddingDim.SMALL)
+            .padding(horizontal = PaddingDim.LARGE, vertical = PaddingDim.SMALL)
             .clickable{
                 navController.navigate(StepsHistoryRoute.RootRoute.route)
             },
-        shape = MaterialTheme.shapes.extraLarge
+//        color = Color(0xFF1E293B).copy(alpha = 0.6f),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f)),
+        shape = RoundedCornerShape(32.dp)
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Box(

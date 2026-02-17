@@ -103,5 +103,7 @@ object FitlogIcons {
 
     val ArrowDropDown : ImageVector = Icons.Default.ArrowDropDown
 
+    val ChevronRight : ImageVector = Icons.Default.ArrowForward
+
 
 }
