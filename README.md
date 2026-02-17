@@ -14,7 +14,7 @@ Uses Mifflin-St Jeor formula for accurate BMR-based calorie estimation.
 
 Here are some clean onboarding flows similar to FitLog's style:
 
-![Onboarding 1](https://res.cloudinary.com/ds4ko1uws/image/upload/v1768878936/dashboard1_dr6csw.jpg)  
+![Onboarding 1](https://res.cloudinary.com/ds4ko1uws/image/upload/v1771309402/dashboard1_dr6csw.jpg)  
 
 ![Onboarding 2](https://res.cloudinary.com/ds4ko1uws/image/upload/v1768878936/daschboard2_fraui1.jpg)
 
