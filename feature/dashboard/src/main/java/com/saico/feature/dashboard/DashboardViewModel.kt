@@ -14,6 +14,7 @@ import com.saico.core.domain.usecase.gym_exercise.GymUseCase
 import com.saico.core.domain.usecase.workout.WorkoutUseCase
 import com.saico.core.model.UserProfile
 import com.saico.core.model.UnitsConfig
+import com.saico.core.model.WeightEntry
 import com.saico.core.model.WorkoutSession
 import com.saico.core.notification.NotificationHelper
 import com.saico.feature.dashboard.state.DashboardUiState
@@ -73,9 +74,25 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
-    fun updateUserProfile(userProfile: UserProfile) {
+    fun updateUserProfile(updatedProfile: UserProfile) {
         viewModelScope.launch {
-            userProfileUseCase.updateUserProfileUseCase(userProfile)
+            val currentProfile = _uiState.value.userProfile
+            
+            // Lógica de Sincronización de Historial de Peso
+            val finalProfile = if (currentProfile != null && currentProfile.weightKg != updatedProfile.weightKg) {
+                // Si el peso cambió, añadimos una nueva entrada al historial
+                val newWeightEntry = WeightEntry(
+                    weight = updatedProfile.weightKg,
+                    date = System.currentTimeMillis()
+                )
+                updatedProfile.copy(
+                    weightHistory = updatedProfile.weightHistory + newWeightEntry
+                )
+            } else {
+                updatedProfile
+            }
+
+            userProfileUseCase.updateUserProfileUseCase(finalProfile)
         }
     }
 

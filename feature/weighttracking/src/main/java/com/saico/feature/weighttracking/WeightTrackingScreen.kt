@@ -45,8 +45,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.pow
 
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeightTrackingScreen(
@@ -95,7 +93,6 @@ fun WeightTrackingContent(
     val profile = uiState.userProfile
     val units = uiState.unitsConfig
 
-    // Cálculos de salud reales
     val currentWeightDisplay = remember(profile?.weightKg, units) {
         if (profile == null) 0.0
         else if (units == UnitsConfig.METRIC) profile.weightKg 
@@ -132,7 +129,6 @@ fun WeightTrackingContent(
             modifier = Modifier.padding(top = 32.dp, bottom = 16.dp)
         )
 
-        // Card Real
         WeightTrackerCardReal(
             currentWeight = currentWeightDisplay.toFloat(),
             unit = weightLabel,
@@ -142,8 +138,7 @@ fun WeightTrackingContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Gráfico Real
-        if (uiState.weightHistory.size >= 2) {
+        if (uiState.weightHistory.isNotEmpty()) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(28.dp),
@@ -159,7 +154,7 @@ fun WeightTrackingContent(
                     )
                     Spacer(modifier = Modifier.height(32.dp))
                     Box(modifier = Modifier.fillMaxWidth().height(200.dp)) {
-                        WeightLineChartReal(uiState.weightHistory.takeLast(7), units)
+                        WeightLineChartReal(uiState.weightHistory, units)
                     }
                 }
             }
@@ -167,7 +162,6 @@ fun WeightTrackingContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Entrada de Datos
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(28.dp),
@@ -213,7 +207,6 @@ fun WeightTrackingContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Lista de Historial
         HistoryList(uiState.weightHistory, units)
         
         Spacer(modifier = Modifier.height(32.dp))
@@ -303,13 +296,12 @@ fun WeightTrackerCardReal(
                     }
                 }
                 Surface(color = statusColor.copy(alpha = 0.15f), shape = CircleShape, border = BorderStroke(1.dp, statusColor.copy(alpha = 0.5f))) {
-                    Text(statusText, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), style = MaterialTheme.typography.labelMedium, color = statusColor, fontWeight = FontWeight.Bold)
+                    FitlogText(text = statusText, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), style = MaterialTheme.typography.labelMedium, color = statusColor, fontWeight = FontWeight.Bold)
                 }
             }
             
             Spacer(modifier = Modifier.height(24.dp))
             
-            // Nueva Barra de Peso Multi-color (Estética Dashboard)
             Column(modifier = Modifier.fillMaxWidth()) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     FitlogText(text = stringResource(id = R.string.bmi_status_label), style = MaterialTheme.typography.bodySmall, color = CoolGray)
@@ -324,10 +316,10 @@ fun WeightTrackerCardReal(
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(stringResource(R.string.bmi_underweight), style = MaterialTheme.typography.labelSmall, color = statusColors[BmiStatus.LOW_WEIGHT]!!)
-                    Text(stringResource(R.string.bmi_normal), style = MaterialTheme.typography.labelSmall, color = statusColors[BmiStatus.NORMAL]!!)
-                    Text(stringResource(R.string.bmi_overweight), style = MaterialTheme.typography.labelSmall, color = statusColors[BmiStatus.OVERWEIGHT]!!)
-                    Text(stringResource(R.string.bmi_obese), style = MaterialTheme.typography.labelSmall, color = statusColors[BmiStatus.OBESE]!!)
+                    FitlogText(text = stringResource(R.string.bmi_underweight), style = MaterialTheme.typography.labelSmall, color = statusColors[BmiStatus.LOW_WEIGHT]!!)
+                    FitlogText(text = stringResource(R.string.bmi_normal), style = MaterialTheme.typography.labelSmall, color = statusColors[BmiStatus.NORMAL]!!)
+                    FitlogText(text = stringResource(R.string.bmi_overweight), style = MaterialTheme.typography.labelSmall, color = statusColors[BmiStatus.OVERWEIGHT]!!)
+                    FitlogText(text = stringResource(R.string.bmi_obese), style = MaterialTheme.typography.labelSmall, color = statusColors[BmiStatus.OBESE]!!)
                 }
             }
         }
@@ -370,7 +362,6 @@ fun WeightProgressBarCustom(
             lastMark = mark
         }
 
-        // Indicador del punto actual
         val indicatorPosition = ((bmiValue - minBmi) / totalRange)
             .coerceIn(0f, 1f) * size.width
 
@@ -390,17 +381,18 @@ fun WeightProgressBarCustom(
 
 @Composable
 fun WeightLineChartReal(history: List<WeightEntry>, units: UnitsConfig) {
+    // Ordenamos cronológicamente para el gráfico
     val data = history.sortedBy { it.date }.map {
         val w = if (units == UnitsConfig.METRIC) it.weight else UnitsConverter.kgToLb(it.weight)
         w.toFloat() to SimpleDateFormat("dd MMM", Locale.getDefault()).format(Date(it.date))
     }
     
-    val textPaint = remember { android.graphics.Paint().apply { color = android.graphics.Color.WHITE; textSize = 24f; textAlign = android.graphics.Paint.Align.CENTER; typeface = android.graphics.Typeface.DEFAULT_BOLD } }
-    val datePaint = remember { android.graphics.Paint().apply { color = android.graphics.Color.parseColor("#94A3B8"); textSize = 20f; textAlign = android.graphics.Paint.Align.CENTER } }
+    val textPaint = remember { android.graphics.Paint().apply { color = android.graphics.Color.WHITE; textSize = 22f; textAlign = android.graphics.Paint.Align.CENTER; typeface = android.graphics.Typeface.DEFAULT_BOLD } }
+    val datePaint = remember { android.graphics.Paint().apply { color = android.graphics.Color.parseColor("#94A3B8"); textSize = 18f; textAlign = android.graphics.Paint.Align.CENTER } }
 
     Canvas(modifier = Modifier.fillMaxSize()) {
         if (data.size < 2) return@Canvas
-        val padding = 40.dp.toPx()
+        val padding = 30.dp.toPx()
         val spacing = size.width / (data.size - 1)
         val weights = data.map { it.first }
         val maxW = weights.maxOrNull() ?: 1f
@@ -415,13 +407,28 @@ fun WeightLineChartReal(history: List<WeightEntry>, units: UnitsConfig) {
         }
 
         for (i in 0 until points.size - 1) {
-            drawLine(color = EmeraldGreen, start = points[i], end = points[i + 1], strokeWidth = 3.dp.toPx())
+            drawLine(color = EmeraldGreen, start = points[i], end = points[i + 1], strokeWidth = 2.dp.toPx())
         }
 
         points.forEachIndexed { index, point ->
-            drawCircle(color = EmeraldGreen, radius = 4.dp.toPx(), center = point)
+            drawCircle(color = EmeraldGreen, radius = 3.dp.toPx(), center = point)
+            // Mostrar siempre el valor y la fecha en todos los puntos
             drawContext.canvas.nativeCanvas.drawText("%.1f".format(data[index].first), point.x, point.y - 10.dp.toPx(), textPaint)
             drawContext.canvas.nativeCanvas.drawText(data[index].second, point.x, size.height, datePaint)
+        }
+    }
+}
+
+@Composable
+fun ProgressIndicatorWithLabel(label: String, value: String, progress: Float, color: Color) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            FitlogText(text = label, style = MaterialTheme.typography.bodySmall, color = CoolGray)
+            FitlogText(text = value, style = MaterialTheme.typography.bodySmall, color = Color.White, fontWeight = FontWeight.Bold)
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Box(modifier = Modifier.fillMaxWidth().height(8.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.05f))) {
+            Box(modifier = Modifier.fillMaxWidth(progress).fillMaxHeight().clip(CircleShape).background(color))
         }
     }
 }
