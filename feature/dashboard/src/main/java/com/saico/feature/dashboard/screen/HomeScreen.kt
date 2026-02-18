@@ -40,6 +40,7 @@ fun ContentHomeScreen(
         item {
             WeightTrackerCard(
                 uiState = uiState,
+                navController = navController
             )
         }
         item {
