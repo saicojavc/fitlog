@@ -52,10 +52,13 @@
     <string name="workout_saved_text">Tu carrera ha sido registrada con éxito.</string>
     <string name="elapsed_time">Tiempo transcurrido</string>
     <string name="time">Tiempo</string>
-
+    <string name="understood">Entendido</string>
     <string name="km">Km</string>
     <string name="calories">Calorias</string>
     <string name="average_pace">Ritmo medio (Km/h)</string>
+    <!-- Service Notification -->
+    <string name="service_active_title">Fitlog está activo</string>
+    <string name="service_active_msg">Contando tus pasos...</string>
 
     <string name="register_session">Registrar sesión</string>
 
@@ -182,4 +185,13 @@
     <string name="developed_by">Desarrollado por %1$s</string>
     <string name="version">Versión</string>
     <string name="app_slogan">Tu Tracker Definitivo</string>
+
+
+    <string name="enter">Entra</string>
+
+    <!-- BMI Status -->
+    <string name="bmi_underweight">Bajo peso</string>
+    <string name="bmi_normal">Normal</string>
+    <string name="bmi_overweight">Sobrepeso</string>
+    <string name="bmi_obese">Obeso</string>
 </resources>

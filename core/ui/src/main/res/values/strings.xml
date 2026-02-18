@@ -128,13 +128,13 @@
     <string name="half_goal_title">Halfway there! 🔥</string>
     <string name="half_goal_msg">You already have %1$d steps. Keep it up!</string>
     <string name="daily_summary_title">Daily Summary</string>
-    <string name="daily_summary_msg_incomplete">Today you did %1$d steps. Good effort! Tomorrow for more 😊</string>
-    <string name="daily_summary_msg_low">Today you only did %1$d steps. You need to move more! Tomorrow is a new opportunity 😊</string>
+    <string name="daily_summary_msg_incomplete">Today you did %1$d steps. Good effort! Tomorrow for the goal 😊</string>
     <string name="daily_summary_msg_complete">Today you did %1$d steps. You\'ve outdone yourself! Congratulations! 😊</string>
 
     <!-- Service Notification -->
     <string name="service_active_title">Fitlog is active</string>
     <string name="service_active_msg">Counting your steps...</string>
+    <string name="daily_summary_msg_low">Today you only did %1$d steps. You need to move more! Tomorrow is a new opportunity 😊</string>
 
     <!-- Workout Tracking -->
     <string name="workout_ongoing_title">Workout in progress</string>
@@ -195,4 +195,11 @@
     <string name="developed_by">Developed by %1$s</string>
     <string name="version">Version</string>
     <string name="app_slogan">Your Ultimate Tracker</string>
+    <string name="enter">Enter</string>
+
+    <!-- BMI Status -->
+    <string name="bmi_underweight">Underweight</string>
+    <string name="bmi_normal">Normal</string>
+    <string name="bmi_overweight">Overweight</string>
+    <string name="bmi_obese">Obese</string>
 </resources>

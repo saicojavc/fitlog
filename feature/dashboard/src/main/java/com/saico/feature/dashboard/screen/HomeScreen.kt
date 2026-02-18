@@ -9,6 +9,7 @@ import androidx.navigation.NavHostController
 import com.saico.feature.dashboard.components.RegisterWork
 import com.saico.feature.dashboard.components.StepsDailyCard
 import com.saico.feature.dashboard.components.WeeklyActivityCard
+import com.saico.feature.dashboard.components.WeightTrackerCard
 import com.saico.feature.dashboard.state.DashboardUiState
 
 @Composable
@@ -34,6 +35,11 @@ fun ContentHomeScreen(
             StepsDailyCard(
                 uiState = uiState,
                 navController = navController
+            )
+        }
+        item {
+            WeightTrackerCard(
+                uiState = uiState,
             )
         }
         item {
