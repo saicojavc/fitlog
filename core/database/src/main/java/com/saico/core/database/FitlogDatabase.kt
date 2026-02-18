@@ -3,6 +3,8 @@ package com.saico.core.database
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.saico.core.database.dao.GymExerciseDao
 import com.saico.core.database.dao.UserProfileDao
 import com.saico.core.database.dao.WorkoutDao
@@ -24,4 +26,15 @@ abstract class FitlogDatabase : RoomDatabase() {
     abstract fun userProfileDao(): UserProfileDao
     abstract fun gymExerciseDao(): GymExerciseDao
     abstract fun workoutSessionDao(): WorkoutSessionDao
+
+    companion object {
+        // Definición de la migración de la versión 5 a la 6
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Añadimos la columna weightHistory a la tabla 'user'
+                // Usamos '[]' como valor por defecto (JSON de lista vacía)
+                db.execSQL("ALTER TABLE $USER_PROFILE_TABLE ADD COLUMN weightHistory TEXT NOT NULL DEFAULT '[]'")
+            }
+        }
+    }
 }

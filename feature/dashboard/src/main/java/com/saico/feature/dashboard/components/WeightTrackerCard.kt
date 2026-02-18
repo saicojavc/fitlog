@@ -35,13 +35,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.saico.core.common.util.UnitsConverter
+import com.saico.core.model.BmiStatus
 import com.saico.core.model.UnitsConfig
 import com.saico.core.ui.R
 import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.icon.FitlogIcons
 import com.saico.core.ui.navigation.routes.weighttracking.WeightTrackingRoute
 import com.saico.core.ui.theme.PaddingDim
-import com.saico.feature.dashboard.model.BmiStatus
 import com.saico.feature.dashboard.state.DashboardUiState
 import kotlin.math.pow
 

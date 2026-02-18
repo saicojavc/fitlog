@@ -2,6 +2,7 @@ package com.saico.core.database.util
 
 import androidx.room.TypeConverter
 import com.saico.core.model.GymExerciseItem
+import com.saico.core.model.WeightEntry
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -15,6 +16,9 @@ class FitlogTypeConverters {
 
     private val gymExerciseListType = Types.newParameterizedType(List::class.java, GymExerciseItem::class.java)
     private val gymExerciseAdapter = moshi.adapter<List<GymExerciseItem>>(gymExerciseListType)
+
+    private val weightEntryListType = Types.newParameterizedType(List::class.java, WeightEntry::class.java)
+    private val weightEntryAdapter = moshi.adapter<List<WeightEntry>>(weightEntryListType)
 
     @TypeConverter
     fun fromTime(time: Time?): Long? {
@@ -34,5 +38,15 @@ class FitlogTypeConverters {
     @TypeConverter
     fun toGymExerciseItemList(value: String?): List<GymExerciseItem>? {
         return value?.let { gymExerciseAdapter.fromJson(it) }
+    }
+
+    @TypeConverter
+    fun fromWeightHistory(value: List<WeightEntry>?): String? {
+        return weightEntryAdapter.toJson(value)
+    }
+
+    @TypeConverter
+    fun toWeightHistory(value: String?): List<WeightEntry>? {
+        return value?.let { weightEntryAdapter.fromJson(it) }
     }
 }

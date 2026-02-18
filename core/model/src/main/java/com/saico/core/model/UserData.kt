@@ -20,3 +20,6 @@ enum class LanguageConfig {
 enum class UnitsConfig {
     METRIC, IMPERIAL
 }
+enum class BmiStatus {
+    LOW_WEIGHT, NORMAL, OVERWEIGHT, OBESE, UNKNOWN
+}

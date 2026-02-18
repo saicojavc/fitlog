@@ -10,7 +10,8 @@ fun UserProfileEntity.toDomain() = UserProfile(
     gender = gender,
     dailyStepsGoal = dailyStepsGoal,
     dailyCaloriesGoal = dailyCaloriesGoal,
-    level = level
+    level = level,
+    weightHistory = weightHistory
 )
 
 fun UserProfile.toEntity() = UserProfileEntity(
@@ -21,5 +22,6 @@ fun UserProfile.toEntity() = UserProfileEntity(
     gender = gender,
     dailyStepsGoal = dailyStepsGoal,
     dailyCaloriesGoal = dailyCaloriesGoal,
-    level = level
+    level = level,
+    weightHistory = weightHistory
 )

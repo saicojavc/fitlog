@@ -22,6 +22,9 @@ object DatabaseModule {
             context,
             FitlogDatabase::class.java,
             DB_NAME
-        ).fallbackToDestructiveMigration().build()
+        )
+        .addMigrations(FitlogDatabase.MIGRATION_5_6) // Añadimos la migración segura
+        .fallbackToDestructiveMigration() // Solo como último recurso si falla la migración
+        .build()
     }
 }
