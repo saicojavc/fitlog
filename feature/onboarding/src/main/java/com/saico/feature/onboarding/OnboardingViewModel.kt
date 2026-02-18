@@ -4,10 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.saico.core.datastore.UserSettingsDataStore
 import com.saico.core.domain.usecase.onboarding.SetOnboardingCompletedUseCase
-import com.saico.core.domain.usecase.user_profile.InsertUserProfileUseCase
 import com.saico.core.domain.usecase.user_profile.UserProfileUseCase
 import com.saico.core.model.UnitsConfig
 import com.saico.core.model.UserProfile
+import com.saico.core.model.WeightEntry
 import com.saico.feature.onboarding.state.OnboardingUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -81,14 +81,23 @@ class OnboardingViewModel @Inject constructor(
                 else -> "Beginner"
             }
 
+            val weightValue = state.weight.toDoubleOrNull() ?: 0.0
+
+            // Creamos la primera entrada del historial con el peso inicial
+            val initialWeightEntry = WeightEntry(
+                weight = weightValue,
+                date = System.currentTimeMillis()
+            )
+
             val userProfile = UserProfile(
                 age = state.age.toIntOrNull() ?: 0,
-                weightKg = state.weight.toDoubleOrNull() ?: 0.0,
+                weightKg = weightValue,
                 heightCm = state.height.toDoubleOrNull() ?: 0.0,
                 gender = state.gender,
                 dailyStepsGoal = state.dailySteps,
                 dailyCaloriesGoal = state.caloriesToBurn,
-                level = calculatedLevel
+                level = calculatedLevel,
+                weightHistory = listOf(initialWeightEntry) // Guardamos el peso inicial aquí
             )
             userProfileUseCase.insertUserProfileUseCase(userProfile)
             userSettingsDataStore.setUnitsConfig(state.unitsConfig)

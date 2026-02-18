@@ -146,7 +146,7 @@ fun WeightTrackingContent(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Gráfico Real
-        if (uiState.weightHistory.isNotEmpty()) {
+        if (uiState.weightHistory.size >= 2) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(28.dp),
@@ -308,7 +308,8 @@ fun WeightTrackerCardReal(
 
 @Composable
 fun WeightLineChartReal(history: List<WeightEntry>, units: UnitsConfig) {
-    val data = history.map { 
+    // Ordenamos cronológicamente para el gráfico (más antiguo a la izquierda)
+    val data = history.sortedBy { it.date }.map {
         val w = if (units == UnitsConfig.METRIC) it.weight else UnitsConverter.kgToLb(it.weight)
         w.toFloat() to SimpleDateFormat("dd MMM", Locale.getDefault()).format(Date(it.date))
     }
