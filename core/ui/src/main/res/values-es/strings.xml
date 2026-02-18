@@ -42,10 +42,12 @@
     <string name="home">Inicio</string>
     <string name="history">Historial</string>
     <string name="profile">Perfil</string>
+
+    <string name="new_exercise">NUEVO EJERCICIO</string>
     
     <string name="weekly_activity">Actividad Semanal</string>
-    <string name="register_workout">Registrar Workout</string>
-    <string name="register_gym">Registrar Gym</string>
+    <string name="register_workout">Entrenamiento</string>
+    <string name="register_gym">Gym</string>
 
     <string name="workout_saved_title">Entrenamiento guardado</string>
     <string name="workout_saved_text">Tu carrera ha sido registrada con éxito.</string>

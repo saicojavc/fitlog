@@ -47,8 +47,10 @@
     <string name="profile">Profile</string>
 
     <string name="weekly_activity">Weekly Activity</string>
-    <string name="register_workout">Register Workout</string>
-    <string name="register_gym">Register Gym</string>
+    <string name="register_workout">Workout</string>
+    <string name="register_gym">Gym</string>
+
+    <string name="new_exercise">NEW EXERCISE</string>
 
     <!-- Dialogs -->
     <string name="understood">Understood</string>

@@ -2,6 +2,7 @@ package com.saico.feature.dashboard.screen
 
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -14,7 +15,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -28,15 +28,12 @@ import com.saico.core.common.util.UnitsConverter
 import com.saico.core.model.UnitsConfig
 import com.saico.core.model.UserProfile
 import com.saico.core.ui.R
-import com.saico.core.ui.components.FitlogAlertDialog
-import com.saico.core.ui.components.FitlogCard
 import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.icon.FitlogIcons
-import com.saico.core.ui.theme.LightPrimary
-import com.saico.core.ui.theme.LightSuccess
 import com.saico.core.ui.theme.PaddingDim
 import com.saico.feature.dashboard.state.DashboardUiState
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.ui.window.DialogProperties
 
 @Composable
 fun ProfileScreen(
@@ -54,6 +51,7 @@ fun ProfileScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileContent(
     profile: UserProfile,
@@ -99,53 +97,117 @@ fun ProfileContent(
     }
 
     if (showConfirmDialog) {
-        FitlogAlertDialog(
+        AlertDialog(
             onDismissRequest = { showConfirmDialog = false },
-            title = { FitlogText(text = stringResource(id = R.string.update_profile_title)) },
-            text = { FitlogText(text = stringResource(id = R.string.update_profile_message)) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        val steps = dailyStepsGoal.toIntOrNull() ?: profile.dailyStepsGoal
-                        val cals = caloriesGoal.toIntOrNull() ?: profile.dailyCaloriesGoal
-
-                        // Conversión inversa para guardar en base de datos (siempre métrico)
-                        val weightValue = weight.toDoubleOrNull() ?: profile.weightKg
-                        val weightKg = if (units == UnitsConfig.METRIC) weightValue else UnitsConverter.lbToKg(weightValue)
-                        
-                        val finalHeightCm = if (units == UnitsConfig.METRIC) {
-                            heightCm.toDoubleOrNull() ?: profile.heightCm
-                        } else {
-                            UnitsConverter.ftInToCm(
-                                heightFt.toIntOrNull() ?: 0,
-                                heightIn.toIntOrNull() ?: 0
-                            )
-                        }
-
-                        val newLevel = when {
-                            steps > 19000 || cals > 1500 -> "Professional"
-                            steps > 10000 || cals > 500 -> "Intermediate"
-                            else -> "Beginner"
-                        }
-
-                        val updatedProfile = profile.copy(
-                            age = age.toIntOrNull() ?: profile.age,
-                            weightKg = weightKg,
-                            heightCm = finalHeightCm,
-                            dailyStepsGoal = steps,
-                            dailyCaloriesGoal = cals,
-                            level = newLevel
-                        )
-                        onSave(updatedProfile)
-                        showConfirmDialog = false
-                    }
+            properties = DialogProperties(usePlatformDefaultWidth = false),
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .clip(RoundedCornerShape(32.dp))
+                .background(Color(0xFF1E293B).copy(alpha = 0.95f)) // CardBackground
+                .border(1.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(32.dp)),
+            content = {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    FitlogText(text = stringResource(id = R.string.accept))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showConfirmDialog = false }) {
-                    FitlogText(text = stringResource(id = R.string.cancel))
+                    // Icono decorativo de guardado
+                    Box(
+                        modifier = Modifier
+                            .size(64.dp)
+                            .background(Color(0xFF10B981).copy(alpha = 0.1f), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = FitlogIcons.Save,
+                            contentDescription = null,
+                            tint = Color(0xFF10B981), // EmeraldGreen
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
+
+                    Spacer(Modifier.height(20.dp))
+
+                    FitlogText(
+                        text = stringResource(id = R.string.update_profile_title).uppercase(),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Black,
+                        color = Color.White,
+                        letterSpacing = 1.sp
+                    )
+
+                    Spacer(Modifier.height(12.dp))
+
+                    FitlogText(
+                        text = stringResource(id = R.string.update_profile_message),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color(0xFF94A3B8), // CoolGray
+                        textAlign = TextAlign.Center,
+                        lineHeight = 20.sp
+                    )
+
+                    Spacer(Modifier.height(32.dp))
+
+                    // Botón Confirmar con tu lógica original
+                    Button(
+                        onClick = {
+                            val steps = dailyStepsGoal.toIntOrNull() ?: profile.dailyStepsGoal
+                            val cals = caloriesGoal.toIntOrNull() ?: profile.dailyCaloriesGoal
+
+                            val weightValue = weight.toDoubleOrNull() ?: profile.weightKg
+                            val weightKg = if (units == UnitsConfig.METRIC) weightValue else UnitsConverter.lbToKg(weightValue)
+
+                            val finalHeightCm = if (units == UnitsConfig.METRIC) {
+                                heightCm.toDoubleOrNull() ?: profile.heightCm
+                            } else {
+                                UnitsConverter.ftInToCm(
+                                    heightFt.toIntOrNull() ?: 0,
+                                    heightIn.toIntOrNull() ?: 0
+                                )
+                            }
+
+                            val newLevel = when {
+                                steps > 19000 || cals > 1500 -> "Professional"
+                                steps > 10000 || cals > 500 -> "Intermediate"
+                                else -> "Beginner"
+                            }
+
+                            val updatedProfile = profile.copy(
+                                age = age.toIntOrNull() ?: profile.age,
+                                weightKg = weightKg,
+                                heightCm = finalHeightCm,
+                                dailyStepsGoal = steps,
+                                dailyCaloriesGoal = cals,
+                                level = newLevel
+                            )
+                            onSave(updatedProfile)
+                            showConfirmDialog = false
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = CircleShape,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981))
+                    ) {
+                        FitlogText(
+                            text = stringResource(id = R.string.accept).uppercase(),
+                            fontWeight = FontWeight.Black,
+                            color = Color.White
+                        )
+                    }
+
+                    Spacer(Modifier.height(8.dp))
+
+                    // Botón Cancelar
+                    TextButton(
+                        onClick = { showConfirmDialog = false },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        FitlogText(
+                            text = stringResource(id = R.string.cancel),
+                            color = Color(0xFF94A3B8), // CoolGray
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    }
                 }
             }
         )

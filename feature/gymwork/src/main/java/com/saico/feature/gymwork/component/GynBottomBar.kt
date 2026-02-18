@@ -71,7 +71,7 @@ fun GymBottomBar(
             FitlogButton(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(PaddingDim.MEDIUM),
+                    .padding(start = PaddingDim.MEDIUM, end = PaddingDim.MEDIUM, bottom = PaddingDim.VERY_HUGE),
                 colors = ButtonColors(
                     LightSuccess,
                     Color.White,

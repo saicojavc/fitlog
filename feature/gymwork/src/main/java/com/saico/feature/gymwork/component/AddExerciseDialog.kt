@@ -67,7 +67,7 @@ fun AddExerciseDialog(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
-                    text = if (initialExercise == null) "NUEVO EJERCICIO" else "EDITAR EJERCICIO",
+                    text = if (initialExercise == null) stringResource(R.string.new_exercise) else stringResource(R.string.edit_exercise),
                     style = MaterialTheme.typography.labelSmall,
                     color = Color(0xFF94A3B8),
                     letterSpacing = 2.sp
@@ -84,7 +84,7 @@ fun AddExerciseDialog(
                     ),
                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                     decorationBox = { innerTextField ->
-                        if (name.isEmpty()) Text("Nombre del ejercicio", color = Color.Gray, textAlign = TextAlign.Center)
+                        if (name.isEmpty()) Text(stringResource(R.string.exercise_name), color = Color.Gray, textAlign = TextAlign.Center)
                         innerTextField()
                     }
                 )
