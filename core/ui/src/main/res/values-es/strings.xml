@@ -11,7 +11,6 @@
     <string name="height">Altura</string>
     <string name="weight_kg">Peso (Kg)</string>
     <string name="height_cm">Altura (Cm)</string>
-    <string name="weight_lb">Peso (lb)</string>
     <string name="height_in">Altura (ft/in)</string>
     <string name="gender">Género</string>
     <string name="select_option">Seleccione una opción</string>
@@ -170,6 +169,7 @@
     <string name="exercise_name">Nombre del ejercicio</string>
     <string name="sets">Series</string>
     <string name="reps">Reps</string>
+    <string name="weight_lb">Peso (lb)</string>
     <string name="add">Agregar</string>
     <string name="update">Actualizar</string>
     <string name="delete">Eliminar</string>
@@ -202,4 +202,10 @@
     <string name="register_weight">REGISTRAR PESO</string>
     <string name="full_history">HISTORIAL COMPLETO</string>
     <string name="bmi_status_label">ESTADO DE SALUD (IMC)</string>
+
+    <!-- App Update -->
+    <string name="update_available_title">Actualización Disponible</string>
+    <string name="update_available_message">Una nueva versión de Fitlog está disponible (%1$s). Por favor, actualiza para obtener las últimas funciones y correcciones.</string>
+    <string name="update_now">Actualizar Ahora</string>
+    <string name="later">Más Tarde</string>
 </resources>

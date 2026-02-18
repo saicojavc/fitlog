@@ -10,4 +10,5 @@ plugins {
     alias(libs.plugins.com.github.ben.manes)
     alias(libs.plugins.org.jetbrains.kt.jvm)
     alias(libs.plugins.detekt)
+    alias(libs.plugins.google.services) apply false
 }

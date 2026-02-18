@@ -15,7 +15,8 @@ data class DashboardUiState(
     val weeklyWorkouts: List<Workout> = emptyList(),
     val gymExercises: List<GymExercise> = emptyList(),
     val workoutSessions: List<WorkoutSession> = emptyList(),
-    val selectedFilter: HistoryFilter = HistoryFilter.TODAY
+    val selectedFilter: HistoryFilter = HistoryFilter.TODAY,
+    val remoteVersion: String? = null
 )
 
 enum class HistoryFilter {

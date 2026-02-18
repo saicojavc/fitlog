@@ -62,6 +62,9 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.navigation.compose)
 
+    // Firebase Realtime Database
+    implementation(libs.firebase.database)
+
     // Accompanist
     implementation(libs.accompanist.permissions)
 

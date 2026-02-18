@@ -4,6 +4,10 @@ import android.content.Context
 import android.text.format.DateUtils
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.saico.core.common.util.FitnessCalculator
 import com.saico.core.datastore.StepCounterDataStore
 import com.saico.core.domain.usecase.user_profile.UserProfileUseCase
@@ -48,12 +52,28 @@ class DashboardViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(DashboardUiState())
     val uiState: StateFlow<DashboardUiState> = _uiState.asStateFlow()
 
+    private val database = FirebaseDatabase.getInstance("https://fitlog-cb7c8-default-rtdb.firebaseio.com/")
+
     init {
         getUserProfile()
         initStepCounter()
         getWeeklyWorkouts()
         getHistoryData()
         getUserData()
+        checkAppVersion()
+    }
+
+    private fun checkAppVersion() {
+        database.getReference("version").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val remoteVersion = snapshot.getValue(String::class.java)
+                _uiState.update { it.copy(remoteVersion = remoteVersion) }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Manejar error si es necesario
+            }
+        })
     }
 
     private fun getUserData() {

@@ -38,6 +38,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.Straighten
 import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.icons.filled.Update
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.WbSunny
@@ -104,6 +105,8 @@ object FitlogIcons {
     val ArrowDropDown : ImageVector = Icons.Default.ArrowDropDown
 
     val ChevronRight : ImageVector = Icons.Default.ArrowForward
+
+    val SystemUpdate : ImageVector = Icons.Default.Update
 
 
 }
