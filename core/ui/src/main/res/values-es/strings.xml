@@ -186,7 +186,6 @@
     <string name="version">Versión</string>
     <string name="app_slogan">Tu Tracker Definitivo</string>
 
-
     <string name="enter">Entra</string>
 
     <!-- BMI Status -->
@@ -194,4 +193,13 @@
     <string name="bmi_normal">Normal</string>
     <string name="bmi_overweight">Sobrepeso</string>
     <string name="bmi_obese">Obeso</string>
+
+    <!-- Weight Tracking -->
+    <string name="weight_evolution">Evolución de Peso</string>
+    <string name="current_weight">PESO ACTUAL</string>
+    <string name="recent_history">HISTORIAL RECIENTE</string>
+    <string name="new_weight_label">Nuevo peso (%1$s)</string>
+    <string name="register_weight">REGISTRAR PESO</string>
+    <string name="full_history">HISTORIAL COMPLETO</string>
+    <string name="bmi_status_label">ESTADO DE SALUD (IMC)</string>
 </resources>

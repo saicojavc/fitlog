@@ -13,13 +13,18 @@ val LightOnBackground = Color(0xFF000000)
 val LightSecondaryText = Color(0xFF666666)
 val LightInfo = Color(0xFFE3F2FD) // A light blue color for info cards
 
+val DarkBackground = Color(0xFF0F172A)
+val CardBackground = Color(0xFF1E293B).copy(alpha = 0.6f)
+val EmeraldGreen = Color(0xFF10B981)
+val CoolGray = Color(0xFF94A3B8)
+
 val GradientColors = listOf(LightPrimary, LightPrimaryVariant, LightSuccess)
 
 // Dark Mode
 val DarkPrimary = Color(0xFF004C99)
 val DarkPrimaryVariant = Color(0xFF003366)
 val DarkSuccess = Color(0xFF00A351)
-val DarkBackground = Color(0xFF121212)
+//val DarkBackground = Color(0xFF121212)
 val DarkSurface = Color(0xFF1E1E1E)
 val DarkOnPrimary = Color(0xFFFFFFFF)
 val DarkOnBackground = Color(0xFFE0E0E0)

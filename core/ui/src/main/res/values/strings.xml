@@ -14,6 +14,7 @@
     <string name="height">Height</string>
     <string name="weight_kg">Weight (Kg)</string>
     <string name="height_cm">Height (Cm)</string>
+    <string name="weight_lb">Weight (lb)</string>
     <string name="height_in">Height (ft/in)</string>
     <string name="gender">Gender</string>
     <string name="select_option">Select an option</string>
@@ -179,7 +180,6 @@
     <string name="exercise_name">Exercise Name</string>
     <string name="sets">Sets</string>
     <string name="reps">Reps</string>
-    <string name="weight_lb">Weight (Lb)</string>
     <string name="add">Add</string>
     <string name="update">Update</string>
     <string name="delete">Delete</string>
@@ -202,4 +202,13 @@
     <string name="bmi_normal">Normal</string>
     <string name="bmi_overweight">Overweight</string>
     <string name="bmi_obese">Obese</string>
+
+    <!-- Weight Tracking -->
+    <string name="weight_evolution">Weight Evolution</string>
+    <string name="current_weight">CURRENT WEIGHT</string>
+    <string name="recent_history">RECENT HISTORY</string>
+    <string name="new_weight_label">New weight (%1$s)</string>
+    <string name="register_weight">REGISTER WEIGHT</string>
+    <string name="full_history">FULL HISTORY</string>
+    <string name="bmi_status_label">HEALTH STATUS (BMI)</string>
 </resources>

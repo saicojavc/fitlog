@@ -13,8 +13,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -31,18 +33,19 @@ import com.saico.core.model.WeightEntry
 import com.saico.core.ui.R
 import com.saico.core.ui.components.FitlogCard
 import com.saico.core.ui.components.FitlogIcon
+import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.components.FitlogTopAppBar
 import com.saico.core.ui.icon.FitlogIcons
+import com.saico.core.ui.theme.CardBackground
+import com.saico.core.ui.theme.CoolGray
+import com.saico.core.ui.theme.DarkBackground
+import com.saico.core.ui.theme.EmeraldGreen
 import com.saico.feature.weighttracking.state.WeightTrackingUiState
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.pow
 
-// Colores de la App (Consistentes con Dashboard)
-val DarkBackground = Color(0xFF0F172A)
-val CardBackground = Color(0xFF1E293B).copy(alpha = 0.6f)
-val EmeraldGreen = Color(0xFF10B981)
-val CoolGray = Color(0xFF94A3B8)
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -111,7 +114,7 @@ fun WeightTrackingContent(
         else -> BmiStatus.OBESE
     }
 
-    val weightLabel = if (units == UnitsConfig.METRIC) "kg" else "lb"
+    val weightLabel = if (units == UnitsConfig.METRIC) stringResource(id = R.string.km).lowercase().replace("km", "kg") else stringResource(id = R.string.mi).lowercase().replace("mi", "lb")
 
     Column(
         modifier = modifier
@@ -119,8 +122,8 @@ fun WeightTrackingContent(
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "Evolución de Peso",
+        FitlogText(
+            text = stringResource(id = R.string.weight_evolution),
             style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.Black,
                 letterSpacing = 1.sp
@@ -148,8 +151,8 @@ fun WeightTrackingContent(
                 border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
-                    Text(
-                        text = "HISTORIAL RECIENTE",
+                    FitlogText(
+                        text = stringResource(id = R.string.recent_history),
                         style = MaterialTheme.typography.labelMedium,
                         color = CoolGray,
                         letterSpacing = 1.5.sp
@@ -175,7 +178,7 @@ fun WeightTrackingContent(
                 OutlinedTextField(
                     value = weightInput,
                     onValueChange = { weightInput = it },
-                    label = { Text("Nuevo peso ($weightLabel)") },
+                    label = { Text(stringResource(id = R.string.new_weight_label, weightLabel)) },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     shape = RoundedCornerShape(16.dp),
@@ -203,7 +206,7 @@ fun WeightTrackingContent(
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null)
                     Spacer(Modifier.width(8.dp))
-                    Text("REGISTRAR PESO", fontWeight = FontWeight.Black)
+                    FitlogText(text = stringResource(id = R.string.register_weight), fontWeight = FontWeight.Black)
                 }
             }
         }
@@ -226,7 +229,7 @@ fun HistoryList(history: List<WeightEntry>, units: UnitsConfig) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(FitlogIcons.History, contentDescription = null, tint = CoolGray, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(8.dp))
-            Text("HISTORIAL COMPLETO", style = MaterialTheme.typography.labelMedium, color = CoolGray)
+            FitlogText(text = stringResource(id = R.string.full_history), style = MaterialTheme.typography.labelMedium, color = CoolGray)
         }
         
         history.forEach { entry ->
@@ -243,12 +246,12 @@ fun HistoryList(history: List<WeightEntry>, units: UnitsConfig) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
+                    FitlogText(
                         text = SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date(entry.date)),
                         color = Color.White,
                         style = MaterialTheme.typography.bodyMedium
                     )
-                    Text(
+                    FitlogText(
                         text = "%.1f %s".format(displayW, unit),
                         color = EmeraldGreen,
                         fontWeight = FontWeight.Bold,
@@ -267,12 +270,21 @@ fun WeightTrackerCardReal(
     bmiValue: Float,
     bmiStatus: BmiStatus
 ) {
-    val statusColor = when (bmiStatus) {
-        BmiStatus.LOW_WEIGHT -> Color(0xFFFACC15)
-        BmiStatus.NORMAL -> Color(0xFF10B981)
-        BmiStatus.OVERWEIGHT -> Color(0xFFFF6F00)
-        BmiStatus.OBESE -> Color(0xFFEF4444)
-        else -> CoolGray
+    val statusColors = mapOf(
+        BmiStatus.LOW_WEIGHT to Color(0xFFFACC15),
+        BmiStatus.NORMAL to Color(0xFF10B981),
+        BmiStatus.OVERWEIGHT to Color(0xFFFF6F00),
+        BmiStatus.OBESE to Color(0xFFEF4444)
+    )
+    
+    val statusColor = statusColors[bmiStatus] ?: CoolGray
+
+    val statusText = when (bmiStatus) {
+        BmiStatus.LOW_WEIGHT -> stringResource(id = R.string.bmi_underweight)
+        BmiStatus.NORMAL -> stringResource(id = R.string.bmi_normal)
+        BmiStatus.OVERWEIGHT -> stringResource(id = R.string.bmi_overweight)
+        BmiStatus.OBESE -> stringResource(id = R.string.bmi_obese)
+        else -> ""
     }
 
     FitlogCard(
@@ -284,25 +296,100 @@ fun WeightTrackerCardReal(
         Column(modifier = Modifier.padding(20.dp)) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Column {
-                    Text("PESO ACTUAL", style = MaterialTheme.typography.labelSmall, color = CoolGray)
+                    FitlogText(text = stringResource(id = R.string.current_weight), style = MaterialTheme.typography.labelSmall, color = CoolGray)
                     Row(verticalAlignment = Alignment.Bottom) {
-                        Text("%.1f".format(currentWeight), style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Black, color = Color.White)
-                        Text(" $unit", style = MaterialTheme.typography.titleMedium, color = CoolGray, modifier = Modifier.padding(bottom = 6.dp))
+                        FitlogText(text = "%.1f".format(currentWeight), style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Black, color = Color.White)
+                        FitlogText(text = " $unit", style = MaterialTheme.typography.titleMedium, color = CoolGray, modifier = Modifier.padding(bottom = 6.dp))
                     }
                 }
                 Surface(color = statusColor.copy(alpha = 0.15f), shape = CircleShape, border = BorderStroke(1.dp, statusColor.copy(alpha = 0.5f))) {
-                    Text(bmiStatus.name.replace("_", " "), modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), style = MaterialTheme.typography.labelMedium, color = statusColor, fontWeight = FontWeight.Bold)
+                    Text(statusText, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), style = MaterialTheme.typography.labelMedium, color = statusColor, fontWeight = FontWeight.Bold)
                 }
             }
+            
             Spacer(modifier = Modifier.height(24.dp))
-            ProgressIndicatorWithLabel(label = "BMI", value = "%.1f".format(bmiValue), progress = (bmiValue / 40f).coerceIn(0f, 1f), color = statusColor)
+            
+            // Nueva Barra de Peso Multi-color (Estética Dashboard)
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    FitlogText(text = stringResource(id = R.string.bmi_status_label), style = MaterialTheme.typography.bodySmall, color = CoolGray)
+                    FitlogText(text = "%.1f".format(bmiValue), style = MaterialTheme.typography.bodySmall, color = Color.White, fontWeight = FontWeight.Bold)
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+                WeightProgressBarCustom(
+                    bmiValue = bmiValue,
+                    statusColors = statusColors
+                )
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(stringResource(R.string.bmi_underweight), style = MaterialTheme.typography.labelSmall, color = statusColors[BmiStatus.LOW_WEIGHT]!!)
+                    Text(stringResource(R.string.bmi_normal), style = MaterialTheme.typography.labelSmall, color = statusColors[BmiStatus.NORMAL]!!)
+                    Text(stringResource(R.string.bmi_overweight), style = MaterialTheme.typography.labelSmall, color = statusColors[BmiStatus.OVERWEIGHT]!!)
+                    Text(stringResource(R.string.bmi_obese), style = MaterialTheme.typography.labelSmall, color = statusColors[BmiStatus.OBESE]!!)
+                }
+            }
         }
     }
 }
 
 @Composable
+fun WeightProgressBarCustom(
+    bmiValue: Float,
+    statusColors: Map<BmiStatus, Color>
+) {
+    val minBmi = 10f
+    val maxBmi = 40f
+    
+    val ranges = listOf(
+        18.5f to BmiStatus.LOW_WEIGHT,
+        25.0f to BmiStatus.NORMAL,
+        30.0f to BmiStatus.OVERWEIGHT,
+        40.0f to BmiStatus.OBESE
+    )
+
+    Canvas(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(10.dp)
+            .clip(RoundedCornerShape(5.dp))
+    ) {
+        val totalRange = maxBmi - minBmi
+        var lastMark = minBmi
+
+        ranges.forEach { (mark, status) ->
+            val startX = ((lastMark - minBmi) / totalRange) * size.width
+            val endX = ((mark - minBmi) / totalRange) * size.width
+            
+            drawRect(
+                color = statusColors[status] ?: Color.Gray,
+                topLeft = Offset(startX, 0f),
+                size = Size(endX - startX, size.height)
+            )
+            lastMark = mark
+        }
+
+        // Indicador del punto actual
+        val indicatorPosition = ((bmiValue - minBmi) / totalRange)
+            .coerceIn(0f, 1f) * size.width
+
+        drawCircle(
+            color = Color.White,
+            radius = 6.dp.toPx(),
+            center = Offset(indicatorPosition, size.height / 2)
+        )
+        drawCircle(
+            color = Color.Black.copy(alpha = 0.2f),
+            radius = 7.dp.toPx(),
+            center = Offset(indicatorPosition, size.height / 2),
+            style = Stroke(1.dp.toPx())
+        )
+    }
+}
+
+@Composable
 fun WeightLineChartReal(history: List<WeightEntry>, units: UnitsConfig) {
-    // Ordenamos cronológicamente para el gráfico (más antiguo a la izquierda)
     val data = history.sortedBy { it.date }.map {
         val w = if (units == UnitsConfig.METRIC) it.weight else UnitsConverter.kgToLb(it.weight)
         w.toFloat() to SimpleDateFormat("dd MMM", Locale.getDefault()).format(Date(it.date))
@@ -335,20 +422,6 @@ fun WeightLineChartReal(history: List<WeightEntry>, units: UnitsConfig) {
             drawCircle(color = EmeraldGreen, radius = 4.dp.toPx(), center = point)
             drawContext.canvas.nativeCanvas.drawText("%.1f".format(data[index].first), point.x, point.y - 10.dp.toPx(), textPaint)
             drawContext.canvas.nativeCanvas.drawText(data[index].second, point.x, size.height, datePaint)
-        }
-    }
-}
-
-@Composable
-fun ProgressIndicatorWithLabel(label: String, value: String, progress: Float, color: Color) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text(label, style = MaterialTheme.typography.bodySmall, color = CoolGray)
-            Text(value, style = MaterialTheme.typography.bodySmall, color = Color.White, fontWeight = FontWeight.Bold)
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        Box(modifier = Modifier.fillMaxWidth().height(8.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.05f))) {
-            Box(modifier = Modifier.fillMaxWidth(progress).fillMaxHeight().clip(CircleShape).background(color))
         }
     }
 }
