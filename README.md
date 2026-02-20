@@ -2,7 +2,7 @@
 
 **FitLog** is a high-performance, privacy-focused, and **offline-first** Android application designed to accompany you on your fitness journey. Built with the latest technologies in the Android ecosystem, it offers a professional experience for tracking steps, weight evolution, gym sessions, and outdoor activities with absolute precision.
 
-![Dashboard HomeScreen](https://res.cloudinary.com/ds4ko1uws/image/upload/v1771309420/HomeScreen_xvkgru.jpg)
+![Dashboard HomeScreen](https://res.cloudinary.com/ds4ko1uws/image/upload/v1771555065/HomeScreen_xvkgru.jpg)
 
 ## 🚀 What's New in v1.0.2 (The "Pro" Update)
 - **Weight Tracking Pro**: A dedicated module to monitor your weight evolution with dynamic, auto-compressing charts and real-time **BMI (Body Mass Index)** calculation.
@@ -36,7 +36,7 @@ Monitor your physical transformation with precision.
 - **BMI Analysis**: Instant calculation of your Body Mass Index with a visual scale (Underweight, Normal, Overweight, Obese).
 - **Persistent History**: Every weight entry is logged with its timestamp for long-term trend analysis.
 
-![Weight Tracking Placeholder](https://via.placeholder.com/800x450.png?text=Weight+Tracking+Evolution+Chart)
+![Weight Tracking Placeholder](https://res.cloudinary.com/ds4ko1uws/image/upload/v1771555075/WhatsApp_Image_2026-02-19_at_9.31.03_PM_pccrrm.jpg)
 
 ### 🏃 Outdoor Activity Tracking
 Professional-grade tracking for walking, running, or cycling.
@@ -75,7 +75,7 @@ The app is built on a **Modular Clean Architecture** to ensure maintainability, 
 
 - **Modular Design**: Separated into `:app`, `:core` (common logic), and `:feature` modules.
 - **UI Layer**: 100% **Jetpack Compose** with Material 3 components.
-- **State Management**: **MVVM/MVI** pattern using `StateFlow` and `collectAsStateWithLifecycle` for efficient UI updates.
+- **State Management**: **MVVM** pattern using `StateFlow` and `collectAsStateWithLifecycle` for efficient UI updates.
 - **Persistence**: 
     - **Room Database**: With robust **Schema Migrations (v5 to v6)** to ensure user data integrity.
     - **DataStore**: Reactive management of user preferences.
