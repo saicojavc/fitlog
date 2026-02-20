@@ -5,8 +5,10 @@ import android.annotation.SuppressLint
 import android.text.format.DateFormat
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -26,6 +28,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -44,6 +48,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -97,6 +102,20 @@ fun SettingScreen(
                     )
                 }
             )
+        },
+        bottomBar = {
+            TextButton(
+                onClick = { navController.navigate(AboutRoute.AboutScreenRoute.route) },
+                modifier = Modifier.fillMaxWidth().padding(bottom = PaddingDim.LARGE),
+                colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF1E293B).copy(alpha = 0.6f))
+            ) {
+                FitlogText(
+                    text = stringResource(id = R.string.about_me),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = Color(0xFF1E293B).copy(alpha = 0.6f),
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     ) { paddingValues ->
         Column(
@@ -219,23 +238,17 @@ fun SettingsContent(
             title = stringResource(id = R.string.language).uppercase(),
             icon = FitlogIcons.Language
         )
-        Column(modifier = Modifier.padding(bottom = PaddingDim.SMALL)) {
-            SettingOption(
-                label = stringResource(id = R.string.follow_system),
-                selected = settings.languageConfig == LanguageConfig.FOLLOW_SYSTEM,
-                onClick = { onLanguageChange(LanguageConfig.FOLLOW_SYSTEM) }
-            )
-            SettingOption(
-                label = stringResource(id = R.string.english),
-                selected = settings.languageConfig == LanguageConfig.ENGLISH,
-                onClick = { onLanguageChange(LanguageConfig.ENGLISH) }
-            )
-            SettingOption(
-                label = stringResource(id = R.string.spanish),
-                selected = settings.languageConfig == LanguageConfig.SPANISH,
-                onClick = { onLanguageChange(LanguageConfig.SPANISH) }
-            )
-        }
+        // Dropdown de Idioma
+        FitlogSettingDropdown(
+            label = stringResource(id = R.string.language),
+            selectedOption = settings.languageConfig,
+            options = listOf(
+                LanguageConfig.FOLLOW_SYSTEM to stringResource(id = R.string.follow_system),
+                LanguageConfig.ENGLISH to stringResource(id = R.string.english),
+                LanguageConfig.SPANISH to stringResource(id = R.string.spanish)
+            ),
+            onOptionSelected = onLanguageChange
+        )
     }
 
     // --- UNIDADES ---
@@ -244,37 +257,14 @@ fun SettingsContent(
         color = Color(0xFF1E293B).copy(alpha = 0.6f),
         border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
     ) {
-        SettingSectionTitle(
-            title = stringResource(id = R.string.measurement_units).uppercase(),
-            icon = FitlogIcons.Straighten // Icono de regla/medida
-        )
-        Column(modifier = Modifier.padding(bottom = PaddingDim.SMALL)) {
-            SettingOption(
-                label = stringResource(id = R.string.metric_system),
-                selected = settings.unitsConfig == UnitsConfig.METRIC,
-                onClick = { onUnitsChange(UnitsConfig.METRIC) }
-            )
-            SettingOption(
-                label = stringResource(id = R.string.imperial_system),
-                selected = settings.unitsConfig == UnitsConfig.IMPERIAL,
-                onClick = { onUnitsChange(UnitsConfig.IMPERIAL) }
-            )
-
-        }
-    }
-
-    // --- BOTÓN SOBRIO DE ABOUT ---
-    Spacer(modifier = Modifier.height(PaddingDim.LARGE))
-    TextButton(
-        onClick = { navController.navigate(AboutRoute.AboutScreenRoute.route) },
-        modifier = Modifier.fillMaxWidth(),
-        colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF1E293B).copy(alpha = 0.6f))
-    ) {
-        FitlogText(
-            text = stringResource(id = R.string.about_me),
-            style = MaterialTheme.typography.labelLarge,
-            color = Color(0xFF1E293B).copy(alpha = 0.6f),
-            fontWeight = FontWeight.Bold
+        FitlogSettingDropdown(
+            label = stringResource(id = R.string.measurement_units),
+            selectedOption = settings.unitsConfig,
+            options = listOf(
+                UnitsConfig.METRIC to stringResource(id = R.string.metric_system),
+                UnitsConfig.IMPERIAL to stringResource(id = R.string.imperial_system)
+            ),
+            onOptionSelected = onUnitsChange
         )
     }
 }
@@ -419,5 +409,74 @@ fun SettingOption(label: String, selected: Boolean, onClick: () -> Unit) {
                 unselectedColor = Color.White.copy(alpha = 0.3f)
             )
         )
+    }
+}
+@Composable
+fun <T> FitlogSettingDropdown(
+    label: String,
+    options: List<Pair<T, String>>, // El valor técnico y el texto legible
+    selectedOption: T,
+    onOptionSelected: (T) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val currentLabel = options.find { it.first == selectedOption }?.second ?: ""
+
+    Column(modifier = Modifier.padding(PaddingDim.MEDIUM)) {
+        FitlogText(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            color = Color.White.copy(alpha = 0.9f),
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        Box {
+            // "Botón" del selector
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color.White.copy(alpha = 0.05f))
+                    .clickable { expanded = true }
+                    .padding(horizontal = PaddingDim.MEDIUM),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                FitlogText(
+                    text = currentLabel,
+                    color = Color(0xFF10B981), // Valor resaltado
+                    fontWeight = FontWeight.Bold
+                )
+                Icon(
+                    imageVector = if (expanded) FitlogIcons.KeyboardArrowUp else FitlogIcons.KeyboardArrowDown,
+                    contentDescription = null,
+                    tint = Color(0xFF10B981)
+                )
+            }
+
+            // El menú desplegable
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier
+                    .background(Color(0xFF1E293B)) // Color sólido para lectura clara
+                    .border(0.5.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(8.dp))
+            ) {
+                options.forEach { (value, text) ->
+                    DropdownMenuItem(
+                        text = {
+                            FitlogText(
+                                text = text,
+                                color = if (value == selectedOption) Color(0xFF10B981) else Color.White
+                            )
+                        },
+                        onClick = {
+                            onOptionSelected(value)
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
     }
 }
