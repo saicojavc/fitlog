@@ -27,8 +27,16 @@ Personalize your experience from the start. Set your age, gender, weight, and he
 ### 📊 Advanced Dashboard
 Your health at a glance.
 - **Native Step Counter**: Leverages hardware sensors for ultra-low battery consumption.
-- **BMI Status**: Instant health classification with a visual color-coded scale (Underweight, Normal, Overweight, Obese).
 - **Weekly Activity**: Quick visual summary of your consistency throughout the week.
+- **Real-time Overview**: Monitor calories, steps, and distance from a single, elegant interface.
+
+### ⚖️ Weight Tracking & Health Insights
+Monitor your physical transformation with precision.
+- **Weight Evolution**: Visual progress tracking with auto-compressing charts that adapt as you add more data points.
+- **BMI Analysis**: Instant calculation of your Body Mass Index with a visual scale (Underweight, Normal, Overweight, Obese).
+- **Persistent History**: Every weight entry is logged with its timestamp for long-term trend analysis.
+
+![Weight Tracking Placeholder](https://via.placeholder.com/800x450.png?text=Weight+Tracking+Evolution+Chart)
 
 ### 🏃 Outdoor Activity Tracking
 Professional-grade tracking for walking, running, or cycling.
