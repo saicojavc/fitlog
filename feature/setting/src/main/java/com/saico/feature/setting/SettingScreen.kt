@@ -78,46 +78,42 @@ import com.saico.feature.setting.state.SettingUiState
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingScreen(
-    navController: NavHostController,
-    viewModel: SettingViewModel = hiltViewModel()
+    navController: NavHostController, viewModel: SettingViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
 
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        topBar = {
-            FitlogTopAppBar(
-                title = stringResource(id = R.string.settings),
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Black.copy(alpha = 0.3f)
-                ),
-                navigationIcon = {
-                    FitlogIcon(
-                        modifier = Modifier.clickable { navController.popBackStack() },
-                        imageVector = FitlogIcons.ArrowBack,
-                        background = Color.Transparent,
-                        contentDescription = null
-                    )
-                }
-            )
-        },
-        bottomBar = {
-            TextButton(
-                onClick = { navController.navigate(AboutRoute.AboutScreenRoute.route) },
-                modifier = Modifier.fillMaxWidth().padding(bottom = PaddingDim.LARGE),
-                colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF1E293B).copy(alpha = 0.6f))
-            ) {
-                FitlogText(
-                    text = stringResource(id = R.string.about_me),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = Color(0xFF1E293B).copy(alpha = 0.6f),
-                    fontWeight = FontWeight.Bold
+    Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
+        FitlogTopAppBar(
+            title = stringResource(id = R.string.settings),
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = Color.Black.copy(alpha = 0.3f)
+            ),
+            navigationIcon = {
+                FitlogIcon(
+                    modifier = Modifier.clickable { navController.popBackStack() },
+                    imageVector = FitlogIcons.ArrowBack,
+                    background = Color.Transparent,
+                    contentDescription = null
                 )
-            }
+            })
+    }, bottomBar = {
+        TextButton(
+            onClick = { navController.navigate(AboutRoute.AboutScreenRoute.route) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = PaddingDim.LARGE),
+            colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF1E293B).copy(alpha = 0.6f))
+        ) {
+            FitlogText(
+                text = stringResource(id = R.string.about_me),
+                style = MaterialTheme.typography.labelLarge,
+                color = Color(0xFF1E293B).copy(alpha = 0.6f),
+                fontWeight = FontWeight.Bold
+            )
         }
-    ) { paddingValues ->
+    }) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -168,8 +164,7 @@ fun SettingsContent(
             onConfirm = { hour, minute ->
                 onTimeChange(hour, minute)
                 showTimePicker = false
-            }
-        )
+            })
     }
 
     // Formateo visual de la hora del recordatorio
@@ -177,9 +172,7 @@ fun SettingsContent(
         remember(settings.workoutReminderHour, settings.workoutReminderMinute, isSystem24Hour) {
             if (isSystem24Hour) {
                 String.format(
-                    "%02d:%02d",
-                    settings.workoutReminderHour,
-                    settings.workoutReminderMinute
+                    "%02d:%02d", settings.workoutReminderHour, settings.workoutReminderMinute
                 )
             } else {
                 val hour =
@@ -197,16 +190,14 @@ fun SettingsContent(
             title = stringResource(id = R.string.notifications).uppercase(),
             icon = FitlogIcons.Notifications
         )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    showTimePicker = true
-                }
-                .padding(PaddingDim.MEDIUM),
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                showTimePicker = true
+            }
+            .padding(PaddingDim.MEDIUM),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
+            horizontalArrangement = Arrangement.SpaceBetween) {
             Column {
                 FitlogText(
                     text = stringResource(id = R.string.workout_reminder),
@@ -221,9 +212,7 @@ fun SettingsContent(
             }
 
             Icon(
-                imageVector = FitlogIcons.Clock,
-                contentDescription = null,
-                tint = Color(0xFF10B981)
+                imageVector = FitlogIcons.Clock, contentDescription = null, tint = Color(0xFF10B981)
             )
         }
     }
@@ -235,8 +224,7 @@ fun SettingsContent(
         border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
     ) {
         SettingSectionTitle(
-            title = stringResource(id = R.string.language).uppercase(),
-            icon = FitlogIcons.Language
+            title = stringResource(id = R.string.language).uppercase(), icon = FitlogIcons.Language
         )
         // Dropdown de Idioma
         FitlogSettingDropdown(
@@ -268,6 +256,7 @@ fun SettingsContent(
         )
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FitlogTimePickerDialog(
@@ -310,10 +299,7 @@ fun FitlogTimePickerDialog(
                 ) {
                     // Hora
                     TimeNumberColumn(
-                        value = selectedHour,
-                        range = 0..23,
-                        onValueChange = { selectedHour = it }
-                    )
+                        value = selectedHour, range = 0..23, onValueChange = { selectedHour = it })
 
                     FitlogText(
                         text = ":",
@@ -326,8 +312,7 @@ fun FitlogTimePickerDialog(
                     TimeNumberColumn(
                         value = selectedMinute,
                         range = 0..59,
-                        onValueChange = { selectedMinute = it }
-                    )
+                        onValueChange = { selectedMinute = it })
                 }
 
                 Spacer(modifier = Modifier.height(40.dp))
@@ -335,11 +320,17 @@ fun FitlogTimePickerDialog(
                 // Botón de Confirmación Estilo "Pill"
                 Button(
                     onClick = { onConfirm(selectedHour, selectedMinute) },
-                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
                     shape = CircleShape,
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981))
                 ) {
-                    Text(stringResource(id = R.string.done), fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                    Text(
+                        stringResource(id = R.string.done),
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
+                    )
                 }
             }
         }
@@ -375,7 +366,9 @@ fun SettingSectionTitle(title: String, icon: ImageVector? = null) {
                 imageVector = icon,
                 contentDescription = null,
                 tint = Color(0xFF94A3B8), // Cool Gray
-                modifier = Modifier.size(20.dp).padding(end = PaddingDim.SMALL)
+                modifier = Modifier
+                    .size(20.dp)
+                    .padding(end = PaddingDim.SMALL)
             )
         }
         FitlogText(
@@ -386,37 +379,33 @@ fun SettingSectionTitle(title: String, icon: ImageVector? = null) {
         )
     }
 }
+
 @Composable
 fun SettingOption(label: String, selected: Boolean, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(horizontal = PaddingDim.MEDIUM, vertical = PaddingDim.SMALL),
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .clickable { onClick() }
+        .padding(horizontal = PaddingDim.MEDIUM, vertical = PaddingDim.SMALL),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
+        horizontalArrangement = Arrangement.SpaceBetween) {
         FitlogText(
             text = label,
             style = MaterialTheme.typography.bodyLarge,
             color = if (selected) Color.White else Color.White.copy(alpha = 0.6f)
         )
         RadioButton(
-            selected = selected,
-            onClick = onClick,
-            colors = RadioButtonDefaults.colors(
+            selected = selected, onClick = onClick, colors = RadioButtonDefaults.colors(
                 selectedColor = Color(0xFF10B981), // Emerald Green
                 unselectedColor = Color.White.copy(alpha = 0.3f)
             )
         )
     }
 }
+
 @Composable
 fun <T> FitlogSettingDropdown(
-    label: String,
-    options: List<Pair<T, String>>, // El valor técnico y el texto legible
-    selectedOption: T,
-    onOptionSelected: (T) -> Unit
+    label: String, options: List<Pair<T, String>>, // El valor técnico y el texto legible
+    selectedOption: T, onOptionSelected: (T) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     val currentLabel = options.find { it.first == selectedOption }?.second ?: ""
@@ -440,11 +429,9 @@ fun <T> FitlogSettingDropdown(
                     .clickable { expanded = true }
                     .padding(horizontal = PaddingDim.MEDIUM),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+                horizontalArrangement = Arrangement.SpaceBetween) {
                 FitlogText(
-                    text = currentLabel,
-                    color = Color(0xFF10B981), // Valor resaltado
+                    text = currentLabel, color = Color(0xFF10B981), // Valor resaltado
                     fontWeight = FontWeight.Bold
                 )
                 Icon(
@@ -463,18 +450,15 @@ fun <T> FitlogSettingDropdown(
                     .border(0.5.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(8.dp))
             ) {
                 options.forEach { (value, text) ->
-                    DropdownMenuItem(
-                        text = {
-                            FitlogText(
-                                text = text,
-                                color = if (value == selectedOption) Color(0xFF10B981) else Color.White
-                            )
-                        },
-                        onClick = {
-                            onOptionSelected(value)
-                            expanded = false
-                        }
-                    )
+                    DropdownMenuItem(text = {
+                        FitlogText(
+                            text = text,
+                            color = if (value == selectedOption) Color(0xFF10B981) else Color.White
+                        )
+                    }, onClick = {
+                        onOptionSelected(value)
+                        expanded = false
+                    })
                 }
             }
         }
