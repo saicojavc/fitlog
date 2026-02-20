@@ -60,8 +60,6 @@ fun StepsDailyCard(uiState: DashboardUiState, navController: NavHostController) 
     val dailySteps = uiState.dailySteps
     val dailyStepsGoal = (userProfile?.dailyStepsGoal ?: 1).toFloat()
     val units = uiState.userData?.unitsConfig ?: UnitsConfig.METRIC
-    val dailyCaloriesGoal = userProfile?.dailyCaloriesGoal ?: 0
-    val dailyTemp = 90
 
     val haptic = LocalHapticFeedback.current
 
@@ -75,7 +73,6 @@ fun StepsDailyCard(uiState: DashboardUiState, navController: NavHostController) 
 
     // Lógica de progreso
     val baseStepsProgress = (dailySteps / dailyStepsGoal).coerceIn(0f, 1f)
-    val baseCaloriesProgress = (calories.toFloat() / dailyCaloriesGoal.toFloat()).coerceIn(0f, 1f)
     val extraProgress = ((dailySteps - dailyStepsGoal) / dailyStepsGoal).coerceIn(0f, 1f)
 
     // Lógica de Confeti
