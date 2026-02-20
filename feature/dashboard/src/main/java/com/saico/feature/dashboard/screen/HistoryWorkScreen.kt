@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -20,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.saico.core.common.util.UnitsConverter
 import com.saico.core.model.GymExercise
@@ -109,24 +111,35 @@ fun HistoryContent(
             selectedFilter = uiState.selectedFilter,
             onFilterSelected = onFilterSelected
         )
+        if (combinedHistory.isEmpty()) {
+            // Si está vacío, mostramos el Empty State
+            EmptyHistoryState(filter = uiState.selectedFilter)
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(PaddingDim.MEDIUM),
+                verticalArrangement = Arrangement.spacedBy(PaddingDim.MEDIUM)
+            ) {
+                item {
+                    SummaryCard(
+                        filter = uiState.selectedFilter,
+                        totalCalories = totalCalories,
+                        totalTimeSeconds = totalTimeSeconds
+                    )
+                }
 
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(PaddingDim.MEDIUM),
-            verticalArrangement = Arrangement.spacedBy(PaddingDim.MEDIUM)
-        ) {
-            item {
-                SummaryCard(
-                    filter = uiState.selectedFilter,
-                    totalCalories = totalCalories,
-                    totalTimeSeconds = totalTimeSeconds
-                )
-            }
+                items(combinedHistory) { item ->
+                    when (item) {
+                        is HistoryItem.Gym -> GymExerciseCard(
+                            gymExercise = item.exercise,
+                            units = units
+                        )
 
-            items(combinedHistory) { item ->
-                when (item) {
-                    is HistoryItem.Gym -> GymExerciseCard(gymExercise = item.exercise, units = units)
-                    is HistoryItem.Session -> WorkoutSessionCard(session = item.session, units = units)
+                        is HistoryItem.Session -> WorkoutSessionCard(
+                            session = item.session,
+                            units = units
+                        )
+                    }
                 }
             }
         }
@@ -426,4 +439,60 @@ private fun <T> filterData(data: List<T>, filter: HistoryFilter, dateSelector: (
 
 private fun formatElapsedTime(seconds: Long): String {
     return DateUtils.formatElapsedTime(seconds)
+}
+
+@Composable
+fun EmptyHistoryState(filter: HistoryFilter) {
+    val message = when (filter) {
+        HistoryFilter.TODAY -> stringResource(R.string.today_message)
+        HistoryFilter.LAST_WEEK -> stringResource(R.string.week_message)
+        HistoryFilter.LAST_MONTH -> stringResource(R.string.month_message)
+        HistoryFilter.ALL -> stringResource(R.string.all_message)
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(PaddingDim.EXTRA_LARGE),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        // Icono con efecto de profundidad y gradiente
+        Box(
+            modifier = Modifier
+                .size(120.dp)
+                .background(
+                    Brush.radialGradient(
+                        colors = listOf(LightPrimary.copy(alpha = 0.2f), Color.Transparent)
+                    ),
+                    shape = CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = FitlogIcons.History, // O un icono de "Fitness"
+                contentDescription = null,
+                modifier = Modifier.size(64.dp),
+                tint = Color.White.copy(alpha = 0.4f)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(PaddingDim.LARGE))
+
+        FitlogText(
+            text = stringResource(R.string.no_logs),
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Black,
+            color = Color.White
+        )
+
+        Spacer(modifier = Modifier.height(PaddingDim.SMALL))
+
+        FitlogText(
+            text = message,
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.White.copy(alpha = 0.6f),
+            textAlign = TextAlign.Center
+        )
+    }
 }

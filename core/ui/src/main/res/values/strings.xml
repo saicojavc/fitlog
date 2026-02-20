@@ -44,12 +44,13 @@
     <string name="save_and_continue">Save and continue</string>
 
     <string name="home">Home</string>
-    <string name="history">History</string>
+    <string name="history">Log</string>
     <string name="profile">Profile</string>
 
     <string name="weekly_activity">Weekly Activity</string>
     <string name="register_workout">Workout</string>
     <string name="register_gym">Gym</string>
+
 
     <string name="new_exercise">NEW EXERCISE</string>
 
@@ -220,4 +221,10 @@
     <string name="update_available_message">A new version of Fitlog is available (%1$s). Please update to get the latest features and fixes.</string>
     <string name="update_now">Update Now</string>
     <string name="later">Later</string>
+
+    <string name="today_message">Today is a good day to start! You haven\'t logged activity yet</string>
+    <string name="week_message">This week is quiet. Break the ice with a workout!</string>
+    <string name="month_message">There are no records this month. You still have time to reach your goals!</string>
+    <string name="all_message">Your track record is waiting for your first big step. Let\'s hit it!</string>
+    <string name="no_logs">No logs</string>
 </resources>

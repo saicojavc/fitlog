@@ -40,7 +40,7 @@
     <string name="save_and_continue">Guardar y continuar</string>
 
     <string name="home">Inicio</string>
-    <string name="history">Historial</string>
+    <string name="history">Registro</string>
     <string name="profile">Perfil</string>
 
     <string name="new_exercise">NUEVO EJERCICIO</string>
@@ -211,4 +211,10 @@
     <string name="update_available_message">Una nueva versión de Fitlog está disponible (%1$s). Por favor, actualiza para obtener las últimas funciones y correcciones.</string>
     <string name="update_now">Actualizar Ahora</string>
     <string name="later">Más Tarde</string>
+
+    <string name="today_message">¡Hoy es un buen día para empezar! No has registrado actividad todavía.</string>
+    <string name="week_message">Esta semana está tranquila. ¡Rompe el hielo con un entrenamiento!</string>
+    <string name="month_message">No hay registros este mes. ¡Aún estás a tiempo de alcanzar tus metas!</string>
+    <string name="all_message">Tu historial está esperando tu primer gran paso. ¡Vamos a darle!</string> Sin registros
+    <string name="no_logs">Sin registros</string>
 </resources>
