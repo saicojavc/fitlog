@@ -204,6 +204,7 @@
     <string name="register_weight">REGISTRAR PESO</string>
     <string name="full_history">HISTORIAL COMPLETO</string>
     <string name="bmi_status_label">ESTADO DE SALUD (IMC)</string>
+    <string name="body_fat_est">% ESTADO DE GRASA (EST.)</string>
 
     <!-- App Update -->
     <string name="update_available_title">Actualización Disponible</string>

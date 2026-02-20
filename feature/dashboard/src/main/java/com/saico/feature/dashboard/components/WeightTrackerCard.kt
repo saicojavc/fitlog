@@ -222,8 +222,8 @@ fun BmiProgressBar(
     Canvas(
         modifier = Modifier
             .fillMaxWidth()
-            .height(10.dp)
-            .clip(RoundedCornerShape(5.dp))
+            .height(16.dp)
+            .clip(RoundedCornerShape(10.dp))
     ) {
         val totalRange = maxBmiScale - minBmiScale
         var lastMark = minBmiScale
