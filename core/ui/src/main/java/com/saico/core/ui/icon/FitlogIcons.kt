@@ -44,6 +44,7 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.DirectionsRun
 import androidx.compose.material.icons.outlined.DirectionsWalk
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -56,7 +57,9 @@ object FitlogIcons {
     val Visibility: ImageVector = Icons.Default.Visibility
     val VisibilityOff: ImageVector = Icons.Default.VisibilityOff
     val ArrowForward: ImageVector = Icons.Default.ArrowForward
-    val Walk: ImageVector = Icons.Outlined.DirectionsWalk
+    val Walk: ImageVector = Icons.Outlined.DirectionsRun
+
+
     val Fire: ImageVector = Icons.Default.Whatshot
     val Check: ImageVector = Icons.Outlined.CheckCircle
     val Cake: ImageVector = Icons.Default.Cake
