@@ -4,10 +4,10 @@ import java.sql.Time
 
 data class Workout(
     val id: Int = 0,
-    val steps: Int,
-    val calories: Int,
-    val distance: Double,
-    val time: Time,
-    val date: Long,
-    val dayOfWeek: String
+    val steps: Int = 0,
+    val calories: Int = 0,
+    val distance: Double = 0.0,
+    val time: Time = Time(0),
+    val date: Long = 0L,
+    val dayOfWeek: String = ""
 )

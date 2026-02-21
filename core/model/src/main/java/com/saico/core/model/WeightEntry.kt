@@ -5,6 +5,6 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class WeightEntry(
-    val weight: Double,
-    val date: Long
+    val date: Long = 0L,
+    val weight: Double = 0.0
 ) : Parcelable

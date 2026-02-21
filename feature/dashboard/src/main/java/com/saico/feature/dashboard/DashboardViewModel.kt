@@ -8,20 +8,19 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.saico.core.common.util.FitnessCalculator
 import com.saico.core.datastore.StepCounterDataStore
 import com.saico.core.domain.usecase.user_profile.UserProfileUseCase
-import com.saico.core.model.Workout
 import com.saico.core.common.util.StepCounterSensor
 import com.saico.core.datastore.UserSettingsDataStore
 import com.saico.core.domain.repository.AuthRepository
 import com.saico.core.domain.usecase.gym_exercise.GymUseCase
 import com.saico.core.domain.usecase.workout.WorkoutUseCase
-import com.saico.core.network.usecase.LoginWithGoogleUseCase
+import com.saico.core.domain.usecase.SyncUserDataUseCase
 import com.saico.core.model.UserProfile
 import com.saico.core.model.UnitsConfig
 import com.saico.core.model.WeightEntry
 import com.saico.core.model.WorkoutSession
+import com.saico.core.network.usecase.LoginWithGoogleUseCase
 import com.saico.core.notification.NotificationHelper
 import com.saico.feature.dashboard.state.DashboardUiState
 import com.saico.feature.dashboard.state.HistoryFilter
@@ -48,13 +47,13 @@ class DashboardViewModel @Inject constructor(
     private val userDataStore: UserSettingsDataStore,
     private val notificationHelper: NotificationHelper,
     private val loginWithGoogleUseCase: LoginWithGoogleUseCase,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val syncUserDataUseCase: SyncUserDataUseCase,
+    private val firebaseDatabase: FirebaseDatabase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DashboardUiState())
     val uiState: StateFlow<DashboardUiState> = _uiState.asStateFlow()
-
-    private val database = FirebaseDatabase.getInstance("https://fitlog-cb7c8-default-rtdb.firebaseio.com/")
 
     init {
         getUserProfile()
@@ -67,21 +66,26 @@ class DashboardViewModel @Inject constructor(
     }
 
     private fun checkCurrentUser() {
-        val user = authRepository.getCurrentUser()
-        _uiState.update { it.copy(authUser = user) }
+        authRepository.getCurrentUser()?.let { user ->
+            _uiState.update { it.copy(authUser = user) }
+            syncData(user.id)
+        }
     }
 
     fun loginWithGoogle(idToken: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoadingLogin = true) }
-            val result = loginWithGoogleUseCase(idToken)
-            result.onSuccess { user ->
+            loginWithGoogleUseCase(idToken).onSuccess { user ->
                 _uiState.update { it.copy(isLoadingLogin = false, authUser = user) }
+                syncData(user.id)
             }.onFailure {
                 _uiState.update { it.copy(isLoadingLogin = false) }
-                // Aquí podrías manejar el error, por ejemplo con un snackbar
             }
         }
+    }
+
+    private fun syncData(uid: String) {
+        viewModelScope.launch { syncUserDataUseCase.syncAll(uid) }
     }
 
     fun logout() {
@@ -92,14 +96,12 @@ class DashboardViewModel @Inject constructor(
     }
 
     private fun checkAppVersion() {
-        database.getReference("version").addValueEventListener(object : ValueEventListener {
+        firebaseDatabase.getReference("version").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val remoteVersion = snapshot.getValue(String::class.java)
                 _uiState.update { it.copy(remoteVersion = remoteVersion) }
             }
-
-            override fun onCancelled(error: DatabaseError) {
-            }
+            override fun onCancelled(error: DatabaseError) {}
         })
     }
 
@@ -113,9 +115,10 @@ class DashboardViewModel @Inject constructor(
 
     private fun getUserProfile() {
         viewModelScope.launch {
-            userProfileUseCase.getUserProfileUseCase().collectLatest {
-                _uiState.update { state ->
-                    state.copy(userProfile = it)
+            userProfileUseCase.getUserProfileUseCase().collectLatest { profile ->
+                _uiState.update { it.copy(userProfile = profile) }
+                _uiState.value.authUser?.let { user ->
+                    profile?.let { syncUserDataUseCase.syncProfile(user.id, it) }
                 }
             }
         }
@@ -124,28 +127,20 @@ class DashboardViewModel @Inject constructor(
     fun updateUserProfile(updatedProfile: UserProfile) {
         viewModelScope.launch {
             val currentProfile = _uiState.value.userProfile
-            
             val finalProfile = if (currentProfile != null && currentProfile.weightKg != updatedProfile.weightKg) {
-                val newWeightEntry = WeightEntry(
-                    weight = updatedProfile.weightKg,
-                    date = System.currentTimeMillis()
-                )
-                updatedProfile.copy(
-                    weightHistory = updatedProfile.weightHistory + newWeightEntry
-                )
-            } else {
-                updatedProfile
-            }
-
+                val newWeightEntry = WeightEntry(weight = updatedProfile.weightKg, date = System.currentTimeMillis())
+                updatedProfile.copy(weightHistory = updatedProfile.weightHistory + newWeightEntry)
+            } else updatedProfile
             userProfileUseCase.updateUserProfileUseCase(finalProfile)
         }
     }
 
     private fun getWeeklyWorkouts() {
         viewModelScope.launch {
-            workoutUseCase.getWeeklyWorkoutsUseCase().collectLatest {
-                _uiState.update { state ->
-                    state.copy(weeklyWorkouts = it)
+            workoutUseCase.getWeeklyWorkoutsUseCase().collectLatest { workouts ->
+                _uiState.update { it.copy(weeklyWorkouts = workouts) }
+                _uiState.value.authUser?.let { user ->
+                    workouts.forEach { syncUserDataUseCase.syncWorkout(user.id, it) }
                 }
             }
         }
@@ -153,17 +148,13 @@ class DashboardViewModel @Inject constructor(
 
     private fun getHistoryData() {
         viewModelScope.launch {
-            combine(
-                gymUseCase.getGymExercisesUseCase(),
-                workoutUseCase.getWorkoutSessionsUseCase()
-            ) { gym, sessions ->
+            combine(gymUseCase.getGymExercisesUseCase(), workoutUseCase.getWorkoutSessionsUseCase()) { gym, sessions ->
                 Pair(gym, sessions)
             }.collectLatest { (gym, sessions) ->
-                _uiState.update { state ->
-                    state.copy(
-                        gymExercises = gym,
-                        workoutSessions = sessions
-                    )
+                _uiState.update { it.copy(gymExercises = gym, workoutSessions = sessions) }
+                _uiState.value.authUser?.let { user ->
+                    gym.forEach { syncUserDataUseCase.syncGymExercise(user.id, it) }
+                    sessions.forEach { syncUserDataUseCase.syncSession(user.id, it) }
                 }
             }
         }
@@ -176,58 +167,32 @@ class DashboardViewModel @Inject constructor(
     fun exportHistoryToPdf(context: Context) {
         val state = _uiState.value
         val filter = state.selectedFilter
-        
-        val filteredGym = filterData(state.gymExercises, filter) { it.date }
-        val filteredSessions = filterData(state.workoutSessions, filter) { it.date }
+        val fGym = filterData(state.gymExercises, filter) { it.date }
+        val fSessions = filterData(state.workoutSessions, filter) { it.date }
 
-        if (filteredGym.isEmpty() && filteredSessions.isEmpty()) {
-            android.widget.Toast.makeText(context, "No hay datos para exportar", android.widget.Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val totalCalories = filteredGym.sumOf { it.totalCalories } + filteredSessions.sumOf { it.calories }
-        val totalSteps = filteredSessions.sumOf { it.steps }
-        val totalDistance = filteredSessions.sumOf { it.distance.toDouble() }
-        val totalTimeSeconds = filteredGym.sumOf { it.elapsedTime } + filteredSessions.sumOf { it.time.time / 1000 }
-        
-        val filterName = when (filter) {
-            HistoryFilter.TODAY -> "Hoy"
-            HistoryFilter.LAST_WEEK -> "Última Semana"
-            HistoryFilter.LAST_MONTH -> "Último Mes"
-            HistoryFilter.ALL -> "Todo el Historial"
-        }
+        if (fGym.isEmpty() && fSessions.isEmpty()) return
 
         viewModelScope.launch(Dispatchers.IO) {
             PdfExporter.generateHistoryPdf(
                 context = context,
-                filterName = filterName,
-                gymExercises = filteredGym,
-                workoutSessions = filteredSessions,
+                filterName = filter.name,
+                gymExercises = fGym,
+                workoutSessions = fSessions,
                 units = state.userData?.unitsConfig ?: UnitsConfig.METRIC,
-                totalCalories = totalCalories,
-                totalSteps = totalSteps,
-                totalDistanceKm = totalDistance,
-                totalTime = DateUtils.formatElapsedTime(totalTimeSeconds)
+                totalCalories = fGym.sumOf { it.totalCalories } + fSessions.sumOf { it.calories },
+                totalSteps = fSessions.sumOf { it.steps },
+                totalDistanceKm = fSessions.sumOf { it.distance.toDouble() },
+                totalTime = DateUtils.formatElapsedTime(fGym.sumOf { it.elapsedTime } + fSessions.sumOf { it.time.time / 1000 })
             )
         }
     }
 
     private fun <T> filterData(data: List<T>, filter: HistoryFilter, dateSelector: (T) -> Long): List<T> {
-        val cal = Calendar.getInstance()
-        cal.set(Calendar.HOUR_OF_DAY, 0)
-        cal.set(Calendar.MINUTE, 0)
-        cal.set(Calendar.SECOND, 0)
-        cal.set(Calendar.MILLISECOND, 0)
-
+        val cal = Calendar.getInstance().apply { set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0) }
         return when (filter) {
-            HistoryFilter.TODAY -> {
-                data.filter { dateSelector(it) >= cal.timeInMillis }
-            }
+            HistoryFilter.TODAY -> data.filter { dateSelector(it) >= cal.timeInMillis }
             HistoryFilter.LAST_WEEK -> {
                 cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
-                if (Calendar.getInstance().get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
-                    cal.add(Calendar.DAY_OF_YEAR, -7)
-                }
                 data.filter { dateSelector(it) >= cal.timeInMillis }
             }
             HistoryFilter.LAST_MONTH -> {
@@ -240,16 +205,9 @@ class DashboardViewModel @Inject constructor(
 
     private fun initStepCounter() {
         if (!stepCounterSensor.isSensorAvailable()) return
-
         viewModelScope.launch {
-            combine(
-                stepCounterSensor.steps,
-                stepCounterDataStore.stepOffset
-            ) { totalStepsSinceReboot, offset ->
-                (totalStepsSinceReboot - offset).coerceAtLeast(0)
-            }.collect { dailySteps ->
-                _uiState.update { it.copy(dailySteps = dailySteps) }
-            }
+            combine(stepCounterSensor.steps, stepCounterDataStore.stepOffset) { total, offset -> (total - offset).coerceAtLeast(0) }
+            .collect { dailySteps -> _uiState.update { it.copy(dailySteps = dailySteps) } }
         }
     }
 }

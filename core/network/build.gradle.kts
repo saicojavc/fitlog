@@ -44,6 +44,7 @@ dependencies {
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.database)
 
     implementation(libs.squareup.retrofit)
     implementation(libs.squareup.okhttp)
