@@ -5,7 +5,6 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -27,9 +26,6 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.saico.core.model.UserProfile
 import com.saico.core.ui.theme.GradientColors
-import com.saico.core.ui.theme.LightPrimary
-import com.saico.core.ui.theme.LightPrimaryVariant
-import com.saico.core.ui.theme.LightSuccess
 import com.saico.feature.dashboard.screen.HistoryWorkScreen
 import com.saico.feature.dashboard.screen.HomeScreen
 import com.saico.feature.dashboard.components.NavigationBar
@@ -48,24 +44,15 @@ fun DashboardScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
-    // 1. Prepara el estado del permiso
     val permissionState = rememberPermissionState(
         permission = Manifest.permission.ACTIVITY_RECOGNITION
     )
 
-    // 2. Prepara el lanzador para la solicitud de permiso
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
-        onResult = { isGranted ->
-            if (isGranted) {
-                // El permiso fue otorgado
-            } else {
-                // El usuario denegó el permiso.
-            }
-        }
+        onResult = { }
     )
 
-    // 3. Lanza la solicitud de permiso si es necesario
     LaunchedEffect(Unit) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (!permissionState.status.isGranted) {
@@ -75,11 +62,13 @@ fun DashboardScreen(
     }
 
     Content(
-        onFilterSelected = viewModel::onFilterSelected,
-        updateUserProfile = viewModel::updateUserProfile,
-        onExportPdf = { viewModel.exportHistoryToPdf(context) },
         uiState = uiState,
         navController = navController,
+        onFilterSelected = viewModel::onFilterSelected,
+        onExportPdf = { viewModel.exportHistoryToPdf(context) },
+        onLoginWithGoogle = viewModel::loginWithGoogle,
+        onLogout = viewModel::logout,
+        onUpdateProfile = viewModel::updateUserProfile
     )
 }
 
@@ -88,10 +77,11 @@ fun Content(
     uiState: DashboardUiState,
     navController: NavHostController,
     onFilterSelected: (HistoryFilter) -> Unit,
-    updateUserProfile: (UserProfile) -> Unit,
-    onExportPdf: () -> Unit
+    onExportPdf: () -> Unit,
+    onLoginWithGoogle: (String) -> Unit,
+    onLogout: () -> Unit,
+    onUpdateProfile: (UserProfile) -> Unit
 ) {
-
     var selectedBottomAppBarItem by remember { mutableStateOf(BottomAppBarItems.HOME) }
 
     Scaffold(
@@ -111,7 +101,6 @@ fun Content(
                 .fillMaxSize()
                 .background(Brush.verticalGradient(GradientColors))
                 .padding(paddingValues)
-
         ) {
             when (selectedBottomAppBarItem) {
                 BottomAppBarItems.HOME -> {
@@ -120,7 +109,6 @@ fun Content(
                         navController = navController
                     )
                 }
-
                 BottomAppBarItems.HISTORY -> {
                     HistoryWorkScreen(
                         uiState = uiState,
@@ -128,15 +116,15 @@ fun Content(
                         onExportPdf = onExportPdf
                     )
                 }
-
                 BottomAppBarItems.PROFILE -> {
                     ProfileScreen(
                         uiState = uiState,
-                        updateUserProfile = updateUserProfile
+                        onLoginWithGoogle = onLoginWithGoogle,
+                        onLogout = onLogout,
+                        onUpdateProfile = onUpdateProfile
                     )
                 }
             }
         }
     }
-
 }

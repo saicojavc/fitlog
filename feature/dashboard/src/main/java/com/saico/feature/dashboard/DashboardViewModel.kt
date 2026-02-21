@@ -14,8 +14,10 @@ import com.saico.core.domain.usecase.user_profile.UserProfileUseCase
 import com.saico.core.model.Workout
 import com.saico.core.common.util.StepCounterSensor
 import com.saico.core.datastore.UserSettingsDataStore
+import com.saico.core.domain.repository.AuthRepository
 import com.saico.core.domain.usecase.gym_exercise.GymUseCase
 import com.saico.core.domain.usecase.workout.WorkoutUseCase
+import com.saico.core.network.usecase.LoginWithGoogleUseCase
 import com.saico.core.model.UserProfile
 import com.saico.core.model.UnitsConfig
 import com.saico.core.model.WeightEntry
@@ -31,10 +33,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.sql.Time
 import java.util.*
 import javax.inject.Inject
 
@@ -46,7 +46,9 @@ class DashboardViewModel @Inject constructor(
     private val stepCounterSensor: StepCounterSensor,
     private val stepCounterDataStore: StepCounterDataStore,
     private val userDataStore: UserSettingsDataStore,
-    private val notificationHelper: NotificationHelper
+    private val notificationHelper: NotificationHelper,
+    private val loginWithGoogleUseCase: LoginWithGoogleUseCase,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DashboardUiState())
@@ -61,6 +63,32 @@ class DashboardViewModel @Inject constructor(
         getHistoryData()
         getUserData()
         checkAppVersion()
+        checkCurrentUser()
+    }
+
+    private fun checkCurrentUser() {
+        val user = authRepository.getCurrentUser()
+        _uiState.update { it.copy(authUser = user) }
+    }
+
+    fun loginWithGoogle(idToken: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoadingLogin = true) }
+            val result = loginWithGoogleUseCase(idToken)
+            result.onSuccess { user ->
+                _uiState.update { it.copy(isLoadingLogin = false, authUser = user) }
+            }.onFailure {
+                _uiState.update { it.copy(isLoadingLogin = false) }
+                // Aquí podrías manejar el error, por ejemplo con un snackbar
+            }
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            authRepository.logout()
+            _uiState.update { it.copy(authUser = null) }
+        }
     }
 
     private fun checkAppVersion() {
@@ -71,7 +99,6 @@ class DashboardViewModel @Inject constructor(
             }
 
             override fun onCancelled(error: DatabaseError) {
-                // Manejar error si es necesario
             }
         })
     }
@@ -98,9 +125,7 @@ class DashboardViewModel @Inject constructor(
         viewModelScope.launch {
             val currentProfile = _uiState.value.userProfile
             
-            // Lógica de Sincronización de Historial de Peso
             val finalProfile = if (currentProfile != null && currentProfile.weightKg != updatedProfile.weightKg) {
-                // Si el peso cambió, añadimos una nueva entrada al historial
                 val newWeightEntry = WeightEntry(
                     weight = updatedProfile.weightKg,
                     date = System.currentTimeMillis()

@@ -53,6 +53,7 @@ android {
 dependencies {
     implementation(project(":core:ui"))
     implementation(project(":core:domain"))
+    implementation(project(":core:network"))
     implementation(project(":core:datastore"))
     implementation(project(":core:model"))
     implementation(project(":core:notification"))
@@ -83,6 +84,10 @@ dependencies {
 
     implementation(libs.hilt.android)
     implementation(libs.firebase.database)
+    implementation(libs.firebase.auth)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 

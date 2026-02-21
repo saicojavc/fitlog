@@ -45,6 +45,7 @@ dependencies {
     implementation(project(":core:common"))
     implementation(project(":core:ui"))
     implementation(project(":core:domain"))
+    implementation(project(":core:network"))
     implementation(project(":core:model"))
     implementation(project(":core:datastore"))
     implementation(project(":core:notification"))
@@ -75,8 +76,13 @@ dependencies {
     implementation(libs.androidx.compose.remote.creation.core)
     implementation(libs.androidx.compose.animation)
     implementation(libs.androidx.animation)
+    implementation(libs.googleid)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
+
+    // Credentials
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
 
     // ViewModel
     implementation(libs.androidx.lifecycle.runtime.ktx)

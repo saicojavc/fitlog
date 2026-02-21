@@ -1,5 +1,6 @@
 package com.saico.feature.dashboard.state
 
+import com.saico.core.model.AuthUser
 import com.saico.core.model.GymExercise
 import com.saico.core.model.UserData
 import com.saico.core.model.UserProfile
@@ -16,7 +17,9 @@ data class DashboardUiState(
     val gymExercises: List<GymExercise> = emptyList(),
     val workoutSessions: List<WorkoutSession> = emptyList(),
     val selectedFilter: HistoryFilter = HistoryFilter.TODAY,
-    val remoteVersion: String? = null
+    val remoteVersion: String? = null,
+    val isLoadingLogin: Boolean = false,
+    val authUser: AuthUser? = null
 )
 
 enum class HistoryFilter {
