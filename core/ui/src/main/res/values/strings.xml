@@ -227,4 +227,10 @@
     <string name="month_message">There are no records this month. You still have time to reach your goals!</string>
     <string name="all_message">Your track record is waiting for your first big step. Let\'s hit it!</string>
     <string name="no_logs">No logs</string>
+
+    <string name="have_account">ALREADY HAVE A SYNCED ACCOUNT?</string>
+    <string name="error_restoring_data">Failed to restore data.</string>
+    <string name="error_no_account_found">A synced account was not found. Please create a new one.</string>
+    <string name="error_verifying_account">Account verification failed.</string>
+    <string name="error_auth_failed">Authentication failed.</string>
 </resources>

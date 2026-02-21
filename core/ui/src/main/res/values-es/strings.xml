@@ -217,4 +217,10 @@
     <string name="month_message">No hay registros este mes. ¡Aún estás a tiempo de alcanzar tus metas!</string>
     <string name="all_message">Tu historial está esperando tu primer gran paso. ¡Vamos a darle!</string> Sin registros
     <string name="no_logs">Sin registros</string>
+
+    <string name="have_account">¿YA TIENES CUENTA SINCRONIZADA?</string>
+    <string name="error_restoring_data">Error al restaurar los datos.</string>
+    <string name="error_no_account_found">No se encontró una cuenta sincronizada. Por favor, crea una nueva.</string>
+    <string name="error_verifying_account">Error al verificar la cuenta.</string>
+    <string name="error_auth_failed">Error de autenticación.</string>
 </resources>

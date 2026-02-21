@@ -1,5 +1,8 @@
 package com.saico.lfeature.ogin
 
+import androidx.annotation.StringRes
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.saico.core.domain.repository.AuthRepository
@@ -12,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.saico.core.ui.R
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
@@ -25,7 +29,7 @@ class LoginViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
-    private val _error = MutableStateFlow<String?>(null)
+    private val _error = MutableStateFlow<UiText?>(null) // Cambiado de String? a UiText?
     val error = _error.asStateFlow()
 
     fun loginWithGoogle(idToken: String, onSuccess: () -> Unit) {
@@ -37,26 +41,44 @@ class LoginViewModel @Inject constructor(
                 syncRepository.fetchUserProfile(user.id).onSuccess { profile ->
                     if (profile != null) {
                         syncUserDataUseCase.restoreAllData(user.id).onSuccess {
-                            // IMPORTANTE: Esperamos a que se guarde en DataStore antes de navegar
                             setOnboardingCompletedUseCase(true)
                             onSuccess()
                         }.onFailure {
-                            _error.value = "Error al restaurar los datos."
+                            _error.value = UiText.StringResource(R.string.error_restoring_data)
                         }
                     } else {
                         authRepository.logout()
-                        _error.value = "No se encontró una cuenta sincronizada. Por favor, crea una nueva."
+                        _error.value = UiText.StringResource(R.string.error_no_account_found)
                     }
                     _isLoading.value = false
                 }.onFailure {
                     authRepository.logout()
-                    _error.value = "Error al verificar la cuenta."
+                    _error.value = UiText.StringResource(R.string.error_verifying_account)
                     _isLoading.value = false
                 }
             }.onFailure {
-                _error.value = "Error de autenticación."
+                _error.value = UiText.StringResource(R.string.error_auth_failed)
                 _isLoading.value = false
             }
+        }
+    }
+}
+
+/**
+ * Clase para manejar textos que pueden ser Strings directos o Recursos de ID (para multi-idioma)
+ */
+sealed class UiText {
+    data class DynamicString(val value: String) : UiText()
+    class StringResource(
+        @StringRes val resId: Int,
+        vararg val args: Any
+    ) : UiText()
+
+    @Composable
+    fun asString(): String {
+        return when (this) {
+            is DynamicString -> value
+            is StringResource -> stringResource(resId, *args)
         }
     }
 }
