@@ -105,12 +105,27 @@ class StepCounterService : Service() {
                 stepCounterDataStore.stepOffset,
                 stepCounterDataStore.lastResetDate
             ) { totalStepsSinceReboot, offset, lastResetDate ->
+
+                val todayStart = Calendar.getInstance().apply {
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }.timeInMillis
+
                 if (stepCounterDataStore.isNewDay(lastResetDate)) {
-                    savePreviousDayWorkout(offset, totalStepsSinceReboot, lastResetDate)
+                    // 1. Guardar resumen final de ayer
+                    saveWorkoutToDatabase(offset, totalStepsSinceReboot, lastResetDate)
+                    // 2. Resetear para hoy
                     stepCounterDataStore.saveStepCounterData(totalStepsSinceReboot)
                     0
                 } else {
-                    (totalStepsSinceReboot - offset).coerceAtLeast(0)
+                    val dailySteps = (totalStepsSinceReboot - offset).coerceAtLeast(0)
+                    // 3. Sincronización en VIVO: Actualizamos el progreso de HOY en la DB y Nube
+                    if (dailySteps > 0) {
+                        saveWorkoutToDatabase(offset, totalStepsSinceReboot, todayStart)
+                    }
+                    dailySteps
                 }
             }.collect { dailySteps ->
                 stepCounterDataStore.updateCurrentSteps(dailySteps)
@@ -156,28 +171,33 @@ class StepCounterService : Service() {
         }
     }
 
-    private suspend fun savePreviousDayWorkout(previousOffset: Int, currentSensorValue: Int, previousDayDate: Long) {
-        val yesterdaySteps = currentSensorValue - previousOffset
-        if (yesterdaySteps <= 0) return
+    /**
+     * Guarda el progreso en la base de datos local (Room).
+     * Como InsertWorkoutUseCase tiene lógica de Firebase, esto también sincroniza con la nube en vivo.
+     */
+    private suspend fun saveWorkoutToDatabase(offset: Int, currentSensorValue: Int, date: Long) {
+        val stepsTaken = (currentSensorValue - offset).coerceAtLeast(0)
+        if (stepsTaken < 0) return
 
         val userProfile = userProfileUseCase.getUserProfileUseCase().first()
 
-        val calories = FitnessCalculator.calculateCaloriesBurned(yesterdaySteps, userProfile?.weightKg ?: 0.0)
-        val distance = FitnessCalculator.calculateDistanceKm(yesterdaySteps, userProfile?.heightCm?.toInt() ?: 0, userProfile?.gender ?: "")
-        val activeTime = FitnessCalculator.calculateActiveTimeMinutes(yesterdaySteps)
+        val calories = FitnessCalculator.calculateCaloriesBurned(stepsTaken, userProfile?.weightKg ?: 70.0)
+        val distance = FitnessCalculator.calculateDistanceKm(stepsTaken, userProfile?.heightCm?.toInt() ?: 170, userProfile?.gender ?: "male")
+        val activeTime = FitnessCalculator.calculateActiveTimeMinutes(stepsTaken)
 
-        val calendar = Calendar.getInstance().apply { timeInMillis = previousDayDate }
+        val calendar = Calendar.getInstance().apply { timeInMillis = date }
         val dayOfWeek = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.getDefault()) ?: ""
 
         val workout = Workout(
-            steps = yesterdaySteps,
+            steps = stepsTaken,
             calories = calories,
             distance = distance.toDouble(),
             time = Time(activeTime * 60 * 1000L),
-            date = previousDayDate,
+            date = date,
             dayOfWeek = dayOfWeek
         )
 
+        // Esto dispara Room + Firebase gracias al UseCase sincronizado
         workoutUseCase.insertWorkoutUseCase(workout)
     }
 
