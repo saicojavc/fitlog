@@ -10,7 +10,9 @@ import com.saico.core.model.Workout
 import com.saico.core.model.WorkoutSession
 import kotlinx.coroutines.tasks.await
 import java.sql.Time
+import java.util.Calendar
 import java.util.Locale
+import java.util.TimeZone
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -182,12 +184,19 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
+    /**
+     * Formatea milisegundos a HH:mm:ss tratando la entrada como una DURACIÓN pura,
+     * eliminando cualquier offset de zona horaria que java.sql.Time haya aplicado.
+     */
     private fun formatTimeMillisToDuration(millis: Long): String {
-        val totalSeconds = millis / 1000
-        val seconds = totalSeconds % 60
-        val totalMinutes = totalSeconds / 60
-        val minutes = totalMinutes % 60
-        val hours = totalMinutes / 60
+        // Obtenemos los campos usando UTC para ignorar la zona horaria del dispositivo
+        val cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+        cal.timeInMillis = millis
+        
+        val hours = cal.get(Calendar.HOUR_OF_DAY)
+        val minutes = cal.get(Calendar.MINUTE)
+        val seconds = cal.get(Calendar.SECOND)
+
         return String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds)
     }
 
