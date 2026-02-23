@@ -2,6 +2,7 @@ package com.saico.core.network.repository
 
 import android.util.Log
 import com.google.firebase.database.FirebaseDatabase
+import com.saico.core.common.util.FitnessCalculator
 import com.saico.core.domain.repository.SyncRepository
 import com.saico.core.model.GymExercise
 import com.saico.core.model.UserProfile
@@ -9,6 +10,7 @@ import com.saico.core.model.Workout
 import com.saico.core.model.WorkoutSession
 import kotlinx.coroutines.tasks.await
 import java.sql.Time
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -35,7 +37,7 @@ class SyncRepositoryImpl @Inject constructor(
                 "steps" to workout.steps,
                 "calories" to workout.calories,
                 "distance" to workout.distance,
-                "time" to workout.time.toString(),
+                "time" to formatTimeMillisToDuration(workout.time.time),
                 "date" to workout.date,
                 "dayOfWeek" to workout.dayOfWeek
             )
@@ -53,7 +55,7 @@ class SyncRepositoryImpl @Inject constructor(
                 "steps" to session.steps,
                 "calories" to session.calories,
                 "distance" to session.distance,
-                "time" to session.time.toString(),
+                "time" to formatTimeMillisToDuration(session.time.time),
                 "date" to session.date
             )
             usersRef.child(uid).child("workoutSessions").child(session.date.toString()).setValue(sessionMap).await()
@@ -84,10 +86,19 @@ class SyncRepositoryImpl @Inject constructor(
             val dataMap = mutableMapOf<String, Any>()
             dataMap["profile"] = profile
             dataMap["workouts"] = workouts.filter { it.date > 0 }.associate { it.date.toString() to mapOf(
-                "steps" to it.steps, "calories" to it.calories, "distance" to it.distance, "time" to it.time.toString(), "date" to it.date, "dayOfWeek" to it.dayOfWeek
+                "steps" to it.steps, 
+                "calories" to it.calories, 
+                "distance" to it.distance, 
+                "time" to formatTimeMillisToDuration(it.time.time), 
+                "date" to it.date, 
+                "dayOfWeek" to it.dayOfWeek
             )}
             dataMap["workoutSessions"] = sessions.filter { it.date > 0 }.associate { it.date.toString() to mapOf(
-                "steps" to it.steps, "calories" to it.calories, "distance" to it.distance, "time" to it.time.toString(), "date" to it.date
+                "steps" to it.steps, 
+                "calories" to it.calories, 
+                "distance" to it.distance, 
+                "time" to formatTimeMillisToDuration(it.time.time), 
+                "date" to it.date
             )}
             dataMap["gymExercises"] = gymExercises.filter { it.date > 0 }.associateBy { it.date.toString() }
 
@@ -112,15 +123,16 @@ class SyncRepositoryImpl @Inject constructor(
             val snapshot = usersRef.child(uid).child("workouts").get().await()
             val list = snapshot.children.mapNotNull { child ->
                 try {
+                    val steps = child.child("steps").value?.let { (it as? Long)?.toInt() ?: (it as? Int) } ?: 0
+                    val timeString = child.child("time").getValue(String::class.java)
+                    
+                    val timeMillis = parseTimeDurationToMillis(timeString)
+
                     Workout(
-                        steps = child.child("steps").value?.let { (it as? Long)?.toInt() ?: (it as? Int) } ?: 0,
+                        steps = steps,
                         calories = child.child("calories").value?.let { (it as? Long)?.toInt() ?: (it as? Int) } ?: 0,
                         distance = child.child("distance").value?.let { (it as? Double) ?: (it as? Long)?.toDouble() ?: (it as? Float)?.toDouble() } ?: 0.0,
-                        time = try { 
-                            Time.valueOf(child.child("time").getValue(String::class.java) ?: "00:00:00")
-                        } catch (e: Exception) { 
-                            Time(child.child("date").getValue(Long::class.java) ?: 0L)
-                        },
+                        time = if (timeMillis > 0) Time(timeMillis) else Time(FitnessCalculator.calculateActiveTimeMinutes(steps) * 60 * 1000L),
                         date = child.child("date").getValue(Long::class.java) ?: child.key?.toLong() ?: 0L,
                         dayOfWeek = child.child("dayOfWeek").getValue(String::class.java) ?: ""
                     )
@@ -140,15 +152,16 @@ class SyncRepositoryImpl @Inject constructor(
             val snapshot = usersRef.child(uid).child("workoutSessions").get().await()
             val list = snapshot.children.mapNotNull { child ->
                 try {
+                    val steps = child.child("steps").value?.let { (it as? Long)?.toInt() ?: (it as? Int) } ?: 0
+                    val timeString = child.child("time").getValue(String::class.java)
+                    
+                    val timeMillis = parseTimeDurationToMillis(timeString)
+
                     WorkoutSession(
-                        steps = child.child("steps").value?.let { (it as? Long)?.toInt() ?: (it as? Int) } ?: 0,
+                        steps = steps,
                         calories = child.child("calories").value?.let { (it as? Long)?.toInt() ?: (it as? Int) } ?: 0,
                         distance = child.child("distance").value?.let { (it as? Float) ?: (it as? Double)?.toFloat() ?: (it as? Long)?.toFloat() } ?: 0f,
-                        time = try {
-                            Time.valueOf(child.child("time").getValue(String::class.java) ?: "00:00:00")
-                        } catch (e: Exception) {
-                            Time(child.child("date").getValue(Long::class.java) ?: 0L)
-                        },
+                        time = if (timeMillis > 0) Time(timeMillis) else Time(FitnessCalculator.calculateActiveTimeMinutes(steps) * 60 * 1000L),
                         date = child.child("date").getValue(Long::class.java) ?: child.key?.toLong() ?: 0L
                     )
                 } catch (e: Exception) { null }
@@ -166,6 +179,28 @@ class SyncRepositoryImpl @Inject constructor(
             Result.success(list)
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+
+    private fun formatTimeMillisToDuration(millis: Long): String {
+        val totalSeconds = millis / 1000
+        val seconds = totalSeconds % 60
+        val totalMinutes = totalSeconds / 60
+        val minutes = totalMinutes % 60
+        val hours = totalMinutes / 60
+        return String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds)
+    }
+
+    private fun parseTimeDurationToMillis(timeStr: String?): Long {
+        if (timeStr == null || !timeStr.contains(":")) return 0L
+        return try {
+            val parts = timeStr.split(":")
+            val h = parts[0].toLong()
+            val m = parts[1].toLong()
+            val s = parts[2].toLong()
+            (h * 3600 + m * 60 + s) * 1000
+        } catch (e: Exception) {
+            0L
         }
     }
 }
