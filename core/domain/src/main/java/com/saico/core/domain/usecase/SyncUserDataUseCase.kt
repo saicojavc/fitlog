@@ -14,37 +14,55 @@ class SyncUserDataUseCase @Inject constructor(
     private val workoutSessionRepository: WorkoutSessionRepository,
     private val stepCounterRepository: StepCounterRepository
 ) {
+    /**
+     * Sincronización inteligente: Solo sube si hay datos locales válidos.
+     */
     suspend fun syncAll(uid: String): Result<Unit> {
         return try {
-            val profile = userProfileUseCase.getUserProfileUseCase().first()
-            val workouts = workoutRepository.getWorkouts().first()
-            val sessions = workoutSessionRepository.getWorkoutSessions().first()
-            val gymExercises = gymExerciseRepository.getGymExercises().first()
+            val localProfile = userProfileUseCase.getUserProfileUseCase().first()
+            
+            // CRÍTICO: Verificamos si el perfil local es real o es un perfil nuevo/vacío.
+            // Si el peso o la altura son 0, asumimos que es una instalación limpia y NO subimos nada.
+            val hasValidLocalData = localProfile != null && localProfile.weightKg > 0 && localProfile.heightCm > 0
 
-            syncRepository.uploadAllLocalData(
-                uid = uid,
-                profile = profile ?: UserProfile(age = 0, weightKg = 0.0, heightCm = 0.0, gender = "", dailyStepsGoal = 0, dailyCaloriesGoal = 0),
-                workouts = workouts,
-                sessions = sessions,
-                gymExercises = gymExercises
-            )
+            if (hasValidLocalData) {
+                val localWorkouts = workoutRepository.getWorkouts().first()
+                val localSessions = workoutSessionRepository.getWorkoutSessions().first()
+                val localGym = gymExerciseRepository.getGymExercises().first()
+
+                syncRepository.uploadAllLocalData(
+                    uid = uid,
+                    profile = localProfile!!,
+                    workouts = localWorkouts,
+                    sessions = localSessions,
+                    gymExercises = localGym
+                ).getOrThrow()
+            }
+
+            // Después de asegurar (o saltar) la subida, descargamos lo que haya en la nube.
+            restoreAllData(uid).getOrThrow()
+
+            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
+    /**
+     * Descarga datos de la nube y los mezcla con los locales cuidando no borrar progreso.
+     */
     suspend fun restoreAllData(uid: String): Result<Unit> {
         return try {
-            // 1. Descargar todo de la nube
             val cloudProfile = syncRepository.fetchUserProfile(uid).getOrNull()
             val cloudWorkouts = syncRepository.fetchWorkouts(uid).getOrDefault(emptyList())
             val cloudSessions = syncRepository.fetchWorkoutSessions(uid).getOrDefault(emptyList())
             val cloudGym = syncRepository.fetchGymExercises(uid).getOrDefault(emptyList())
 
-            // 2. Guardar en Room localmente
-            cloudProfile?.let { userProfileUseCase.updateUserProfileUseCase(it) }
+            // Solo guardamos el perfil de la nube si trae datos reales.
+            if (cloudProfile != null && cloudProfile.weightKg > 0) {
+                userProfileUseCase.updateUserProfileUseCase(cloudProfile)
+            }
             
-            // Lógica para detectar pasos de hoy
             val todayStart = Calendar.getInstance().apply {
                 set(Calendar.HOUR_OF_DAY, 0)
                 set(Calendar.MINUTE, 0)
@@ -52,10 +70,9 @@ class SyncUserDataUseCase @Inject constructor(
                 set(Calendar.MILLISECOND, 0)
             }.timeInMillis
 
+            // Insertamos Workouts respetando la estrategia de conflicto (Indices únicos)
             cloudWorkouts.forEach { workout ->
                 workoutRepository.insertWorkout(workout)
-                
-                // Si el workout descargado es de hoy, sincronizamos el offset
                 if (workout.date >= todayStart) {
                     stepCounterRepository.synchronizeOffset(workout.steps)
                 }

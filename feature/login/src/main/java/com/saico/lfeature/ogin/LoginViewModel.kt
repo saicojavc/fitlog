@@ -29,7 +29,7 @@ class LoginViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
-    private val _error = MutableStateFlow<UiText?>(null) // Cambiado de String? a UiText?
+    private val _error = MutableStateFlow<UiText?>(null)
     val error = _error.asStateFlow()
 
     fun loginWithGoogle(idToken: String, onSuccess: () -> Unit) {
@@ -38,24 +38,21 @@ class LoginViewModel @Inject constructor(
             _error.value = null
             
             loginWithGoogleUseCase(idToken).onSuccess { user ->
-                syncRepository.fetchUserProfile(user.id).onSuccess { profile ->
-                    if (profile != null) {
-                        syncUserDataUseCase.restoreAllData(user.id).onSuccess {
-                            setOnboardingCompletedUseCase(true)
-                            onSuccess()
-                        }.onFailure {
-                            _error.value = UiText.StringResource(R.string.error_restoring_data)
-                        }
-                    } else {
-                        authRepository.logout()
-                        _error.value = UiText.StringResource(R.string.error_no_account_found)
-                    }
-                    _isLoading.value = false
+                // Al iniciar sesión, usamos syncAll para SUBIR datos locales primero y luego descargar.
+                // Esto evita que el progreso offline se pierda al ser sobreescrito por la nube.
+                syncUserDataUseCase.syncAll(user.id).onSuccess {
+                    setOnboardingCompletedUseCase(true)
+                    onSuccess()
                 }.onFailure {
-                    authRepository.logout()
-                    _error.value = UiText.StringResource(R.string.error_verifying_account)
-                    _isLoading.value = false
+                    // Si falla la sincronización completa, intentamos al menos restaurar el perfil
+                    syncUserDataUseCase.restoreAllData(user.id).onSuccess {
+                        setOnboardingCompletedUseCase(true)
+                        onSuccess()
+                    }.onFailure {
+                        _error.value = UiText.StringResource(R.string.error_restoring_data)
+                    }
                 }
+                _isLoading.value = false
             }.onFailure {
                 _error.value = UiText.StringResource(R.string.error_auth_failed)
                 _isLoading.value = false
