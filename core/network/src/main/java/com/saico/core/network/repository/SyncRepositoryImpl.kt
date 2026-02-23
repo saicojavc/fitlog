@@ -22,7 +22,6 @@ class SyncRepositoryImpl @Inject constructor(
     override suspend fun syncUserProfile(uid: String, profile: UserProfile): Result<Unit> {
         return try {
             usersRef.child(uid).child("profile").setValue(profile).await()
-            Log.d("FirebaseSync", "Perfil sincronizado")
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -30,6 +29,7 @@ class SyncRepositoryImpl @Inject constructor(
     }
 
     override suspend fun syncWorkout(uid: String, workout: Workout): Result<Unit> {
+        if (workout.date <= 0L) return Result.success(Unit)
         return try {
             val workoutMap = mapOf(
                 "steps" to workout.steps,
@@ -47,6 +47,7 @@ class SyncRepositoryImpl @Inject constructor(
     }
 
     override suspend fun syncWorkoutSession(uid: String, session: WorkoutSession): Result<Unit> {
+        if (session.date <= 0L) return Result.success(Unit)
         return try {
             val sessionMap = mapOf(
                 "steps" to session.steps,
@@ -63,6 +64,7 @@ class SyncRepositoryImpl @Inject constructor(
     }
 
     override suspend fun syncGymExercise(uid: String, exercise: GymExercise): Result<Unit> {
+        if (exercise.date <= 0L) return Result.success(Unit)
         return try {
             usersRef.child(uid).child("gymExercises").child(exercise.date.toString()).setValue(exercise).await()
             Result.success(Unit)
@@ -81,16 +83,15 @@ class SyncRepositoryImpl @Inject constructor(
         return try {
             val dataMap = mutableMapOf<String, Any>()
             dataMap["profile"] = profile
-            dataMap["workouts"] = workouts.associate { it.date.toString() to mapOf(
+            dataMap["workouts"] = workouts.filter { it.date > 0 }.associate { it.date.toString() to mapOf(
                 "steps" to it.steps, "calories" to it.calories, "distance" to it.distance, "time" to it.time.toString(), "date" to it.date, "dayOfWeek" to it.dayOfWeek
             )}
-            dataMap["workoutSessions"] = sessions.associate { it.date.toString() to mapOf(
+            dataMap["workoutSessions"] = sessions.filter { it.date > 0 }.associate { it.date.toString() to mapOf(
                 "steps" to it.steps, "calories" to it.calories, "distance" to it.distance, "time" to it.time.toString(), "date" to it.date
             )}
-            dataMap["gymExercises"] = gymExercises.associateBy { it.date.toString() }
+            dataMap["gymExercises"] = gymExercises.filter { it.date > 0 }.associateBy { it.date.toString() }
 
             usersRef.child(uid).updateChildren(dataMap).await()
-            Log.d("FirebaseSync", "Sincronización masiva exitosa")
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -112,14 +113,21 @@ class SyncRepositoryImpl @Inject constructor(
             val list = snapshot.children.mapNotNull { child ->
                 try {
                     Workout(
-                        steps = child.child("steps").getValue(Int::class.java) ?: 0,
-                        calories = child.child("calories").getValue(Int::class.java) ?: 0,
-                        distance = child.child("distance").getValue(Double::class.java) ?: 0.0,
-                        time = Time.valueOf(child.child("time").getValue(String::class.java) ?: "00:00:00"),
-                        date = child.child("date").getValue(Long::class.java) ?: 0L,
+                        steps = child.child("steps").value?.let { (it as? Long)?.toInt() ?: (it as? Int) } ?: 0,
+                        calories = child.child("calories").value?.let { (it as? Long)?.toInt() ?: (it as? Int) } ?: 0,
+                        distance = child.child("distance").value?.let { (it as? Double) ?: (it as? Long)?.toDouble() ?: (it as? Float)?.toDouble() } ?: 0.0,
+                        time = try { 
+                            Time.valueOf(child.child("time").getValue(String::class.java) ?: "00:00:00")
+                        } catch (e: Exception) { 
+                            Time(child.child("date").getValue(Long::class.java) ?: 0L)
+                        },
+                        date = child.child("date").getValue(Long::class.java) ?: child.key?.toLong() ?: 0L,
                         dayOfWeek = child.child("dayOfWeek").getValue(String::class.java) ?: ""
                     )
-                } catch (e: Exception) { null }
+                } catch (e: Exception) {
+                    Log.e("FirebaseSync", "Error parseando workout: ${e.message}")
+                    null
+                }
             }
             Result.success(list)
         } catch (e: Exception) {
@@ -133,11 +141,15 @@ class SyncRepositoryImpl @Inject constructor(
             val list = snapshot.children.mapNotNull { child ->
                 try {
                     WorkoutSession(
-                        steps = child.child("steps").getValue(Int::class.java) ?: 0,
-                        calories = child.child("calories").getValue(Int::class.java) ?: 0,
-                        distance = child.child("distance").getValue(Float::class.java) ?: 0f,
-                        time = Time.valueOf(child.child("time").getValue(String::class.java) ?: "00:00:00"),
-                        date = child.child("date").getValue(Long::class.java) ?: 0L
+                        steps = child.child("steps").value?.let { (it as? Long)?.toInt() ?: (it as? Int) } ?: 0,
+                        calories = child.child("calories").value?.let { (it as? Long)?.toInt() ?: (it as? Int) } ?: 0,
+                        distance = child.child("distance").value?.let { (it as? Float) ?: (it as? Double)?.toFloat() ?: (it as? Long)?.toFloat() } ?: 0f,
+                        time = try {
+                            Time.valueOf(child.child("time").getValue(String::class.java) ?: "00:00:00")
+                        } catch (e: Exception) {
+                            Time(child.child("date").getValue(Long::class.java) ?: 0L)
+                        },
+                        date = child.child("date").getValue(Long::class.java) ?: child.key?.toLong() ?: 0L
                     )
                 } catch (e: Exception) { null }
             }

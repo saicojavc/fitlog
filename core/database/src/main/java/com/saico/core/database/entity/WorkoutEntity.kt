@@ -10,12 +10,11 @@ import java.sql.Time
 @Entity(tableName = WORKOUT_TABLE)
 @Parcelize
 class WorkoutEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    @PrimaryKey
+    val date: Long, // Identificador único absoluto por día
     val steps: Int,
     val calories: Int,
     val distance: Double,
     val time: Time,
-    val date: Long,
     val dayOfWeek: String
 ) : Parcelable

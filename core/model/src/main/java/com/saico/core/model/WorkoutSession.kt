@@ -4,9 +4,9 @@ import java.sql.Time
 
 data class WorkoutSession(
     val id: Int = 0,
-    val steps: Int,
-    val calories: Int,
-    val distance: Float,
-    val time: Time,
-    val date: Long
+    val steps: Int = 0,
+    val calories: Int = 0,
+    val distance: Float = 0.0f,
+    val time: Time = Time(0),
+    val date: Long = 0L
 )

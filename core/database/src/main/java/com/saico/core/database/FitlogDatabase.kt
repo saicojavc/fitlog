@@ -28,8 +28,8 @@ abstract class FitlogDatabase : RoomDatabase() {
     abstract fun workoutSessionDao(): WorkoutSessionDao
 
     companion object {
-        // Definición de la migración de la versión 5 a la 6
-        val MIGRATION_5_6 = object : Migration(5, 6) {
+
+        val MIGRATION = object : Migration(5, 9) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 // Añadimos la columna weightHistory a la tabla 'user'
                 // Usamos '[]' como valor por defecto (JSON de lista vacía)

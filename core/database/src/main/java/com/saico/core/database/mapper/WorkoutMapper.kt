@@ -4,7 +4,6 @@ import com.saico.core.database.entity.WorkoutEntity
 import com.saico.core.model.Workout
 
 fun WorkoutEntity.toDomain() = Workout(
-    id = id,
     steps = steps,
     calories = calories,
     distance = distance,
@@ -14,7 +13,6 @@ fun WorkoutEntity.toDomain() = Workout(
 )
 
 fun Workout.toEntity() = WorkoutEntity(
-    id = id,
     steps = steps,
     calories = calories,
     distance = distance,

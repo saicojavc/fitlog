@@ -19,8 +19,9 @@ import com.saico.core.domain.usecase.SyncUserDataUseCase
 import com.saico.core.model.UserProfile
 import com.saico.core.model.UnitsConfig
 import com.saico.core.model.WeightEntry
+import com.saico.core.model.Workout
 import com.saico.core.model.WorkoutSession
-import com.saico.core.network.usecase.LoginWithGoogleUseCase
+import com.saico.core.common.util.FitnessCalculator
 import com.saico.core.notification.NotificationHelper
 import com.saico.feature.dashboard.state.DashboardUiState
 import com.saico.feature.dashboard.state.HistoryFilter
@@ -34,6 +35,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.sql.Time
 import java.util.*
 import javax.inject.Inject
 
@@ -46,7 +48,7 @@ class DashboardViewModel @Inject constructor(
     private val stepCounterDataStore: StepCounterDataStore,
     private val userDataStore: UserSettingsDataStore,
     private val notificationHelper: NotificationHelper,
-    private val loginWithGoogleUseCase: LoginWithGoogleUseCase,
+    private val loginWithGoogleUseCase: com.saico.core.network.usecase.LoginWithGoogleUseCase,
     private val authRepository: AuthRepository,
     private val syncUserDataUseCase: SyncUserDataUseCase,
     private val firebaseDatabase: FirebaseDatabase
@@ -68,7 +70,7 @@ class DashboardViewModel @Inject constructor(
     private fun checkCurrentUser() {
         authRepository.getCurrentUser()?.let { user ->
             _uiState.update { it.copy(authUser = user) }
-            syncData(user.id)
+            restoreDataFromCloud(user.id)
         }
     }
 
@@ -77,15 +79,15 @@ class DashboardViewModel @Inject constructor(
             _uiState.update { it.copy(isLoadingLogin = true) }
             loginWithGoogleUseCase(idToken).onSuccess { user ->
                 _uiState.update { it.copy(isLoadingLogin = false, authUser = user) }
-                syncData(user.id)
+                restoreDataFromCloud(user.id)
             }.onFailure {
                 _uiState.update { it.copy(isLoadingLogin = false) }
             }
         }
     }
 
-    private fun syncData(uid: String) {
-        viewModelScope.launch { syncUserDataUseCase.syncAll(uid) }
+    private fun restoreDataFromCloud(uid: String) {
+        viewModelScope.launch { syncUserDataUseCase.restoreAllData(uid) }
     }
 
     fun logout() {
@@ -137,10 +139,12 @@ class DashboardViewModel @Inject constructor(
 
     private fun getWeeklyWorkouts() {
         viewModelScope.launch {
-            workoutUseCase.getWeeklyWorkoutsUseCase().collectLatest { workouts ->
+            workoutUseCase.getWeeklyWorkoutsUseCase().collect { workouts ->
                 _uiState.update { it.copy(weeklyWorkouts = workouts) }
-                _uiState.value.authUser?.let { user ->
-                    workouts.forEach { syncUserDataUseCase.syncWorkout(user.id, it) }
+                val user = _uiState.value.authUser ?: return@collect
+                // Sincronizar de forma robusta sin bloquear el flujo principal
+                workouts.filter { it.date > 0 }.forEach { workout ->
+                    launch { syncUserDataUseCase.syncWorkout(user.id, workout) }
                 }
             }
         }
@@ -153,8 +157,8 @@ class DashboardViewModel @Inject constructor(
             }.collectLatest { (gym, sessions) ->
                 _uiState.update { it.copy(gymExercises = gym, workoutSessions = sessions) }
                 _uiState.value.authUser?.let { user ->
-                    gym.forEach { syncUserDataUseCase.syncGymExercise(user.id, it) }
-                    sessions.forEach { syncUserDataUseCase.syncSession(user.id, it) }
+                    gym.filter { it.date > 0 }.forEach { syncUserDataUseCase.syncGymExercise(user.id, it) }
+                    sessions.filter { it.date > 0 }.forEach { syncUserDataUseCase.syncSession(user.id, it) }
                 }
             }
         }
@@ -189,10 +193,15 @@ class DashboardViewModel @Inject constructor(
 
     private fun <T> filterData(data: List<T>, filter: HistoryFilter, dateSelector: (T) -> Long): List<T> {
         val cal = Calendar.getInstance().apply { set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0) }
+        val today = cal.timeInMillis
         return when (filter) {
-            HistoryFilter.TODAY -> data.filter { dateSelector(it) >= cal.timeInMillis }
+            HistoryFilter.TODAY -> data.filter { dateSelector(it) >= today }
             HistoryFilter.LAST_WEEK -> {
+                cal.firstDayOfWeek = Calendar.MONDAY
                 cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
+                if (cal.timeInMillis > today) {
+                    cal.add(Calendar.DAY_OF_YEAR, -7)
+                }
                 data.filter { dateSelector(it) >= cal.timeInMillis }
             }
             HistoryFilter.LAST_MONTH -> {
@@ -206,8 +215,43 @@ class DashboardViewModel @Inject constructor(
     private fun initStepCounter() {
         if (!stepCounterSensor.isSensorAvailable()) return
         viewModelScope.launch {
-            combine(stepCounterSensor.steps, stepCounterDataStore.stepOffset) { total, offset -> (total - offset).coerceAtLeast(0) }
-            .collect { dailySteps -> _uiState.update { it.copy(dailySteps = dailySteps) } }
+            combine(
+                stepCounterSensor.steps,
+                stepCounterDataStore.stepOffset
+            ) { total, offset -> (total - offset).coerceAtLeast(0) }
+            .collect { dailySteps -> 
+                _uiState.update { it.copy(dailySteps = dailySteps) }
+                if (dailySteps > 0) updateWorkoutWithSteps(dailySteps)
+            }
+        }
+    }
+
+    private fun updateWorkoutWithSteps(steps: Int) {
+        viewModelScope.launch {
+            val profile = _uiState.value.userProfile ?: return@launch
+            
+            val today = Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+            }.timeInMillis
+            
+            if (today <= 0) return@launch
+
+            val calories = FitnessCalculator.calculateCaloriesBurned(steps, profile.weightKg)
+            val distance = FitnessCalculator.calculateDistanceKm(steps, profile.heightCm.toInt(), profile.gender).toDouble()
+            
+            val cal = Calendar.getInstance().apply { timeInMillis = today }
+            val dayOfWeek = cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()) ?: ""
+
+            val currentWorkout = Workout(
+                steps = steps,
+                calories = calories,
+                distance = distance,
+                time = Time(System.currentTimeMillis()),
+                date = today,
+                dayOfWeek = dayOfWeek
+            )
+            
+            workoutUseCase.insertWorkoutUseCase(currentWorkout)
         }
     }
 }

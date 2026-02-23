@@ -89,7 +89,7 @@ fun Content(
             FitlogTopAppBar(
                 title = stringResource(id = R.string.steps_history),
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Black.copy(alpha = 0.3f) // Siempre oscuro para consistencia
+                    containerColor = Color.Black.copy(alpha = 0.3f)
                 ),
                 navigationIcon = {
                     FitlogIcon(
@@ -105,7 +105,7 @@ fun Content(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Brush.verticalGradient(GradientColors)) // Fondo unificado
+                .background(Brush.verticalGradient(GradientColors))
                 .padding(paddingValues)
                 .padding(horizontal = PaddingDim.MEDIUM)
                 .verticalScroll(rememberScrollState()),
@@ -113,7 +113,6 @@ fun Content(
         ) {
             SpacerHeight(PaddingDim.MEDIUM)
 
-            // Selector de Filtro Minimalista
             FilterSelector(
                 selectedFilter = uiState.selectedFilter,
                 onFilterSelected = onFilterSelected
@@ -123,7 +122,6 @@ fun Content(
 
             val chartData = processData(uiState)
 
-            // Fila de Estadísticas con diseño Glass
             SummaryStatsRow(
                 distance = UnitsConverter.formatDistance(chartData.totalDistanceKm.toDouble(), uiState.unitsConfig),
                 time = formatMinutes(chartData.totalTimeMinutes)
@@ -131,12 +129,11 @@ fun Content(
 
             SpacerHeight(PaddingDim.LARGE)
 
-            // Gráficos Estilizados
             ChartCard(
                 title = stringResource(id = R.string.steps).uppercase(),
                 data = chartData.stepsData,
                 unit = "",
-                accentColor = Color(0xFF10B981) // Esmeralda
+                accentColor = Color(0xFF10B981)
             )
 
             SpacerHeight(PaddingDim.MEDIUM)
@@ -145,7 +142,7 @@ fun Content(
                 title = stringResource(id = R.string.calories).uppercase(),
                 data = chartData.caloriesData,
                 unit = "kcal",
-                accentColor = Color(0xFFFF6F00) // Naranja
+                accentColor = Color(0xFFFF6F00)
             )
 
             SpacerHeight(PaddingDim.MEDIUM)
@@ -212,14 +209,13 @@ fun StatCard(
             Text(
                 text = value,
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Light, // Elegancia
+                fontWeight = FontWeight.Light,
                 color = Color.White
             )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilterSelector(
     selectedFilter: StepsHistoryFilter,
@@ -281,7 +277,7 @@ fun ChartCard(
             )
             Spacer(modifier = Modifier.height(PaddingDim.LARGE))
 
-            val maxValue = data.maxOfOrNull { it.value } ?: 1f
+            val maxValue = data.maxOfOrNull { it.value }?.coerceAtLeast(1f) ?: 1f
 
             Row(
                 modifier = Modifier
@@ -310,19 +306,20 @@ fun BarItem(
     accentColor: Color,
     modifier: Modifier = Modifier
 ) {
-    val barHeightRatio = (item.value / maxValue).coerceIn(0.05f, 1f)
+    val barHeightRatio = (item.value / maxValue).coerceIn(0.01f, 1f)
 
     Column(
         modifier = modifier.fillMaxHeight(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Bottom
     ) {
-        if (item.isHighlighted) {
+        if (item.isHighlighted || item.value > 0) {
             Text(
-                text = if (item.value >= 1000) "${(item.value / 1000).toInt()}k" else item.value.toInt().toString(),
+                text = if (item.value >= 1000) "${String.format("%.1fk", item.value / 1000f)}" else item.value.toInt().toString(),
                 style = MaterialTheme.typography.labelSmall,
-                color = accentColor,
-                fontWeight = FontWeight.Bold
+                color = if (item.isHighlighted) accentColor else Color.White.copy(alpha = 0.5f),
+                fontSize = 8.sp,
+                fontWeight = if (item.isHighlighted) FontWeight.Bold else FontWeight.Normal
             )
             Spacer(Modifier.height(4.dp))
         }
@@ -330,8 +327,8 @@ fun BarItem(
         Box(
             modifier = Modifier
                 .fillMaxHeight(barHeightRatio * 0.7f)
-                .width(8.dp) // Más delgadas para ser elegantes
-                .clip(CircleShape) // Cápsula completa
+                .width(8.dp)
+                .clip(CircleShape)
                 .background(
                     if (item.isHighlighted) accentColor
                     else accentColor.copy(alpha = 0.2f)
@@ -345,51 +342,6 @@ fun BarItem(
             style = MaterialTheme.typography.labelSmall,
             color = if (item.isHighlighted) Color.White else Color(0xFF94A3B8),
             fontSize = 10.sp
-        )
-    }
-}
-
-@Composable
-fun BarItem(
-    item: ChartData,
-    maxValue: Float,
-    modifier: Modifier = Modifier
-) {
-    val barHeightRatio = (item.value / maxValue).coerceIn(0.05f, 1f)
-
-    Column(
-        modifier = modifier.fillMaxHeight(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Bottom
-    ) {
-        Text(
-            text = if (item.value >= 1000) "${(item.value / 1000).toInt()}k" else item.value.toInt().toString(),
-            style = MaterialTheme.typography.labelSmall,
-            fontSize = 8.sp,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-        )
-        
-        Spacer(modifier = Modifier.height(4.dp))
-
-        Box(
-            modifier = Modifier
-                .fillMaxHeight(barHeightRatio * 0.8f)
-                .width(12.dp)
-                .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                .background(
-                    if (item.isHighlighted) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
-                )
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = item.label,
-            style = MaterialTheme.typography.labelSmall,
-            textAlign = TextAlign.Center,
-            maxLines = 1,
-            fontSize = 8.sp
         )
     }
 }
@@ -416,12 +368,18 @@ private fun processWeekly(uiState: StepsHistoryUiState): ProcessedChartData {
     var totalTime = 0
     
     val today = Calendar.getInstance()
+    // Aseguramos que el inicio de la semana sea siempre el Lunes anterior (o hoy si es lunes)
     val startOfWeek = Calendar.getInstance().apply {
+        firstDayOfWeek = Calendar.MONDAY
         set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
         set(Calendar.HOUR_OF_DAY, 0)
         set(Calendar.MINUTE, 0)
         set(Calendar.SECOND, 0)
         set(Calendar.MILLISECOND, 0)
+        // Si al setear MONDAY nos pasamos a una fecha futura (porque hoy es domingo y el sistema cree que la semana empieza en domingo)
+        if (timeInMillis > today.timeInMillis) {
+            add(Calendar.DAY_OF_YEAR, -7)
+        }
     }
 
     val uniqueWorkouts = uiState.workouts.associateBy { 
@@ -432,17 +390,19 @@ private fun processWeekly(uiState: StepsHistoryUiState): ProcessedChartData {
     for (i in 0..6) {
         val cal = Calendar.getInstance().apply {
             timeInMillis = startOfWeek.timeInMillis
-            add(Calendar.DAY_OF_WEEK, i)
+            add(Calendar.DAY_OF_YEAR, i)
         }
         val dateKey = "${cal.get(Calendar.YEAR)}-${cal.get(Calendar.DAY_OF_YEAR)}"
         val isToday = cal.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR) &&
                 cal.get(Calendar.YEAR) == today.get(Calendar.YEAR)
         
         val workout = uniqueWorkouts[dateKey]
+        
+        // Prioridad: Si es hoy, usamos currentSteps. Si no, usamos el workout de la DB.
         val stepCount = if (isToday) uiState.currentSteps else (workout?.steps ?: 0)
         
         val calorieCount = if (isToday) {
-            FitnessCalculator.calculateCaloriesBurned(uiState.currentSteps, uiState.userProfile?.weightKg ?: 0.0)
+            FitnessCalculator.calculateCaloriesBurned(uiState.currentSteps, uiState.userProfile?.weightKg ?: 70.0)
         } else {
             workout?.calories ?: 0
         }
@@ -479,7 +439,7 @@ private fun processMonthly(uiState: StepsHistoryUiState): ProcessedChartData {
     val cal = Calendar.getInstance()
     val currentMonth = cal.get(Calendar.MONTH)
     val currentYear = cal.get(Calendar.YEAR)
-    val todayDay = cal.get(Calendar.DAY_OF_YEAR)
+    val todayDayOfYear = cal.get(Calendar.DAY_OF_YEAR)
 
     val workoutsByDay = uiState.workouts
         .filter { 
@@ -502,6 +462,7 @@ private fun processMonthly(uiState: StepsHistoryUiState): ProcessedChartData {
         }
         
         val startDay = d
+        // Calcular fin de semana (domingo)
         val daysUntilSunday = (Calendar.SUNDAY - weekCal.get(Calendar.DAY_OF_WEEK) + 7) % 7
         val endDay = (startDay + daysUntilSunday).coerceAtMost(lastDayOfMonth)
         
@@ -518,11 +479,13 @@ private fun processMonthly(uiState: StepsHistoryUiState): ProcessedChartData {
                 set(Calendar.DAY_OF_MONTH, day)
             }
             val dayOfYear = dateCal.get(Calendar.DAY_OF_YEAR)
-            val isToday = dayOfYear == todayDay && dateCal.get(Calendar.YEAR) == currentYear
+            val isToday = dayOfYear == todayDayOfYear && dateCal.get(Calendar.YEAR) == currentYear
 
             if (isToday) isCurrentWeek = true
 
             val workout = workoutsByDay[dayOfYear]
+            
+            // Para cada día, si es hoy usamos datos en vivo, si no, los de la DB
             val s = if (isToday) uiState.currentSteps else (workout?.steps ?: 0)
             val c = if (isToday) FitnessCalculator.calculateCaloriesBurned(s, uiState.userProfile?.weightKg ?: 70.0) else (workout?.calories ?: 0)
             val dist = if (isToday) FitnessCalculator.calculateDistanceKm(s, uiState.userProfile?.heightCm?.toInt() ?: 170, uiState.userProfile?.gender ?: "male") else (workout?.distance?.toFloat() ?: 0f)
@@ -555,6 +518,7 @@ private fun processYearly(uiState: StepsHistoryUiState): ProcessedChartData {
     val cal = Calendar.getInstance()
     val currentYear = cal.get(Calendar.YEAR)
     val currentMonth = cal.get(Calendar.MONTH)
+    val todayDayOfYear = cal.get(Calendar.DAY_OF_YEAR)
 
     val workoutsByMonth = uiState.workouts
         .filter { 
@@ -568,27 +532,35 @@ private fun processYearly(uiState: StepsHistoryUiState): ProcessedChartData {
 
     for (month in 0..11) {
         val monthWorkouts = workoutsByMonth[month] ?: emptyList()
-        val uniqueMonthWorkouts = monthWorkouts.associateBy { 
+        
+        // Agrupar por día para evitar duplicados si los hubiera
+        val uniqueMonthWorkoutsMap = monthWorkouts.associateBy { 
             val wCal = Calendar.getInstance().apply { timeInMillis = it.date }
             wCal.get(Calendar.DAY_OF_YEAR)
-        }.values
+        }.toMutableMap()
 
-        var mSteps = uniqueMonthWorkouts.sumOf { it.steps }.toFloat()
-        var mCals = uniqueMonthWorkouts.sumOf { it.calories }.toFloat()
-        var mDist = uniqueMonthWorkouts.sumOf { it.distance }.toFloat()
-        var mT = uniqueMonthWorkouts.sumOf { FitnessCalculator.calculateActiveTimeMinutes(it.steps) }
+        var mSteps = 0f
+        var mCals = 0f
+        var mDist = 0f
+        var mT = 0
 
+        // Si es el mes actual, nos aseguramos de que "hoy" tenga los pasos reales del sensor
         if (month == currentMonth) {
-            val todayDayOfYear = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
-            if (uniqueMonthWorkouts.none { 
-                val wCal = Calendar.getInstance().apply { timeInMillis = it.date }
-                wCal.get(Calendar.DAY_OF_YEAR) == todayDayOfYear
-            }) {
-                mSteps += uiState.currentSteps
-                mCals += FitnessCalculator.calculateCaloriesBurned(uiState.currentSteps, uiState.userProfile?.weightKg ?: 70.0)
-                mDist += FitnessCalculator.calculateDistanceKm(uiState.currentSteps, uiState.userProfile?.heightCm?.toInt() ?: 170, uiState.userProfile?.gender ?: "male")
-                mT += FitnessCalculator.calculateActiveTimeMinutes(uiState.currentSteps)
-            }
+            uniqueMonthWorkoutsMap[todayDayOfYear] = Workout(
+                steps = uiState.currentSteps,
+                calories = FitnessCalculator.calculateCaloriesBurned(uiState.currentSteps, uiState.userProfile?.weightKg ?: 70.0).toInt(),
+                distance = FitnessCalculator.calculateDistanceKm(uiState.currentSteps, uiState.userProfile?.heightCm?.toInt() ?: 170, uiState.userProfile?.gender ?: "male").toDouble(),
+                time = java.sql.Time(System.currentTimeMillis()),
+                date = System.currentTimeMillis(),
+                dayOfWeek = ""
+            )
+        }
+
+        uniqueMonthWorkoutsMap.values.forEach {
+            mSteps += it.steps
+            mCals += it.calories
+            mDist += it.distance.toFloat()
+            mT += FitnessCalculator.calculateActiveTimeMinutes(it.steps)
         }
 
         totalDistance += mDist
