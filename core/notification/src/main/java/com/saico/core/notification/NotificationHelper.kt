@@ -6,7 +6,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.ActivityCompat
@@ -77,6 +76,51 @@ class NotificationHelper @Inject constructor(
     }
 
     @SuppressLint("MissingPermission")
+    fun showWorkoutNotification(
+        title: String,
+        content: String,
+        startTimeMillis: Long? = null,
+        isPaused: Boolean = false
+    ) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return
+        }
+
+        val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+        val pendingIntent = PendingIntent.getActivity(
+            context, 0, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val builder = NotificationCompat.Builder(context, WORKOUT_CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.ic_menu_mylocation)
+            .setContentTitle(title)
+            .setContentText(content)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setOngoing(true) // Persistent
+            .setOnlyAlertOnce(true)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setCategory(NotificationCompat.CATEGORY_WORKOUT)
+            .setColor(0xFF2196F3.toInt()) // Color azul de Fitlog
+            .setContentIntent(pendingIntent)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(content))
+
+        // Si tenemos tiempo de inicio, activamos el cronómetro nativo de la notificación
+        if (startTimeMillis != null && !isPaused) {
+            builder.setUsesChronometer(true)
+            builder.setWhen(startTimeMillis)
+            builder.setShowWhen(true)
+        } else {
+            builder.setUsesChronometer(false)
+            builder.setShowWhen(false)
+        }
+
+        try {
+            NotificationManagerCompat.from(context).notify(WORKOUT_NOTIFICATION_ID, builder.build())
+        } catch (e: Exception) {}
+    }
+
+    @SuppressLint("MissingPermission")
     fun showNotification(
         title: String,
         message: String,
@@ -104,9 +148,9 @@ class NotificationHelper @Inject constructor(
             .setOngoing(isOngoing)
             .setAutoCancel(!isOngoing)
             .setOnlyAlertOnce(true)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC) // Visible en pantalla de bloqueo
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setCategory(NotificationCompat.CATEGORY_WORKOUT)
-            .setColor(0xFF2196F3.toInt()) // Color azul de la app (ajustar si es necesario)
+            .setColor(0xFF2196F3.toInt())
             .setContentIntent(pendingIntent)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
             .build()

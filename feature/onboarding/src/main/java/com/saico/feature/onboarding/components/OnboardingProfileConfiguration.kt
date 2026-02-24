@@ -17,7 +17,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.saico.core.model.UnitsConfig
 import com.saico.core.ui.R
@@ -51,6 +52,10 @@ fun OnboardingProfileConfiguration(
     onWeightChange: (String) -> Unit,
     height: String,
     onHeightChange: (String) -> Unit,
+    heightFt: String,
+    onHeightFtChange: (String) -> Unit,
+    heightIn: String,
+    onHeightInChange: (String) -> Unit,
     gender: String,
     onGenderSelected: (String) -> Unit,
     isGenderMenuExpanded: Boolean,
@@ -75,7 +80,7 @@ fun OnboardingProfileConfiguration(
         SpacerHeight(PaddingDim.SMALL)
 
         FitlogText(
-            text = stringResource(id = R.string.info_calorie_calculation), // Usando string existente apropiado
+            text = stringResource(id = R.string.profile_metrics_description),
             style = MaterialTheme.typography.bodyMedium,
             color = Color(0xFF94A3B8),
         )
@@ -130,35 +135,90 @@ fun OnboardingProfileConfiguration(
                     onValueChange = onAgeChange
                 )
 
-                Divider(
+                HorizontalDivider(
                     modifier = Modifier.padding(vertical = PaddingDim.MEDIUM),
                     color = Color.White.copy(alpha = 0.05f)
                 )
 
-                // Sección PESO Y ALTURA en fila
+                // Sección PESO Y ALTURA
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(PaddingDim.MEDIUM)
                 ) {
                     Box(modifier = Modifier.weight(1f)) {
                         ProfileInputItem(
-                            label = if (unitsConfig == UnitsConfig.METRIC) stringResource(id = R.string.weight_kg) else "Weight (lb)",
+                            label = if (unitsConfig == UnitsConfig.METRIC) stringResource(id = R.string.weight_kg) else stringResource(id = R.string.weight_lb),
                             value = weight,
                             icon = FitlogIcons.FitnessCenter,
                             onValueChange = onWeightChange
                         )
                     }
                     Box(modifier = Modifier.weight(1f)) {
-                        ProfileInputItem(
-                            label = if (unitsConfig == UnitsConfig.METRIC) stringResource(id = R.string.height_cm) else stringResource(id = R.string.height_in),
-                            value = height,
-                            icon = FitlogIcons.Height,
-                            onValueChange = onHeightChange
-                        )
+                        if (unitsConfig == UnitsConfig.METRIC) {
+                            ProfileInputItem(
+                                label = stringResource(id = R.string.height_cm),
+                                value = height,
+                                icon = FitlogIcons.Height,
+                                onValueChange = onHeightChange
+                            )
+                        } else {
+                            Column {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = FitlogIcons.Height,
+                                        contentDescription = null,
+                                        tint = Color(0xFF10B981),
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(Modifier.width(8.dp))
+                                    FitlogText(
+                                        text = stringResource(id = R.string.height),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = Color(0xFF94A3B8)
+                                    )
+                                }
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    BasicTextField(
+                                        value = heightFt,
+                                        onValueChange = onHeightFtChange,
+                                        textStyle = MaterialTheme.typography.titleLarge.copy(
+                                            color = Color.White,
+                                            fontWeight = FontWeight.Light,
+                                            textAlign = TextAlign.End
+                                        ),
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                        cursorBrush = SolidColor(Color(0xFF10B981)),
+                                        modifier = Modifier.width(30.dp),
+                                        decorationBox = { innerTextField ->
+                                            if (heightFt.isEmpty()) Text("0", color = Color.White.copy(0.2f), style = MaterialTheme.typography.titleLarge)
+                                            innerTextField()
+                                        }
+                                    )
+                                    FitlogText(text = " ft ", color = Color.White.copy(0.4f), style = MaterialTheme.typography.labelSmall)
+                                    BasicTextField(
+                                        value = heightIn,
+                                        onValueChange = onHeightInChange,
+                                        textStyle = MaterialTheme.typography.titleLarge.copy(
+                                            color = Color.White,
+                                            fontWeight = FontWeight.Light,
+                                            textAlign = TextAlign.End
+                                        ),
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                        cursorBrush = SolidColor(Color(0xFF10B981)),
+                                        modifier = Modifier.width(30.dp),
+                                        decorationBox = { innerTextField ->
+                                            if (heightIn.isEmpty()) Text("0", color = Color.White.copy(0.2f), style = MaterialTheme.typography.titleLarge)
+                                            innerTextField()
+                                        }
+                                    )
+                                    FitlogText(text = " in", color = Color.White.copy(0.4f), style = MaterialTheme.typography.labelSmall)
+                                }
+                            }
+                        }
                     }
                 }
 
-                Divider(
+                HorizontalDivider(
                     modifier = Modifier.padding(vertical = PaddingDim.MEDIUM),
                     color = Color.White.copy(alpha = 0.05f)
                 )

@@ -2,6 +2,7 @@ package com.saico.feature.onboarding
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.saico.core.common.util.UnitsConverter
 import com.saico.core.datastore.UserSettingsDataStore
 import com.saico.core.domain.usecase.onboarding.SetOnboardingCompletedUseCase
 import com.saico.core.domain.usecase.user_profile.UserProfileUseCase
@@ -48,6 +49,20 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
+    fun onHeightFtChange(newFt: String) {
+        if (newFt.all { it.isDigit() }) {
+            _uiState.update { it.copy(heightFt = newFt) }
+            validateProfileConfiguration()
+        }
+    }
+
+    fun onHeightInChange(newIn: String) {
+        if (newIn.all { it.isDigit() }) {
+            _uiState.update { it.copy(heightIn = newIn) }
+            validateProfileConfiguration()
+        }
+    }
+
     fun onGenderSelected(gender: String) {
         _uiState.update { it.copy(gender = gender) }
         validateProfileConfiguration()
@@ -55,6 +70,7 @@ class OnboardingViewModel @Inject constructor(
 
     fun onUnitsConfigSelected(unitsConfig: UnitsConfig) {
         _uiState.update { it.copy(unitsConfig = unitsConfig) }
+        validateProfileConfiguration()
     }
 
     fun onGenderMenuExpanded(expanded: Boolean) {
@@ -81,24 +97,39 @@ class OnboardingViewModel @Inject constructor(
                 else -> "Beginner"
             }
 
-            val weightValue = state.weight.toDoubleOrNull() ?: 0.0
+            val weightInputValue = state.weight.toDoubleOrNull() ?: 0.0
+            
+            val weightKg = if (state.unitsConfig == UnitsConfig.METRIC) {
+                weightInputValue
+            } else {
+                UnitsConverter.lbToKg(weightInputValue)
+            }
 
-            // Creamos la primera entrada del historial con el peso inicial
+            val heightCm = if (state.unitsConfig == UnitsConfig.METRIC) {
+                state.height.toDoubleOrNull() ?: 0.0
+            } else {
+                UnitsConverter.ftInToCm(
+                    state.heightFt.toIntOrNull() ?: 0,
+                    state.heightIn.toIntOrNull() ?: 0
+                )
+            }
+
             val initialWeightEntry = WeightEntry(
-                weight = weightValue,
+                weight = weightKg,
                 date = System.currentTimeMillis()
             )
 
             val userProfile = UserProfile(
                 age = state.age.toIntOrNull() ?: 0,
-                weightKg = weightValue,
-                heightCm = state.height.toDoubleOrNull() ?: 0.0,
+                weightKg = weightKg,
+                heightCm = heightCm,
                 gender = state.gender,
                 dailyStepsGoal = state.dailySteps,
                 dailyCaloriesGoal = state.caloriesToBurn,
                 level = calculatedLevel,
-                weightHistory = listOf(initialWeightEntry) // Guardamos el peso inicial aquí
+                weightHistory = listOf(initialWeightEntry)
             )
+            
             userProfileUseCase.insertUserProfileUseCase(userProfile)
             userSettingsDataStore.setUnitsConfig(state.unitsConfig)
             setOnboardingCompletedUseCase(true)
@@ -107,9 +138,15 @@ class OnboardingViewModel @Inject constructor(
 
     private fun validateProfileConfiguration() {
         val state = _uiState.value
+        val isHeightValid = if (state.unitsConfig == UnitsConfig.METRIC) {
+            state.height.isNotBlank()
+        } else {
+            state.heightFt.isNotBlank() && state.heightIn.isNotBlank()
+        }
+
         val isConfigurationValid = state.age.isNotBlank() &&
                 state.weight.isNotBlank() &&
-                state.height.isNotBlank() &&
+                isHeightValid &&
                 state.gender.isNotBlank()
         _uiState.update { it.copy(isProfileConfigurationValid = isConfigurationValid) }
     }
