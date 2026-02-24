@@ -106,13 +106,19 @@ fun HistoryContent(
             .sortedByDescending { it.date }
     }
 
+    val groupedHistory = remember(combinedHistory, uiState.selectedFilter) {
+        val locale = Locale.getDefault()
+        combinedHistory.groupBy { item ->
+            getHeaderLabelString(item.date, uiState.selectedFilter, locale)
+        }
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
         FilterRow(
             selectedFilter = uiState.selectedFilter,
             onFilterSelected = onFilterSelected
         )
         if (combinedHistory.isEmpty()) {
-            // Si está vacío, mostramos el Empty State
             EmptyHistoryState(filter = uiState.selectedFilter)
         } else {
             LazyColumn(
@@ -128,20 +134,59 @@ fun HistoryContent(
                     )
                 }
 
-                items(combinedHistory) { item ->
-                    when (item) {
-                        is HistoryItem.Gym -> GymExerciseCard(
-                            gymExercise = item.exercise,
-                            units = units
-                        )
+                groupedHistory.forEach { (header, items) ->
+                    if (header != null) {
+                        item(key = header) {
+                            FitlogText(
+                                text = header,
+                                style = MaterialTheme.typography.labelMedium,
+                                color = Color.White.copy(alpha = 0.6f),
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(start = 8.dp, top = 8.dp, bottom = 4.dp)
+                            )
+                        }
+                    }
 
-                        is HistoryItem.Session -> WorkoutSessionCard(
-                            session = item.session,
-                            units = units
-                        )
+                    items(items) { item ->
+                        when (item) {
+                            is HistoryItem.Gym -> GymExerciseCard(
+                                gymExercise = item.exercise,
+                                units = units
+                            )
+
+                            is HistoryItem.Session -> WorkoutSessionCard(
+                                session = item.session,
+                                units = units
+                            )
+                        }
                     }
                 }
             }
+        }
+    }
+}
+
+private fun getHeaderLabelString(date: Long, filter: HistoryFilter, locale: Locale): String? {
+    val cal = Calendar.getInstance().apply { timeInMillis = date }
+    return when (filter) {
+        HistoryFilter.TODAY -> {
+            // "Lunes"
+            SimpleDateFormat("EEEE", locale).format(Date(date)).replaceFirstChar { it.uppercase() }
+        }
+        HistoryFilter.LAST_WEEK -> {
+            // "Lunes 12"
+            SimpleDateFormat("EEEE d", locale).format(Date(date)).replaceFirstChar { it.uppercase() }
+        }
+        HistoryFilter.LAST_MONTH -> {
+            // "Lunes 12 - Semana X de Mes"
+            val dayInfo = SimpleDateFormat("EEEE d", locale).format(Date(date)).replaceFirstChar { it.uppercase() }
+            val weekOfMonth = cal.get(Calendar.WEEK_OF_MONTH)
+            val monthName = SimpleDateFormat("MMMM", locale).format(Date(date)).replaceFirstChar { it.uppercase() }
+            "$dayInfo - Semana $weekOfMonth de $monthName"
+        }
+        HistoryFilter.ALL -> {
+            // "Enero 2026"
+            SimpleDateFormat("MMMM yyyy", locale).format(Date(date)).replaceFirstChar { it.uppercase() }
         }
     }
 }
