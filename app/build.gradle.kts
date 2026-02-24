@@ -13,12 +13,23 @@ android {
     namespace = "com.saico.fitlog"
     compileSdk = libs.versions.compileSdk.get().toInt()
 
+    // 1. CONFIGURACIÓN DE FIRMA
+    signingConfigs {
+        create("release") {
+            // Asumiendo que el archivo está en la carpeta 'app'
+            storeFile = file("D:\\keystore\\jorge_dev_key")
+            storePassword = "Saico.000305" // Reemplaza con tu contraseña
+            keyAlias = "jorge_dev"
+            keyPassword = "Saico.000305" // Reemplaza con tu contraseña
+        }
+    }
+
     defaultConfig {
         applicationId = "com.saico.fitlog"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 7
-        versionName = "1.0.3"
+        versionCode = 9
+        versionName = "1.0.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -27,10 +38,13 @@ android {
         debug {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
+            signingConfig = signingConfigs.getByName("debug")
         }
         release {
-            isMinifyEnabled = true // Activa la optimización y ofuscación
-            isShrinkResources = true // Elimina recursos no utilizados
+            isMinifyEnabled = true
+            isShrinkResources = true
+            // 2. ASIGNAR LA FIRMA AL MODO RELEASE
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -38,7 +52,6 @@ android {
         }
     }
     compileOptions {
-//        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }

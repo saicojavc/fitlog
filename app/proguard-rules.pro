@@ -24,9 +24,6 @@
 }
 
 # --- Room Database ---
--keep class * extends androidx.room.RoomDatabase
--keep class * extends androidx.room.Entity
--keep interface * extends androidx.room.Dao
 -dontwarn androidx.room.paging.**
 
 # --- DataStore / Moshi / Serialization ---
