@@ -41,7 +41,10 @@
     <string name="intermediate">Intermediate</string>
     <string name="professional">Professional</string>
     <string name="next">Next</string>
-    <string name="save_and_continue">Save and continue</string>
+    <string name="save_and_continue">Save and continue</string>'
+
+    <string name="backup_with_google">BACKUP WITH GOOGLE</string>
+    <string name="unlink_account">Unlink account</string>
 
     <string name="home">Home</string>
     <string name="history">Log</string>

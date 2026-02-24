@@ -47,7 +47,12 @@ import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.DirectionsRun
 import androidx.compose.material.icons.outlined.DirectionsWalk
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathFillType
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.unit.dp
 
 object FitlogIcons {
     val FitnessCenter: ImageVector = Icons.Default.FitnessCenter
@@ -112,5 +117,70 @@ object FitlogIcons {
 
     val SystemUpdate : ImageVector = Icons.Default.Update
 
-
+    // Icono de Google personalizado con nombres de funciones corregidos
+    val Google: ImageVector
+        get() = ImageVector.Builder(
+            name = "Google",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f
+        ).apply {
+            path(
+                fill = SolidColor(Color(0xFF4285F4)),
+                pathFillType = PathFillType.EvenOdd
+            ) {
+                moveTo(23.49f, 12.275f)
+                curveTo(23.49f, 11.49f, 23.415f, 10.73f, 23.3f, 10f)
+                horizontalLineTo(12f)
+                verticalLineTo(14.252f)
+                horizontalLineTo(18.438f)
+                curveTo(18.157f, 15.713f, 17.282f, 16.955f, 16.045f, 17.781f)
+                verticalLineTo(20.513f)
+                horizontalLineTo(19.933f)
+                curveTo(22.215f, 18.412f, 23.49f, 15.305f, 23.49f, 12.275f)
+                close()
+            }
+            path(
+                fill = SolidColor(Color(0xFF34A853)),
+                pathFillType = PathFillType.EvenOdd
+            ) {
+                moveTo(12f, 24f)
+                curveTo(15.24f, 24f, 17.955f, 22.922f, 19.933f, 21.086f)
+                lineTo(16.045f, 18.354f)
+                curveTo(14.955f, 19.088f, 13.582f, 19.515f, 12f, 19.515f)
+                curveTo(8.872f, 19.515f, 6.225f, 17.412f, 5.28f, 14.582f)
+                horizontalLineTo(1.275f)
+                verticalLineTo(17.682f)
+                curveTo(3.255f, 21.645f, 7.305f, 24f, 12f, 24f)
+                close()
+            }
+            path(
+                fill = SolidColor(Color(0xFFFBBC05)),
+                pathFillType = PathFillType.EvenOdd
+            ) {
+                moveTo(5.28f, 14.582f)
+                curveTo(5.032f, 13.855f, 4.89f, 13.077f, 4.89f, 12.273f)
+                curveTo(4.89f, 11.468f, 5.032f, 10.691f, 5.28f, 9.964f)
+                verticalLineTo(6.864f)
+                horizontalLineTo(1.275f)
+                curveTo(0.465f, 8.495f, 0f, 10.332f, 0f, 12.273f)
+                curveTo(0f, 14.214f, 0.465f, 16.05f, 1.275f, 17.682f)
+                lineTo(5.28f, 14.582f)
+                close()
+            }
+            path(
+                fill = SolidColor(Color(0xFFEA4335)),
+                pathFillType = PathFillType.EvenOdd
+            ) {
+                moveTo(12f, 5.045f)
+                curveTo(13.763f, 5.045f, 15.345f, 5.645f, 16.586f, 6.827f)
+                lineTo(19.727f, 3.686f)
+                curveTo(17.814f, 1.9f, 15.24f, 0.818f, 12f, 0.818f)
+                curveTo(7.305f, 0.818f, 3.255f, 3.173f, 1.275f, 7.136f)
+                lineTo(5.28f, 10.236f)
+                curveTo(6.225f, 7.405f, 8.872f, 5.305f, 12f, 5.305f)
+                close()
+            }
+        }.build()
 }

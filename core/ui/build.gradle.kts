@@ -52,6 +52,7 @@ dependencies {
 
     implementation(libs.hilt.android)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.ui.graphics)
     ksp(libs.hilt.compiler)
 
     testImplementation(libs.junit)

@@ -39,6 +39,9 @@
     <string name="next">Siguiente</string>
     <string name="save_and_continue">Guardar y continuar</string>
 
+    <string name="backup_with_google">RESPALDAR CON GOOGLE</string>
+    <string name="unlink_account">Desvincular cuenta</string>
+
     <string name="home">Inicio</string>
     <string name="history">Registro</string>
     <string name="profile">Perfil</string>

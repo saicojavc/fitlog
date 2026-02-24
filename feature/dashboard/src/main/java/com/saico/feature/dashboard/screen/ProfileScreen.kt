@@ -1,5 +1,6 @@
 package com.saico.feature.dashboard.screen
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -22,7 +23,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -238,7 +238,7 @@ fun ProfileContent(
             )
             TextButton(onClick = onLogoutClick) {
                 FitlogText(
-                    text = "Cerrar Sesión", color = Color.Red.copy(alpha = 0.7f)
+                    text = stringResource(R.string.unlink_account), color = Color.Red.copy(alpha = 0.7f)
                 )
             }
         } ?: run {
@@ -278,12 +278,12 @@ fun ProfileContent(
         ProfileSectionCard(title = stringResource(R.string.daily_goals)) {
             EditableInfoRow(
                 icon = FitlogIcons.Walk,
-                label = stringResource(R.string.daily_steps),
+                label = stringResource(id = R.string.daily_steps),
                 value = stepsGoal,
                 onValueChange = { stepsGoal = it })
             EditableInfoRow(
                 icon = FitlogIcons.Fire,
-                label = stringResource(R.string.calories_to_burn),
+                label = stringResource(id = R.string.calories_to_burn),
                 value = caloriesGoal,
                 onValueChange = { caloriesGoal = it })
         }
@@ -325,7 +325,7 @@ fun HeightImperialRow(
                 modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.width(12.dp))
-            FitlogText(text = "Height", color = Color(0xFF94A3B8))
+            FitlogText(text = stringResource(id = R.string.height), color = Color(0xFF94A3B8))
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
             BasicTextField(
@@ -388,18 +388,18 @@ fun FitlogLoginButton(onClick: () -> Unit, isLoading: Boolean) {
                 color = Color.White, modifier = Modifier.size(24.dp), strokeWidth = 2.dp
             )
             else Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = FitlogIcons.Google,
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(Modifier.width(12.dp))
                 Text(
-                    text = "INICIAR SESIÓN",
+                    text = stringResource(R.string.backup_with_google),
                     fontWeight = FontWeight.Black,
                     color = Color.White,
                     letterSpacing = 1.2.sp
-                )
-                Spacer(Modifier.width(8.dp))
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(20.dp)
                 )
             }
         }
