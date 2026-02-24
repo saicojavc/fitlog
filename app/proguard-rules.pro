@@ -24,13 +24,12 @@
 }
 
 # --- Room Database ---
-#-keep class * extends androidx.room.Database
-#-keep class * extends androidx.room.Entity
-#-keep interface * extends androidx.room.Dao
+-keep class * extends androidx.room.RoomDatabase
+-keep class * extends androidx.room.Entity
+-keep interface * extends androidx.room.Dao
 -dontwarn androidx.room.paging.**
 
 # --- DataStore / Moshi / Serialization ---
-# Si usas Moshi para JSON en DataStore
 -keep class com.squareup.moshi.** { *; }
 -keepnames class com.saico.core.model.** { *; }
 -keep class com.saico.core.model.** { *; }
@@ -39,19 +38,23 @@
     <init>(...);
 }
 
-# --- Firebase ---
+# --- Firebase & Google Auth (CRÍTICO PARA RELEASE) ---
 -keep class com.google.firebase.** { *; }
 -dontwarn com.google.firebase.**
 -keep class com.google.android.gms.** { *; }
 -dontwarn com.google.android.gms.**
 
+# Reglas específicas para Credential Manager y Google ID
+-keep class androidx.credentials.** { *; }
+-keep class com.google.android.libraries.identity.googleid.** { *; }
+-dontwarn androidx.credentials.**
+
 # --- Reglas Específicas del Proyecto Fitlog ---
-# Mantener clases de dominio y modelos para evitar fallos en persistencia/mapping
 -keep class com.saico.core.model.** { *; }
 -keep class com.saico.core.database.entity.** { *; }
 -keep class com.saico.core.database.dao.** { *; }
 
-# Optimización: eliminar logs en release si usas android.util.Log
+# Optimización: eliminar logs en release
 -assumenosideeffects class android.util.Log {
     public static int v(...);
     public static int d(...);
