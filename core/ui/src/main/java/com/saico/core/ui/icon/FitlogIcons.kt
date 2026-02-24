@@ -3,11 +3,9 @@ package com.saico.core.ui.icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Delete
@@ -46,7 +44,6 @@ import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.DirectionsRun
-import androidx.compose.material.icons.outlined.DirectionsWalk
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.SolidColor
