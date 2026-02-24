@@ -7,6 +7,7 @@ object PaddingDim {
     val SUPER_SMALL = 1.dp
     val EXTRA_SMALL = 2.dp
     val VERY_SMALL = 4.dp
+    val SMALL_MEDIUM = 6.dp
     val SMALL = 8.dp
     val MEDIUM = 12.dp
     val LARGE = 16.dp

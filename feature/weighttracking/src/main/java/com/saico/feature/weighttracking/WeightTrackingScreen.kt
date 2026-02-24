@@ -5,6 +5,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -73,10 +75,12 @@ import com.saico.core.ui.theme.CardBackground
 import com.saico.core.ui.theme.CoolGray
 import com.saico.core.ui.theme.DarkBackground
 import com.saico.core.ui.theme.EmeraldGreen
+import com.saico.core.ui.theme.PaddingDim
 import com.saico.feature.weighttracking.state.WeightTrackingUiState
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.abs
 import kotlin.math.pow
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -129,6 +133,17 @@ fun WeightTrackingContent(
         else UnitsConverter.kgToLb(profile.weightKg)
     }
 
+    // Lógica para la diferencia de peso
+    val weightDiff = remember(uiState.weightHistory, units) {
+        if (uiState.weightHistory.size >= 2) {
+            val history = uiState.weightHistory.sortedByDescending { it.date }
+            val latest = history[0].weight
+            val previous = history[1].weight
+            val diff = latest - previous
+            if (units == UnitsConfig.METRIC) diff else UnitsConverter.kgToLb(diff)
+        } else null
+    }
+
     val bmiValue = remember(profile?.weightKg, profile?.heightCm) {
         if (profile == null || profile.heightCm <= 0) 0f
         else (profile.weightKg / (profile.heightCm / 100.0).pow(2)).toFloat()
@@ -173,7 +188,8 @@ fun WeightTrackingContent(
             unit = weightLabel,
             bmiValue = bmiValue,
             bmiStatus = bmiStatus,
-            bodyFatValue = bodyFatValue
+            bodyFatValue = bodyFatValue,
+            weightDiff = weightDiff
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -266,85 +282,9 @@ fun WeightTrackingContent(
 }
 
 @Composable
-fun HistoryList(history: List<WeightEntry>, units: UnitsConfig) {
-    var isExpanded by remember { mutableStateOf(false) }
-
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { isExpanded = !isExpanded }
-                .padding(vertical = 8.dp)) {
-            Icon(
-                FitlogIcons.History,
-                contentDescription = null,
-                tint = CoolGray,
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(Modifier.width(8.dp))
-            FitlogText(
-                text = stringResource(id = R.string.full_history),
-                style = MaterialTheme.typography.labelMedium,
-                color = CoolGray,
-                modifier = Modifier.weight(1f)
-            )
-            Icon(
-                imageVector = if (isExpanded) FitlogIcons.ArrowUp else FitlogIcons.ArrowDown,
-                contentDescription = null,
-                tint = CoolGray,
-                modifier = Modifier.size(20.dp)
-            )
-        }
-
-        AnimatedVisibility(visible = isExpanded) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.padding(top = 8.dp)
-            ) {
-                history.forEach { entry ->
-                    val displayW =
-                        if (units == UnitsConfig.METRIC) entry.weight else UnitsConverter.kgToLb(
-                            entry.weight
-                        )
-                    val unit = if (units == UnitsConfig.METRIC) "kg" else "lb"
-
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.03f))
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            FitlogText(
-                                text = SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(
-                                    Date(entry.date)
-                                ), color = Color.White, style = MaterialTheme.typography.bodyMedium
-                            )
-                            FitlogText(
-                                text = "%.1f %s".format(displayW, unit),
-                                color = EmeraldGreen,
-                                fontWeight = FontWeight.Bold,
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
 fun WeightTrackerCardReal(
-    currentWeight: Float, unit: String, bmiValue: Float, bmiStatus: BmiStatus, bodyFatValue: Float
+    currentWeight: Float, unit: String, bmiValue: Float, bmiStatus: BmiStatus, bodyFatValue: Float,
+    weightDiff: Double? // Nuevo parámetro
 ) {
     val statusColors = mapOf(
         BmiStatus.LOW_WEIGHT to Color(0xFFFACC15),
@@ -366,12 +306,12 @@ fun WeightTrackerCardReal(
     FitlogCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(vertical = PaddingDim.SMALL),
         color = CardBackground,
         border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f)),
         shape = RoundedCornerShape(28.dp)
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
+        Column(modifier = Modifier.padding(PaddingDim.VERY_LARGE)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -383,7 +323,7 @@ fun WeightTrackerCardReal(
                         style = MaterialTheme.typography.labelSmall,
                         color = CoolGray
                     )
-                    Row(verticalAlignment = Alignment.Bottom) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         FitlogText(
                             text = "%.1f".format(currentWeight),
                             style = MaterialTheme.typography.displaySmall,
@@ -394,8 +334,33 @@ fun WeightTrackerCardReal(
                             text = " $unit",
                             style = MaterialTheme.typography.titleMedium,
                             color = CoolGray,
-                            modifier = Modifier.padding(bottom = 6.dp)
+                            modifier = Modifier.padding(top = PaddingDim.MEDIUM)
                         )
+                        
+                        // Diferencia de peso con iconos
+                        if (weightDiff != null && weightDiff != 0.0) {
+                            val isIncrease = weightDiff > 0
+                            val color = if (isIncrease) Color.Red else EmeraldGreen
+                            val icon = if (isIncrease) FitlogIcons.ArrowUp else FitlogIcons.ArrowDown
+                            
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(start = PaddingDim.SMALL, top = PaddingDim.MEDIUM)
+                            ) {
+                                Icon(
+                                    imageVector = icon,
+                                    contentDescription = null,
+                                    tint = color,
+                                    modifier = Modifier.size(PaddingDim.EXTRA_LARGE)
+                                )
+                                FitlogText(
+                                    text = "%.1f".format(abs(weightDiff)),
+                                    color = color,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
                     }
                 }
                 Surface(
@@ -405,7 +370,7 @@ fun WeightTrackerCardReal(
                 ) {
                     FitlogText(
                         text = statusText,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                        modifier = Modifier.padding(horizontal = PaddingDim.MEDIUM, vertical = PaddingDim.SMALL_MEDIUM),
                         style = MaterialTheme.typography.labelMedium,
                         color = statusColor,
                         fontWeight = FontWeight.Bold
@@ -413,7 +378,7 @@ fun WeightTrackerCardReal(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(PaddingDim.EXTRA_LARGE))
 
             Row(
                 modifier = Modifier
@@ -516,6 +481,85 @@ fun WeightTrackerCardReal(
         }
     }
 }
+
+@Composable
+fun HistoryList(history: List<WeightEntry>, units: UnitsConfig) {
+    var isExpanded by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { isExpanded = !isExpanded }
+                .padding(vertical = 8.dp)) {
+            Icon(
+                FitlogIcons.History,
+                contentDescription = null,
+                tint = CoolGray,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(Modifier.width(8.dp))
+            FitlogText(
+                text = stringResource(id = R.string.full_history),
+                style = MaterialTheme.typography.labelMedium,
+                color = CoolGray,
+                modifier = Modifier.weight(1f)
+            )
+            Icon(
+                imageVector = if (isExpanded) FitlogIcons.ArrowUp else FitlogIcons.ArrowDown,
+                contentDescription = null,
+                tint = CoolGray,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+
+        AnimatedVisibility(visible = isExpanded) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(top = 8.dp)
+            ) {
+                history.forEach { entry ->
+                    val displayW =
+                        if (units == UnitsConfig.METRIC) entry.weight else UnitsConverter.kgToLb(
+                            entry.weight
+                        )
+                    val unit = if (units == UnitsConfig.METRIC) "kg" else "lb"
+
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.03f))
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            FitlogText(
+                                text = SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(
+                                    Date(entry.date)
+                                ), color = Color.White, style = MaterialTheme.typography.bodyMedium
+                            )
+                            FitlogText(
+                                text = "%.1f %s".format(displayW, unit),
+                                color = EmeraldGreen,
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 
 @Composable
 fun WeightProgressBarCustom(

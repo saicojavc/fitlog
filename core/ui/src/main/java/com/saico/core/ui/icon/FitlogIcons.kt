@@ -5,6 +5,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Cake
@@ -78,8 +79,8 @@ object FitlogIcons {
     val Play: ImageVector = Icons.Default.PlayArrow
     val ArrowBack: ImageVector = Icons.AutoMirrored.Filled.ArrowBack
     val Save: ImageVector = Icons.Default.Save
-    val ArrowUp: ImageVector = Icons.Default.ArrowUpward
-    val ArrowDown: ImageVector = Icons.Default.ArrowDownward
+    val ArrowUp: ImageVector = Icons.Default.ArrowDropUp
+    val ArrowDown: ImageVector = Icons.Default.ArrowDropDown
     val Delete: ImageVector = Icons.Default.Delete
     val Edit: ImageVector = Icons.Default.Edit
     val KeyboardArrowUp: ImageVector = Icons.Default.KeyboardArrowUp
