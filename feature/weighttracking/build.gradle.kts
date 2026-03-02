@@ -69,6 +69,7 @@ dependencies {
     implementation(libs.androidx.compose.remote.creation.core)
     implementation(libs.androidx.compose.animation)
     implementation(libs.androidx.animation)
+    implementation(libs.androidx.ui.graphics)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 

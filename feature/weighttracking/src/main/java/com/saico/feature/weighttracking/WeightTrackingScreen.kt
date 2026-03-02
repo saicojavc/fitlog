@@ -4,10 +4,12 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -45,10 +47,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.res.stringResource
@@ -69,10 +74,9 @@ import com.saico.core.ui.components.FitlogIcon
 import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.components.FitlogTopAppBar
 import com.saico.core.ui.icon.FitlogIcons
-import com.saico.core.ui.theme.CardBackground
 import com.saico.core.ui.theme.CoolGray
-import com.saico.core.ui.theme.DarkBackground
 import com.saico.core.ui.theme.EmeraldGreen
+import com.saico.core.ui.theme.GradientColors
 import com.saico.core.ui.theme.PaddingDim
 import com.saico.feature.weighttracking.state.WeightTrackingUiState
 import java.text.SimpleDateFormat
@@ -91,7 +95,7 @@ fun WeightTrackingScreen(
     Scaffold(
         modifier = Modifier.fillMaxSize(), topBar = {
             FitlogTopAppBar(
-                title = stringResource(id = R.string.summary),
+                title = stringResource(id = R.string.weight_evolution),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Black.copy(alpha = 0.3f)
                 ),
@@ -107,7 +111,7 @@ fun WeightTrackingScreen(
         WeightTrackingContent(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Brush.verticalGradient(listOf(DarkBackground, Color(0xFF064E3B))))
+                .background(Brush.verticalGradient(GradientColors))
                 .padding(paddingValues),
             uiState = uiState,
             onRegisterWeight = viewModel::registerNewWeight
@@ -172,14 +176,6 @@ fun WeightTrackingContent(
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        FitlogText(
-            text = stringResource(id = R.string.weight_evolution),
-            style = MaterialTheme.typography.headlineMedium.copy(
-                fontWeight = FontWeight.Black, letterSpacing = 1.sp
-            ),
-            color = Color.White,
-            modifier = Modifier.padding(top = 32.dp, bottom = 16.dp)
-        )
 
         WeightTrackerCardReal(
             currentWeight = currentWeightDisplay.toFloat(),
@@ -193,11 +189,8 @@ fun WeightTrackingContent(
         Spacer(modifier = Modifier.height(16.dp))
 
         if (uiState.weightHistory.isNotEmpty()) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(28.dp),
-                colors = CardDefaults.cardColors(containerColor = CardBackground),
-                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
+            FitlogCard(
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
                     FitlogText(
@@ -220,11 +213,8 @@ fun WeightTrackingContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(28.dp),
-            colors = CardDefaults.cardColors(containerColor = CardBackground),
-            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
+        FitlogCard(
+            modifier = Modifier.fillMaxWidth()
         ) {
             Column(
                 modifier = Modifier.padding(20.dp),
@@ -257,16 +247,49 @@ fun WeightTrackingContent(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp),
+                        .height(56.dp)
+                        // Aplicamos el resplandor azul (Glow)
+                        .shadow(
+                            elevation = 12.dp,
+                            shape = CircleShape,
+                            ambientColor = Color(0xFF3FB9F6),
+                            spotColor = Color(0xFF3FB9F6)
+                        ),
                     shape = CircleShape,
-                    colors = ButtonDefaults.buttonColors(containerColor = EmeraldGreen)
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent // Importante: fondo transparente
+                    ),
+                    contentPadding = PaddingValues() // Para que el degradado llene todo el botón
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = null)
-                    Spacer(Modifier.width(8.dp))
-                    FitlogText(
-                        text = stringResource(id = R.string.register_weight),
-                        fontWeight = FontWeight.Black
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                brush = Brush.horizontalGradient(
+                                    listOf(Color(0xFF3FB9F6), Color(0xFF216EE0))
+                                )
+                            )
+                            .border(
+                                width = 1.dp,
+                                color = Color.White.copy(alpha = 0.2f),
+                                shape = CircleShape
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = null,
+                                tint = Color.White
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            FitlogText(
+                                text = stringResource(id = R.string.register_weight).uppercase(),
+                                fontWeight = FontWeight.Black,
+                                color = Color.White
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -305,9 +328,6 @@ fun WeightTrackerCardReal(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = PaddingDim.SMALL),
-        color = CardBackground,
-        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f)),
-        shape = RoundedCornerShape(28.dp)
     ) {
         Column(modifier = Modifier.padding(PaddingDim.VERY_LARGE)) {
             Row(
@@ -334,16 +354,20 @@ fun WeightTrackerCardReal(
                             color = CoolGray,
                             modifier = Modifier.padding(top = PaddingDim.MEDIUM)
                         )
-                        
+
                         // Diferencia de peso con iconos
                         if (weightDiff != null && weightDiff != 0.0) {
                             val isIncrease = weightDiff > 0
                             val color = if (isIncrease) Color.Red else EmeraldGreen
-                            val icon = if (isIncrease) FitlogIcons.ArrowUp else FitlogIcons.ArrowDown
-                            
+                            val icon =
+                                if (isIncrease) FitlogIcons.ArrowUp else FitlogIcons.ArrowDown
+
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.padding(start = PaddingDim.SMALL, top = PaddingDim.MEDIUM)
+                                modifier = Modifier.padding(
+                                    start = PaddingDim.SMALL,
+                                    top = PaddingDim.MEDIUM
+                                )
                             ) {
                                 Icon(
                                     imageVector = icon,
@@ -368,7 +392,10 @@ fun WeightTrackerCardReal(
                 ) {
                     FitlogText(
                         text = statusText,
-                        modifier = Modifier.padding(horizontal = PaddingDim.MEDIUM, vertical = PaddingDim.SMALL_MEDIUM),
+                        modifier = Modifier.padding(
+                            horizontal = PaddingDim.MEDIUM,
+                            vertical = PaddingDim.SMALL_MEDIUM
+                        ),
                         style = MaterialTheme.typography.labelMedium,
                         color = statusColor,
                         fontWeight = FontWeight.Bold
@@ -558,7 +585,6 @@ fun HistoryList(history: List<WeightEntry>, units: UnitsConfig) {
 }
 
 
-
 @Composable
 fun WeightProgressBarCustom(
     bmiValue: Float, statusColors: Map<BmiStatus, Color>
@@ -612,6 +638,10 @@ fun WeightProgressBarCustom(
 
 @Composable
 fun WeightLineChartReal(history: List<WeightEntry>, units: UnitsConfig) {
+    // Definimos los colores del sistema Blue Tech
+    val startBlue = Color(0xFF3FB9F6)
+    val endBlue = Color(0xFF216EE0)
+
     val data = history.sortedBy { it.date }.map {
         val w = if (units == UnitsConfig.METRIC) it.weight else UnitsConverter.kgToLb(it.weight)
         w.toFloat() to SimpleDateFormat("dd MMM", Locale.getDefault()).format(Date(it.date))
@@ -619,50 +649,98 @@ fun WeightLineChartReal(history: List<WeightEntry>, units: UnitsConfig) {
 
     val textPaint = remember {
         android.graphics.Paint().apply {
-            color = android.graphics.Color.WHITE; textSize = 22f; textAlign =
-            android.graphics.Paint.Align.CENTER; typeface = android.graphics.Typeface.DEFAULT_BOLD
+            color = android.graphics.Color.WHITE
+            textSize = 28f // Un poco más grande para legibilidad
+            textAlign = android.graphics.Paint.Align.CENTER
+            typeface = android.graphics.Typeface.create(
+                android.graphics.Typeface.DEFAULT,
+                android.graphics.Typeface.BOLD
+            )
         }
     }
+
     val datePaint = remember {
         android.graphics.Paint().apply {
-            color = android.graphics.Color.parseColor("#94A3B8"); textSize = 18f; textAlign =
-            android.graphics.Paint.Align.CENTER
+            color = android.graphics.Color.parseColor("#64748B") // Slate 500 para las fechas
+            textSize = 22f
+            textAlign = android.graphics.Paint.Align.CENTER
         }
     }
 
     Canvas(modifier = Modifier.fillMaxSize()) {
         if (data.size < 2) return@Canvas
-        val padding = 30.dp.toPx()
+
+        val padding = 40.dp.toPx()
         val spacing = size.width / (data.size - 1)
         val weights = data.map { it.first }
         val maxW = weights.maxOrNull() ?: 1f
         val minW = weights.minOrNull() ?: 0f
-        val range = (maxW - minW).coerceAtLeast(1f)
+        val range = (maxW - minW).coerceAtMost(100f).coerceAtLeast(1f)
 
         val points = data.mapIndexed { index, pair ->
             val x = index * spacing
-            val normalizedY = if (range == 0f) 0.5f else (pair.first - minW) / range
+            val normalizedY = (pair.first - minW) / range
             val y =
-                (size.height - padding) - (normalizedY * (size.height - padding * 2)) - padding / 2
+                (size.height - padding) - (normalizedY * (size.height - padding * 2.5f)) - padding
             Offset(x, y)
         }
 
+        // 1. DIBUJAR EL RELLENO (AREA GRADIENT)
+        val fillPath = Path().apply {
+            moveTo(points.first().x, size.height)
+            points.forEach { lineTo(it.x, it.y) }
+            lineTo(points.last().x, size.height)
+            close()
+        }
+
+        drawPath(
+            path = fillPath,
+            brush = Brush.verticalGradient(
+                colors = listOf(startBlue.copy(alpha = 0.3f), Color.Transparent),
+                startY = points.minOf { it.y },
+                endY = size.height
+            )
+        )
+
+        // 2. DIBUJAR LA LÍNEA CON DEGRADADO (BOTTOM COLOR)
         for (i in 0 until points.size - 1) {
             drawLine(
-                color = EmeraldGreen,
+                brush = Brush.linearGradient(listOf(startBlue, endBlue)),
                 start = points[i],
                 end = points[i + 1],
-                strokeWidth = 2.dp.toPx()
+                strokeWidth = 3.dp.toPx(),
+                cap = StrokeCap.Round
             )
         }
 
+        // 3. PUNTOS Y TEXTO
         points.forEachIndexed { index, point ->
-            drawCircle(color = EmeraldGreen, radius = 3.dp.toPx(), center = point)
-            drawContext.canvas.nativeCanvas.drawText(
-                "%.1f".format(data[index].first), point.x, point.y - 10.dp.toPx(), textPaint
+            // Efecto Glow en el punto
+            drawCircle(
+                color = startBlue.copy(alpha = 0.4f),
+                radius = 7.dp.toPx(),
+                center = point
             )
+            drawCircle(
+                color = Color.White,
+                radius = 3.dp.toPx(),
+                center = point
+            )
+
+            // Dibujar el valor del peso
             drawContext.canvas.nativeCanvas.drawText(
-                data[index].second, point.x, size.height, datePaint
+                "%.1f".format(data[index].first),
+                point.x,
+                point.y - 15.dp.toPx(),
+                textPaint
+            )
+
+            // Dibujar la fecha
+            drawContext.canvas.nativeCanvas.drawText(
+                data[index].second,
+                point.x,
+                size.height - 5.dp.toPx(),
+                datePaint
             )
         }
     }

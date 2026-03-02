@@ -4,6 +4,7 @@ import android.text.format.DateUtils
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -36,8 +38,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -76,13 +80,43 @@ fun HistoryWorkScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onExportPdf,
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = Color.White
+                containerColor = Color.Transparent, // Hacemos el fondo nativo invisible
+                elevation = FloatingActionButtonDefaults.elevation(0.dp), // Quitamos la sombra gris por defecto
+                modifier = Modifier
+                    .size(56.dp)
+                    // 1. Aplicamos la sombra con color (Glow) usando el modificador .shadow
+                    .shadow(
+                        elevation = 12.dp,
+                        shape = CircleShape,
+                        clip = false,
+                        ambientColor = Color(0xFF3FB9F6),
+                        spotColor = Color(0xFF3FB9F6)
+                    )
             ) {
-                Icon(
-                    imageVector = FitlogIcons.Download,
-                    contentDescription = null
-                )
+                // 2. Contenedor con el degradado de tu BottomColor
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            brush = Brush.horizontalGradient(
+                                listOf(Color(0xFF3FB9F6), Color(0xFF216EE0))
+                            ),
+                            shape = CircleShape
+                        )
+                        .border(
+                            width = 1.dp,
+                            color = Color.White.copy(alpha = 0.25f), // Borde de cristal
+                            shape = CircleShape
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = FitlogIcons.Download,
+                        contentDescription = "Exportar PDF",
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
         }
     ) { padding ->
