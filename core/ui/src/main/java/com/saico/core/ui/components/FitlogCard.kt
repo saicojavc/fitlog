@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
@@ -32,8 +33,14 @@ fun FitlogCard(
     color: Color = Color(0xFF1E293B).copy(alpha = 0.6f), // Color base traslúcido
     contentColor: Color = contentColorFor(color),
     elevation: Dp = 0.dp,
-    border: BorderStroke? = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f)), // Borde sutil
+    border: BorderStroke = BorderStroke(
+        width = 1.dp,
+        brush = Brush.linearGradient(
+            listOf(Color.White.copy(alpha = 0.3f), Color.Transparent, Color.White.copy(alpha = 0.05f))
+        )
+    ), // Borde sutil
     content: @Composable ColumnScope.() -> Unit,
+
 
 ) {
     Surface(

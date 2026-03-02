@@ -99,7 +99,6 @@ fun Content(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
         ) {
             // 2. Capa de Fondo: Partículas con Acelerómetro
             // Reemplaza el .background(Brush.verticalGradient(GradientColors)) anterior
@@ -107,6 +106,7 @@ fun Content(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .padding(paddingValues)
             ) {
 
                 when (selectedBottomAppBarItem) {
