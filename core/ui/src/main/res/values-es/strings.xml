@@ -63,6 +63,7 @@
     <!-- Service Notification -->
     <string name="service_active_title">Fitlog está activo</string>
     <string name="service_active_msg">Contando tus pasos...</string>
+    <string name="confirm">Confirmar</string>
 
     <string name="register_session">Registrar sesión</string>
 

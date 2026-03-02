@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +22,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -31,6 +33,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -137,20 +140,20 @@ fun Content(
                     Box(
                         modifier = Modifier
                             .size(80.dp)
-                            .background(Color(0xFF10B981).copy(alpha = 0.1f), CircleShape),
+                            .background(Color(0xFF216EE0).copy(alpha = 0.1f), CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         // Círculo interno más brillante
                         Box(
                             modifier = Modifier
                                 .size(56.dp)
-                                .background(Color(0xFF10B981).copy(alpha = 0.2f), CircleShape),
+                                .background(Color(0xFF216EE0).copy(alpha = 0.2f), CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = FitlogIcons.Check,
                                 contentDescription = null,
-                                tint = Color(0xFF10B981),
+                                tint = Color(0xFF216EE0),
                                 modifier = Modifier.size(40.dp)
                             )
                         }
@@ -186,15 +189,42 @@ fun Content(
                         onClick = onDismissSuccessDialog,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(56.dp),
+                            .height(56.dp)
+                            // Aplicamos el resplandor azul (Glow) para que destaque en el diálogo
+                            .shadow(
+                                elevation = 12.dp,
+                                shape = CircleShape,
+                                ambientColor = Color(0xFF3FB9F6),
+                                spotColor = Color(0xFF3FB9F6)
+                            ),
                         shape = CircleShape,
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981))
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Transparent // Fondo transparente para usar el Box con degradado
+                        ),
+                        contentPadding = PaddingValues() // Para que el degradado ocupe todo el espacio
                     ) {
-                        FitlogText(
-                            text = stringResource(id = android.R.string.ok).uppercase(),
-                            fontWeight = FontWeight.Black,
-                            color = Color.White
-                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(
+                                    brush = Brush.horizontalGradient(
+                                        listOf(Color(0xFF3FB9F6), Color(0xFF216EE0))
+                                    )
+                                )
+                                .border(
+                                    width = 1.dp,
+                                    color = Color.White.copy(alpha = 0.25f), // Borde de cristal sutil
+                                    shape = CircleShape
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            FitlogText(
+                                text = stringResource(id = android.R.string.ok).uppercase(),
+                                fontWeight = FontWeight.Black,
+                                color = Color.White,
+                                letterSpacing = 1.5.sp // Un toque extra de elegancia para el texto
+                            )
+                        }
                     }
                 }
             }
@@ -222,11 +252,43 @@ fun Content(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onShowAddDialog,
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                shape = CircleShape
+                containerColor = Color.Transparent, // Fondo nativo invisible
+                elevation = FloatingActionButtonDefaults.elevation(0.dp), // Quitamos la sombra gris
+                shape = CircleShape,
+                modifier = Modifier
+                    .size(56.dp)
+                    // Aplicamos el resplandor (Glow) azul tecnológico
+                    .shadow(
+                        elevation = 12.dp,
+                        shape = CircleShape,
+                        ambientColor = Color(0xFF3FB9F6),
+                        spotColor = Color(0xFF3FB9F6)
+                    )
             ) {
-                Icon(imageVector = FitlogIcons.Add, contentDescription = stringResource(id = R.string.add_exercise))
+                // Contenedor con el degradado BottomColor
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            brush = Brush.horizontalGradient(
+                                listOf(Color(0xFF3FB9F6), Color(0xFF216EE0))
+                            ),
+                            shape = CircleShape
+                        )
+                        .border(
+                            width = 1.dp,
+                            color = Color.White.copy(alpha = 0.25f), // Reflejo de cristal
+                            shape = CircleShape
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = FitlogIcons.Add,
+                        contentDescription = stringResource(id = R.string.add_exercise),
+                        tint = Color.White,
+                        modifier = Modifier.size(28.dp) // Un poco más grande para que resalte el "Plus"
+                    )
+                }
             }
         },
         bottomBar = {
@@ -271,7 +333,6 @@ fun Content(
         }
     }
 }
-
 
 
 @Composable

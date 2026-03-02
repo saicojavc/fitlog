@@ -65,6 +65,8 @@
     <string name="elapsed_time">Elapsed Time</string>
     <string name="time">Time</string>
 
+    <string name="confirm">Confirm</string>
+
     <string name="km">Km</string>
     <string name="mi">mi</string>
     <string name="km_h">km/h</string>

@@ -1,9 +1,7 @@
 package com.saico.feature.setting
 
 
-import android.annotation.SuppressLint
 import android.text.format.DateFormat
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -27,8 +25,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -68,13 +64,11 @@ import com.saico.core.model.UnitsConfig
 import com.saico.core.model.UserData
 import com.saico.core.ui.R
 import com.saico.core.ui.components.FitlogCard
-import com.saico.core.ui.components.FitlogIcon
 import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.components.FitlogTopAppBar
 import com.saico.core.ui.components.GravityParticlesBackground
 import com.saico.core.ui.icon.FitlogIcons
 import com.saico.core.ui.navigation.routes.about.AboutRoute
-import com.saico.core.ui.theme.GradientColors
 import com.saico.core.ui.theme.PaddingDim
 import com.saico.feature.setting.state.SettingUiState
 
@@ -134,7 +128,9 @@ fun SettingScreen(
                     .padding(PaddingDim.MEDIUM)
             ) {
                 when (val state = uiState) {
-                    is SettingUiState.Loading -> { /* Shimmer o loader azul */ }
+                    is SettingUiState.Loading -> { /* Shimmer o loader azul */
+                    }
+
                     is SettingUiState.Success -> {
                         SettingsContent(
                             settings = state.settings,
@@ -190,8 +186,15 @@ fun SettingsContent(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
-                FitlogText(text = stringResource(id = R.string.workout_reminder), color = Color.White)
-                FitlogText(text = "FORMATO DE HORA", color = activeColor, style = MaterialTheme.typography.bodySmall)
+                FitlogText(
+                    text = stringResource(id = R.string.workout_reminder),
+                    color = Color.White
+                )
+                FitlogText(
+                    text = "FORMATO DE HORA",
+                    color = activeColor,
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
             Icon(imageVector = FitlogIcons.Clock, contentDescription = null, tint = activeColor)
         }
@@ -199,7 +202,10 @@ fun SettingsContent(
 
     // --- IDIOMA Y UNIDADES ---
     FitlogCard(modifier = Modifier.padding(vertical = PaddingDim.SMALL)) {
-        SettingSectionTitle(title = stringResource(id = R.string.language).uppercase(), icon = FitlogIcons.Language)
+        SettingSectionTitle(
+            title = stringResource(id = R.string.language).uppercase(),
+            icon = FitlogIcons.Language
+        )
         FitlogSettingDropdown(
             label = stringResource(id = R.string.language),
             selectedOption = settings.languageConfig,
@@ -213,7 +219,10 @@ fun SettingsContent(
     }
 
     FitlogCard(modifier = Modifier.padding(vertical = PaddingDim.SMALL)) {
-        SettingSectionTitle(title = stringResource(id = R.string.measurement_units).uppercase(), icon = FitlogIcons.Settings)
+        SettingSectionTitle(
+            title = stringResource(id = R.string.measurement_units).uppercase(),
+            icon = FitlogIcons.Settings
+        )
         FitlogSettingDropdown(
             label = stringResource(id = R.string.measurement_units),
             selectedOption = settings.unitsConfig,
@@ -240,7 +249,9 @@ fun FitlogTimePickerDialog(
     Dialog(onDismissRequest = onDismissRequest) {
         // Usamos tu FitlogCard para consistencia
         FitlogCard(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
             shape = RoundedCornerShape(32.dp),
         ) {
             Column(
@@ -260,14 +271,20 @@ fun FitlogTimePickerDialog(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    TimeNumberColumn(value = selectedHour, range = 0..23, onValueChange = { selectedHour = it })
+                    TimeNumberColumn(
+                        value = selectedHour,
+                        range = 0..23,
+                        onValueChange = { selectedHour = it })
                     FitlogText(
                         text = ":",
                         style = MaterialTheme.typography.displayMedium,
                         color = Color.White.copy(alpha = 0.5f),
                         modifier = Modifier.padding(horizontal = 12.dp)
                     )
-                    TimeNumberColumn(value = selectedMinute, range = 0..59, onValueChange = { selectedMinute = it })
+                    TimeNumberColumn(
+                        value = selectedMinute,
+                        range = 0..59,
+                        onValueChange = { selectedMinute = it })
                 }
 
                 Spacer(modifier = Modifier.height(40.dp))
@@ -275,16 +292,24 @@ fun FitlogTimePickerDialog(
                 // BOTÓN CON TU NUEVO DEGRADADO
                 Button(
                     onClick = { onConfirm(selectedHour, selectedMinute) },
-                    modifier = Modifier.fillMaxWidth().height(56.dp).shadow(8.dp, CircleShape, spotColor = Color(0xFF3FB9F6)),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .shadow(8.dp, CircleShape, spotColor = Color(0xFF3FB9F6)),
                     shape = CircleShape,
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                     contentPadding = PaddingValues()
                 ) {
                     Box(
-                        modifier = Modifier.fillMaxSize().background(blueGradient),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(blueGradient),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(stringResource(id = R.string.done).uppercase(), fontWeight = FontWeight.Black)
+                        Text(
+                            stringResource(id = R.string.done).uppercase(),
+                            fontWeight = FontWeight.Black
+                        )
                     }
                 }
             }
@@ -337,10 +362,11 @@ fun SettingSectionTitle(title: String, icon: ImageVector? = null) {
 
 @Composable
 fun SettingOption(label: String, selected: Boolean, onClick: () -> Unit) {
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .clickable { onClick() }
-        .padding(horizontal = PaddingDim.MEDIUM, vertical = PaddingDim.SMALL),
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(horizontal = PaddingDim.MEDIUM, vertical = PaddingDim.SMALL),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween) {
         FitlogText(
