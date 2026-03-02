@@ -2,11 +2,14 @@ package com.saico.feature.dashboard.components
 
 import android.content.Context
 import android.content.Intent
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -19,12 +22,15 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -46,35 +52,47 @@ fun UpdateVersionDialog(
     onDismiss: () -> Unit,
     context: Context,
 ) {
+    val techBlue = Color(0xFF3FB9F6)
+    val blueGradient = Brush.horizontalGradient(listOf(techBlue, Color(0xFF216EE0)))
+
     AlertDialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false), // Para controlar el ancho
+        properties = DialogProperties(usePlatformDefaultWidth = false),
         modifier = Modifier
             .fillMaxWidth(0.9f)
             .clip(RoundedCornerShape(32.dp))
-            .background(Color(0xFF1E293B)) // Color(0xFF1E293B).copy(alpha = 0.9f)
-            .border(1.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(32.dp)),
+            .background(Color(0xFF0D1424).copy(alpha = 0.95f)) // Fondo profundo
+            .border(1.dp, Color.White.copy(alpha = 0.15f), RoundedCornerShape(32.dp)),
         content = {
             Column(
                 modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // --- ICONO DE ACTUALIZACIÓN ---
+                // --- ICONO DE ACTUALIZACIÓN CON GLOW ---
                 Box(
                     modifier = Modifier
-                        .size(64.dp)
-                        .background(EmeraldGreen.copy(alpha = 0.1f), CircleShape),
+                        .size(80.dp)
+                        .shadow(15.dp, CircleShape, spotColor = techBlue)
+                        .background(techBlue.copy(alpha = 0.1f), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = FitlogIcons.SystemUpdate,
-                        contentDescription = null,
-                        tint = EmeraldGreen,
-                        modifier = Modifier.size(32.dp)
-                    )
+                    // Círculo interno animado visualmente
+                    Box(
+                        modifier = Modifier
+                            .size(50.dp)
+                            .border(2.dp, techBlue.copy(alpha = 0.4f), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = FitlogIcons.SystemUpdate,
+                            contentDescription = null,
+                            tint = techBlue,
+                            modifier = Modifier.size(30.dp)
+                        )
+                    }
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
                 // --- TÍTULO ---
                 FitlogText(
@@ -82,24 +100,41 @@ fun UpdateVersionDialog(
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Black,
                     color = Color.White,
-                    letterSpacing = 1.sp,
+                    letterSpacing = 2.sp,
                     textAlign = TextAlign.Center
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // --- CUERPO ---
+                // --- VERSIÓN TAG (Estilo Badge) ---
+                Surface(
+                    color = techBlue.copy(alpha = 0.15f),
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(1.dp, techBlue.copy(alpha = 0.3f))
+                ) {
+                    Text(
+                        text = "v$remoteVersion",
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = techBlue,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // --- MENSAJE ---
                 FitlogText(
                     text = stringResource(id = R.string.update_available_message, remoteVersion),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = CoolGray, // Color(0xFF94A3B8)
+                    color = Color(0xFF94A3B8), // CoolGray
                     textAlign = TextAlign.Center,
-                    lineHeight = 20.sp
+                    lineHeight = 22.sp
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // --- BOTÓN CONFIRMAR (EMERALD) ---
+                // --- BOTÓN ACTUALIZAR (GLOW + GRADIENT) ---
                 Button(
                     onClick = {
                         val intent = Intent(
@@ -111,18 +146,29 @@ fun UpdateVersionDialog(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp),
+                        .height(56.dp)
+                        .shadow(12.dp, CircleShape, spotColor = techBlue),
                     shape = CircleShape,
-                    colors = ButtonDefaults.buttonColors(containerColor = EmeraldGreen)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                    contentPadding = PaddingValues()
                 ) {
-                    FitlogText(
-                        text = stringResource(id = R.string.update_now).uppercase(),
-                        fontWeight = FontWeight.Black,
-                        color = Color.White
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(blueGradient)
+                            .border(1.dp, Color.White.copy(alpha = 0.2f), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        FitlogText(
+                            text = stringResource(id = R.string.update_now).uppercase(),
+                            fontWeight = FontWeight.Black,
+                            color = Color.White,
+                            letterSpacing = 1.sp
+                        )
+                    }
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 // --- BOTÓN CANCELAR ---
                 TextButton(
@@ -130,9 +176,11 @@ fun UpdateVersionDialog(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     FitlogText(
-                        text = stringResource(id = R.string.later),
-                        color = CoolGray,
-                        style = MaterialTheme.typography.labelLarge
+                        text = stringResource(id = R.string.later).uppercase(),
+                        color = Color.White.copy(alpha = 0.4f),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
                     )
                 }
             }
