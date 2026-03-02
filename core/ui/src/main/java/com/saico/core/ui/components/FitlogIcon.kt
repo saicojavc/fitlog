@@ -31,14 +31,13 @@ fun FitlogIcon(
     tint: Color = LocalContentColor.current
 ) {
     Box(
-        modifier = modifier
-            .size(40.dp) // Replaced AppDim.LIST_ICONS_SIZE
+        modifier = modifier // Replaced AppDim.LIST_ICONS_SIZE
             .clip(shape) 
             .background(background),
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            modifier = Modifier.padding(8.dp), // Replaced PaddingDim.VERY_SMALL
+            modifier = Modifier.padding(2.dp), // Replaced PaddingDim.VERY_SMALL
             imageVector = imageVector,
             contentDescription = contentDescription,
             tint = tint

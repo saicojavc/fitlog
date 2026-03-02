@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.ShapeDefaults
@@ -18,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -26,15 +28,23 @@ import com.saico.core.ui.theme.FitlogTheme
 @Composable
 fun FitlogCard(
     modifier: Modifier = Modifier,
-    shape: Shape = ShapeDefaults.Medium,
-    color: Color =  Color.Black.copy(alpha = 0.3f) ,
+    shape: Shape = RoundedCornerShape(32.dp), // Aumentamos un poco el radio para el estilo web
+    color: Color = Color(0xFF1E293B).copy(alpha = 0.6f), // Color base traslúcido
     contentColor: Color = contentColorFor(color),
-    elevation: Dp = 0.dp, // Replaced ElevationDim.MEDIUM
-    border: BorderStroke? = null,
+    elevation: Dp = 0.dp,
+    border: BorderStroke? = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f)), // Borde sutil
     content: @Composable ColumnScope.() -> Unit,
+
 ) {
     Surface(
-        modifier = modifier,
+        modifier = modifier
+            // El truco de la profundidad: un sombreado muy suave o blur
+            .graphicsLayer {
+                // Si usas Android 12+, aquí podrías aplicar renderEffect de Blur
+                // Para compatibilidad general, lo dejamos limpio
+                clip = true
+                this.shape = shape
+            },
         shape = shape,
         color = color,
         contentColor = contentColor,
@@ -43,7 +53,10 @@ fun FitlogCard(
         shadowElevation = elevation,
         content = {
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(1.dp), // Evita que el contenido toque el borde de luz
+
                 content = content
             )
         },

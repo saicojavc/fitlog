@@ -1,6 +1,5 @@
 package com.saico.feature.dashboard.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,18 +13,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.saico.core.ui.R
 import com.saico.core.ui.components.FitlogCard
 import com.saico.core.ui.components.FitlogIcon
 import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.icon.FitlogIcons
-import com.saico.core.ui.theme.LightPrimaryVariant
-import com.saico.core.ui.theme.PaddingDim
-import com.saico.core.ui.theme.LightSuccess
-import com.saico.core.ui.R
 import com.saico.core.ui.navigation.routes.gymwork.GymWorkRoute
 import com.saico.core.ui.navigation.routes.workout.WorkoutRoute
 import com.saico.core.ui.theme.DarkPrimary
-import com.saico.core.ui.theme.LightBackground
+import com.saico.core.ui.theme.LightSuccess
+import com.saico.core.ui.theme.PaddingDim
 
 @Composable
 fun RegisterWork(navController: NavHostController) {
@@ -40,12 +37,10 @@ fun RegisterWork(navController: NavHostController) {
             modifier = Modifier
                 .weight(1f)
                 .padding(PaddingDim.SMALL)
-                .clickable{
+                .clickable {
                     navController.navigate(WorkoutRoute.WorkoutScreenRoute.route)
                 },
-            color = Color(0xFF1E293B),
             elevation = 1.dp,
-            border = BorderStroke(1.dp, LightBackground.copy(alpha = 0.7f))
         ) {
             Column(
                 modifier = Modifier
@@ -69,12 +64,10 @@ fun RegisterWork(navController: NavHostController) {
             modifier = Modifier
                 .weight(1f)
                 .padding(PaddingDim.SMALL)
-                .clickable{
+                .clickable {
                     navController.navigate(GymWorkRoute.GymWorkScreenRoute.route)
                 },
-            color =  Color(0xFF1E293B),
             elevation = 1.dp,
-            border = BorderStroke(1.dp, LightBackground.copy(alpha = 0.7f))
         ) {
             Column(
                 modifier = Modifier

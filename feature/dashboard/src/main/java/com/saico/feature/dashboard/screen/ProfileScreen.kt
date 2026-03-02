@@ -24,8 +24,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -44,7 +42,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -64,9 +61,10 @@ import com.saico.core.common.util.UnitsConverter
 import com.saico.core.model.UnitsConfig
 import com.saico.core.model.UserProfile
 import com.saico.core.ui.R
+import com.saico.core.ui.components.FitlogCard
 import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.icon.FitlogIcons
-import com.saico.core.ui.theme.EmeraldGreen
+import com.saico.core.ui.theme.BottomColor
 import com.saico.core.ui.theme.PaddingDim
 import com.saico.feature.dashboard.state.DashboardUiState
 import kotlinx.coroutines.launch
@@ -236,7 +234,8 @@ fun ProfileContent(
             )
             TextButton(onClick = onLogoutClick) {
                 FitlogText(
-                    text = stringResource(R.string.unlink_account), color = Color.Red.copy(alpha = 0.7f)
+                    text = stringResource(R.string.unlink_account),
+                    color = Color.Red.copy(alpha = 0.7f)
                 )
             }
         } ?: run {
@@ -291,9 +290,17 @@ fun ProfileContent(
             onClick = { showConfirmDialog = true },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp),
+                .height(56.dp)
+                // 1. Aplicamos el fondo con el gradiente ANTES del clip/shape
+                .background(brush = BottomColor, shape = RoundedCornerShape(16.dp)),
             shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981))
+            // 2. IMPORTANTE: Ponemos el color del contenedor en transparente
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent,
+                contentColor = Color.White // Color del texto/iconos
+            ),
+            // 3. Quitamos el padding interno por defecto para que el gradiente cubra todo
+            contentPadding = PaddingValues()
         ) {
             FitlogText(
                 text = stringResource(R.string.save_and_continue),
@@ -375,11 +382,7 @@ fun FitlogLoginButton(onClick: () -> Unit, isLoading: Boolean) {
             modifier = Modifier
                 .fillMaxSize()
                 .background(
-                    brush = Brush.horizontalGradient(
-                        colors = listOf(
-                            EmeraldGreen, Color(0xFF059669)
-                        )
-                    )
+                    brush = BottomColor
                 ), contentAlignment = Alignment.Center
         ) {
             if (isLoading) CircularProgressIndicator(
@@ -406,10 +409,9 @@ fun FitlogLoginButton(onClick: () -> Unit, isLoading: Boolean) {
 
 @Composable
 fun LevelCard(levelText: String) {
-    Card(
+    FitlogCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B))
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -502,10 +504,9 @@ fun EditableInfoRow(
 
 @Composable
 fun ProfileSectionCard(title: String, content: @Composable ColumnScope.() -> Unit) {
-    Card(
+    FitlogCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B))
     ) {
         Column(
             modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)

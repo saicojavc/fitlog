@@ -1,5 +1,6 @@
 package com.saico.core.ui.theme
 
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
 // Light Mode
@@ -18,7 +19,16 @@ val CardBackground = Color(0xFF1E293B).copy(alpha = 0.6f)
 val EmeraldGreen = Color(0xFF10B981)
 val CoolGray = Color(0xFF94A3B8)
 
-val GradientColors = listOf(LightPrimary, LightPrimaryVariant, LightSuccess)
+val GradientColors = listOf( Color(0xFF020509), Color(0xFF0D1424), Color(0xFF16223B))
+val BottomColor = Brush.horizontalGradient(listOf(Color(0xFF3FB9F6), Color(0xFF216EE0)))
+
+//val NightBlueGradient = Brush.verticalGradient(
+//    colors = listOf(
+//        Color(0xFF020509), // Negro azulado profundo
+//        Color(0xFF0D1424), // Azul Oxford oscuro
+//        Color(0xFF16223B)  // Azul medianoche sutil
+//    )
+//)
 
 // Dark Mode
 val DarkPrimary = Color(0xFF004C99)

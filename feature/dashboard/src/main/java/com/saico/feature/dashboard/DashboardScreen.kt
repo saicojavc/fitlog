@@ -4,7 +4,7 @@ import android.Manifest
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -16,7 +16,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -25,13 +24,13 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.saico.core.model.UserProfile
-import com.saico.core.ui.theme.GradientColors
-import com.saico.feature.dashboard.screen.HistoryWorkScreen
-import com.saico.feature.dashboard.screen.HomeScreen
+import com.saico.core.ui.components.GravityParticlesBackground
 import com.saico.feature.dashboard.components.NavigationBar
-import com.saico.feature.dashboard.screen.ProfileScreen
 import com.saico.feature.dashboard.components.TopAppBar
 import com.saico.feature.dashboard.model.BottomAppBarItems
+import com.saico.feature.dashboard.screen.HistoryWorkScreen
+import com.saico.feature.dashboard.screen.HomeScreen
+import com.saico.feature.dashboard.screen.ProfileScreen
 import com.saico.feature.dashboard.state.DashboardUiState
 import com.saico.feature.dashboard.state.HistoryFilter
 
@@ -96,35 +95,47 @@ fun Content(
             )
         }
     ) { paddingValues ->
-        Column(
+
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Brush.verticalGradient(GradientColors))
                 .padding(paddingValues)
         ) {
-            when (selectedBottomAppBarItem) {
-                BottomAppBarItems.HOME -> {
-                    HomeScreen(
-                        uiState = uiState,
-                        navController = navController
-                    )
-                }
-                BottomAppBarItems.HISTORY -> {
-                    HistoryWorkScreen(
-                        uiState = uiState,
-                        onFilterSelected = onFilterSelected,
-                        onExportPdf = onExportPdf
-                    )
-                }
-                BottomAppBarItems.PROFILE -> {
-                    ProfileScreen(
-                        uiState = uiState,
-                        onLoginWithGoogle = onLoginWithGoogle,
-                        onLogout = onLogout,
-                        onUpdateProfile = onUpdateProfile
-                    )
+            // 2. Capa de Fondo: Partículas con Acelerómetro
+            // Reemplaza el .background(Brush.verticalGradient(GradientColors)) anterior
+            GravityParticlesBackground(modifier = Modifier.fillMaxSize())
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+
+                when (selectedBottomAppBarItem) {
+                    BottomAppBarItems.HOME -> {
+                        HomeScreen(
+                            uiState = uiState,
+                            navController = navController
+                        )
+                    }
+
+                    BottomAppBarItems.HISTORY -> {
+                        HistoryWorkScreen(
+                            uiState = uiState,
+                            onFilterSelected = onFilterSelected,
+                            onExportPdf = onExportPdf
+                        )
+                    }
+
+                    BottomAppBarItems.PROFILE -> {
+                        ProfileScreen(
+                            uiState = uiState,
+                            onLoginWithGoogle = onLoginWithGoogle,
+                            onLogout = onLogout,
+                            onUpdateProfile = onUpdateProfile
+                        )
+                    }
                 }
             }
         }
+
     }
 }

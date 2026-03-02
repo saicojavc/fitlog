@@ -5,15 +5,35 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -32,15 +52,15 @@ import com.saico.core.ui.components.FitlogCard
 import com.saico.core.ui.components.FitlogIcon
 import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.icon.FitlogIcons
-import com.saico.core.ui.theme.GradientColors
 import com.saico.core.ui.theme.LightBackground
 import com.saico.core.ui.theme.LightPrimary
-import com.saico.core.ui.theme.LightSuccess
 import com.saico.core.ui.theme.PaddingDim
 import com.saico.feature.dashboard.state.DashboardUiState
 import com.saico.feature.dashboard.state.HistoryFilter
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun HistoryWorkScreen(
@@ -52,7 +72,7 @@ fun HistoryWorkScreen(
 
 
     Scaffold(
-        modifier = Modifier.background(Brush.verticalGradient(GradientColors)),
+        containerColor = Color.Transparent,
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onExportPdf,
@@ -66,9 +86,10 @@ fun HistoryWorkScreen(
             }
         }
     ) { padding ->
-        Box(modifier = Modifier
-            .background(Brush.verticalGradient(GradientColors))
-            .padding(padding)) {
+        Box(
+            modifier = Modifier
+                .padding(padding)
+        ) {
             HistoryContent(
                 uiState = uiState,
                 units = units,
@@ -173,20 +194,27 @@ private fun getHeaderLabelString(date: Long, filter: HistoryFilter, locale: Loca
             // "Lunes"
             SimpleDateFormat("EEEE", locale).format(Date(date)).replaceFirstChar { it.uppercase() }
         }
+
         HistoryFilter.LAST_WEEK -> {
             // "Lunes 12"
-            SimpleDateFormat("EEEE d", locale).format(Date(date)).replaceFirstChar { it.uppercase() }
+            SimpleDateFormat("EEEE d", locale).format(Date(date))
+                .replaceFirstChar { it.uppercase() }
         }
+
         HistoryFilter.LAST_MONTH -> {
             // "Lunes 12 - Semana X de Mes"
-            val dayInfo = SimpleDateFormat("EEEE d", locale).format(Date(date)).replaceFirstChar { it.uppercase() }
+            val dayInfo = SimpleDateFormat("EEEE d", locale).format(Date(date))
+                .replaceFirstChar { it.uppercase() }
             val weekOfMonth = cal.get(Calendar.WEEK_OF_MONTH)
-            val monthName = SimpleDateFormat("MMMM", locale).format(Date(date)).replaceFirstChar { it.uppercase() }
+            val monthName = SimpleDateFormat("MMMM", locale).format(Date(date))
+                .replaceFirstChar { it.uppercase() }
             "$dayInfo - Semana $weekOfMonth de $monthName"
         }
+
         HistoryFilter.ALL -> {
             // "Enero 2026"
-            SimpleDateFormat("MMMM yyyy", locale).format(Date(date)).replaceFirstChar { it.uppercase() }
+            SimpleDateFormat("MMMM yyyy", locale).format(Date(date))
+                .replaceFirstChar { it.uppercase() }
         }
     }
 }
@@ -204,48 +232,69 @@ fun SummaryCard(
         HistoryFilter.ALL -> stringResource(id = R.string.total_history)
     }
 
+    // Usamos la FitlogCard traslúcida que ya configuramos
     FitlogCard(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        contentColor = MaterialTheme.colorScheme.primary
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        // Mantenemos el radio de la web para consistencia
+        shape = RoundedCornerShape(24.dp),
+        // El borde sutil le da el toque "Premium" contra las partículas
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.15f))
     ) {
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(
-                    Brush.horizontalGradient(
-                        colors = listOf(LightPrimary, LightSuccess)
-                    )
-                )
                 .padding(PaddingDim.MEDIUM)
         ) {
-            Column {
+            // Título con un pequeño indicador de color (Cian de la web)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(4.dp, 16.dp)
+                        .background(Color(0xFF3FB9F6), RoundedCornerShape(2.dp))
+                )
+                Spacer(modifier = Modifier.width(8.dp))
                 FitlogText(
                     text = "${stringResource(id = R.string.summary_resumen)} $filterText",
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color.White,
+                    color = Color.White.copy(alpha = 0.9f),
                     fontWeight = FontWeight.Bold
                 )
-                Spacer(modifier = Modifier.height(PaddingDim.MEDIUM))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    SummaryStat(
-                        label = stringResource(id = R.string.total_calories),
-                        value = "$totalCalories",
-                        unit = "kcal",
-                        icon = FitlogIcons.Fire,
-                        tint = Color(0xFFFF6F00)
-                    )
-                    SummaryStat(
-                        label = stringResource(id = R.string.active_time),
-                        value = formatElapsedTime(totalTimeSeconds),
-                        unit = "",
-                        icon = FitlogIcons.Clock,
-                        tint = Color.White.copy(alpha = 0.8f)
-                    )
-                }
+            }
+
+            Spacer(modifier = Modifier.height(PaddingDim.MEDIUM))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Calorías con tono naranja neón
+                SummaryStat(
+                    label = stringResource(id = R.string.total_calories),
+                    value = "$totalCalories",
+                    unit = "kcal",
+                    icon = FitlogIcons.Fire,
+                    tint = Color(0xFFFF6F00).copy(alpha = 0.9f)
+                )
+
+                // Divisor vertical sutil entre stats
+                Box(
+                    modifier = Modifier
+                        .width(1.dp)
+                        .height(30.dp)
+                        .background(Color.White.copy(alpha = 0.1f))
+                )
+
+                // Tiempo con tono blanco/azul claro
+                SummaryStat(
+                    label = stringResource(id = R.string.active_time),
+                    value = formatElapsedTime(totalTimeSeconds),
+                    unit = "",
+                    icon = FitlogIcons.Clock,
+                    tint = Color(0xFF3FB9F6).copy(alpha = 0.8f)
+                )
             }
         }
     }
@@ -263,7 +312,7 @@ fun SummaryStat(
         FitlogIcon(
             imageVector = icon,
             contentDescription = null,
-            modifier = Modifier.size(32.dp),
+            modifier = Modifier.size(46.dp),
             tint = tint,
             background = Color.Unspecified
         )
@@ -370,9 +419,15 @@ fun GymExerciseCard(gymExercise: GymExercise, units: UnitsConfig) {
             Spacer(modifier = Modifier.height(PaddingDim.SMALL))
 
             Row(modifier = Modifier.fillMaxWidth()) {
-                StatItem(label = stringResource(id = R.string.elapsed_time), value = formatElapsedTime(gymExercise.elapsedTime))
+                StatItem(
+                    label = stringResource(id = R.string.elapsed_time),
+                    value = formatElapsedTime(gymExercise.elapsedTime)
+                )
                 Spacer(modifier = Modifier.width(PaddingDim.MEDIUM))
-                StatItem(label = stringResource(id = R.string.calories), value = "${gymExercise.totalCalories} kcal")
+                StatItem(
+                    label = stringResource(id = R.string.calories),
+                    value = "${gymExercise.totalCalories} kcal"
+                )
             }
 
             AnimatedVisibility(visible = expanded) {
@@ -388,14 +443,19 @@ fun GymExerciseCard(gymExercise: GymExercise, units: UnitsConfig) {
                         ) {
                             // Nombre del ejercicio con peso para permitir salto de línea
                             FitlogText(
-                                text = exercise.name, 
+                                text = exercise.name,
                                 fontWeight = FontWeight.Medium,
                                 modifier = Modifier.weight(1f)
                             )
                             Spacer(modifier = Modifier.width(PaddingDim.MEDIUM))
                             // Detalles técnicos alineados a la derecha
                             FitlogText(
-                                text = "${exercise.sets}x${exercise.reps} - ${UnitsConverter.formatWeight(exercise.weightKg, units)}",
+                                text = "${exercise.sets}x${exercise.reps} - ${
+                                    UnitsConverter.formatWeight(
+                                        exercise.weightKg,
+                                        units
+                                    )
+                                }",
                                 style = MaterialTheme.typography.bodySmall
                             )
                         }
@@ -410,7 +470,8 @@ fun GymExerciseCard(gymExercise: GymExercise, units: UnitsConfig) {
 fun WorkoutSessionCard(session: WorkoutSession, units: UnitsConfig) {
     val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
     val calendar = remember { Calendar.getInstance().apply { timeInMillis = session.date } }
-    val dayOfWeek = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()) ?: ""
+    val dayOfWeek =
+        calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()) ?: ""
 
     FitlogCard(
         modifier = Modifier.fillMaxWidth(),
@@ -429,11 +490,20 @@ fun WorkoutSessionCard(session: WorkoutSession, units: UnitsConfig) {
             )
             Spacer(modifier = Modifier.height(PaddingDim.SMALL))
             Row(modifier = Modifier.fillMaxWidth()) {
-                StatItem(label = stringResource(id = R.string.daily_steps), value = session.steps.toString())
+                StatItem(
+                    label = stringResource(id = R.string.daily_steps),
+                    value = session.steps.toString()
+                )
                 Spacer(modifier = Modifier.width(PaddingDim.MEDIUM))
-                StatItem(label = stringResource(id = R.string.distance), value = UnitsConverter.formatDistance(session.distance.toDouble(), units))
+                StatItem(
+                    label = stringResource(id = R.string.distance),
+                    value = UnitsConverter.formatDistance(session.distance.toDouble(), units)
+                )
                 Spacer(modifier = Modifier.width(PaddingDim.MEDIUM))
-                StatItem(label = stringResource(id = R.string.calories), value = "${session.calories} kcal")
+                StatItem(
+                    label = stringResource(id = R.string.calories),
+                    value = "${session.calories} kcal"
+                )
             }
         }
     }
@@ -442,8 +512,16 @@ fun WorkoutSessionCard(session: WorkoutSession, units: UnitsConfig) {
 @Composable
 fun StatItem(label: String, value: String) {
     Column {
-        FitlogText(text = label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        FitlogText(text = value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+        FitlogText(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        FitlogText(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold
+        )
     }
 }
 
@@ -452,7 +530,11 @@ sealed class HistoryItem(val date: Long) {
     data class Session(val session: WorkoutSession) : HistoryItem(session.date)
 }
 
-private fun <T> filterData(data: List<T>, filter: HistoryFilter, dateSelector: (T) -> Long): List<T> {
+private fun <T> filterData(
+    data: List<T>,
+    filter: HistoryFilter,
+    dateSelector: (T) -> Long
+): List<T> {
     val cal = Calendar.getInstance()
     // Resetear a 00:00:00.000 de hoy
     cal.set(Calendar.HOUR_OF_DAY, 0)
@@ -464,6 +546,7 @@ private fun <T> filterData(data: List<T>, filter: HistoryFilter, dateSelector: (
         HistoryFilter.TODAY -> {
             data.filter { dateSelector(it) >= cal.timeInMillis }
         }
+
         HistoryFilter.LAST_WEEK -> {
             // Ajustar al lunes de la semana actual
             cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
@@ -473,11 +556,13 @@ private fun <T> filterData(data: List<T>, filter: HistoryFilter, dateSelector: (
             }
             data.filter { dateSelector(it) >= cal.timeInMillis }
         }
+
         HistoryFilter.LAST_MONTH -> {
             // Ajustar al día 1 del mes actual
             cal.set(Calendar.DAY_OF_MONTH, 1)
             data.filter { dateSelector(it) >= cal.timeInMillis }
         }
+
         HistoryFilter.ALL -> data
     }
 }

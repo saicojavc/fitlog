@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,8 +18,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -38,9 +37,11 @@ import com.saico.core.common.util.UnitsConverter
 import com.saico.core.model.BmiStatus
 import com.saico.core.model.UnitsConfig
 import com.saico.core.ui.R
+import com.saico.core.ui.components.FitlogCard
 import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.icon.FitlogIcons
 import com.saico.core.ui.navigation.routes.weighttracking.WeightTrackingRoute
+import com.saico.core.ui.theme.BottomColor
 import com.saico.core.ui.theme.PaddingDim
 import com.saico.feature.dashboard.state.DashboardUiState
 import kotlin.math.pow
@@ -89,13 +90,10 @@ fun WeightTrackerCard(
 
     val currentStatusColor = statusColors[bmiStatus] ?: Color.Gray
 
-    Card(
+    FitlogCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = PaddingDim.LARGE, vertical = PaddingDim.SMALL),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF1E293B).copy(alpha = 0.6f)
-        ),
         border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f)),
         shape = RoundedCornerShape(32.dp)
     ) {
@@ -178,9 +176,15 @@ fun WeightTrackerCard(
                     navController.navigate(WeightTrackingRoute.RootRoute.route)
                 },
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .background(brush = BottomColor, shape = CircleShape),
                 shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981))
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent, // Quitamos el verde 0xFF10B981
+                    contentColor = Color.White
+                ),
+                contentPadding = PaddingValues() // Para que el texto no se desplace
             ) {
                 FitlogText(
                     text = stringResource(R.string.enter),
@@ -231,7 +235,7 @@ fun BmiProgressBar(
         ranges.forEach { (mark, status) ->
             val startX = ((lastMark - minBmiScale) / totalRange) * size.width
             val endX = ((mark - minBmiScale) / totalRange) * size.width
-            
+
             drawRect(
                 color = statusColors[status] ?: Color.Gray,
                 topLeft = Offset(startX, 0f),
@@ -249,7 +253,7 @@ fun BmiProgressBar(
             radius = 6.dp.toPx(),
             center = Offset(indicatorPosition, size.height / 2)
         )
-        
+
         // Borde del indicador para contraste
         drawCircle(
             color = Color.Black.copy(alpha = 0.2f),

@@ -1,6 +1,5 @@
 package com.saico.feature.dashboard.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -64,7 +63,8 @@ fun StepsDailyCard(uiState: DashboardUiState, navController: NavHostController) 
     val haptic = LocalHapticFeedback.current
 
     // Cálculos de Fitness
-    val calories = FitnessCalculator.calculateCaloriesBurned(dailySteps, userProfile?.weightKg ?: 0.0)
+    val calories =
+        FitnessCalculator.calculateCaloriesBurned(dailySteps, userProfile?.weightKg ?: 0.0)
     val distance = FitnessCalculator.calculateDistanceKm(
         steps = dailySteps,
         heightCm = userProfile?.heightCm?.toInt() ?: 0,
@@ -99,7 +99,6 @@ fun StepsDailyCard(uiState: DashboardUiState, navController: NavHostController) 
                 .clickable {
                     navController.navigate(StepsHistoryRoute.RootRoute.route)
                 },
-            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f)),
             shape = RoundedCornerShape(32.dp)
         ) {
             Column(
@@ -116,7 +115,7 @@ fun StepsDailyCard(uiState: DashboardUiState, navController: NavHostController) 
                     HeartProgressIndicator(
                         progress = baseStepsProgress,
                         modifier = Modifier.size(140.dp),
-                        color = Color(0xFF10B981) // Verde Brillante
+                        color = Color(0xFF3FB9F6) // Verde Brillante
                     )
 
                     if (dailySteps >= dailyStepsGoal) {
@@ -124,7 +123,7 @@ fun StepsDailyCard(uiState: DashboardUiState, navController: NavHostController) 
                         HeartProgressIndicator(
                             progress = extraProgress,
                             modifier = Modifier.size(140.dp),
-                            color = Color(0xFF064E3B) // Verde Esmeralda Muy Oscuro
+                            color = Color(0xFF216EE0) // Verde Esmeralda Muy Oscuro
                         )
                     }
 
@@ -169,7 +168,8 @@ fun StepsDailyCard(uiState: DashboardUiState, navController: NavHostController) 
                         tint = Color(0xFFFF6F00)
                     )
 
-                    val formattedDistance = UnitsConverter.formatDistance(distance.toDouble(), units)
+                    val formattedDistance =
+                        UnitsConverter.formatDistance(distance.toDouble(), units)
                     val distanceParts = formattedDistance.split(" ")
 
                     StatInfo(
@@ -219,8 +219,8 @@ private fun StatInfo(
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(
-            imageVector = icon, 
-            contentDescription = null, 
+            imageVector = icon,
+            contentDescription = null,
             tint = tint,
             modifier = Modifier.size(24.dp) // Tamaño estándar para todos los iconos
         )
@@ -242,10 +242,24 @@ fun createHeartPath(size: androidx.compose.ui.geometry.Size): androidx.compose.u
         moveTo(width / 2f, height * 0.25f)
 
         // Curva derecha (Sentido horario)
-        cubicTo(width * 0.8f, height * -0.1f, width * 1.25f, height * 0.6f, width * 0.5f, height * 0.9f)
+        cubicTo(
+            width * 0.8f,
+            height * -0.1f,
+            width * 1.25f,
+            height * 0.6f,
+            width * 0.5f,
+            height * 0.9f
+        )
 
         // Curva izquierda para cerrar
-        cubicTo(width * -0.25f, height * 0.6f, width * 0.2f, height * -0.1f, width * 0.5f, height * 0.25f)
+        cubicTo(
+            width * -0.25f,
+            height * 0.6f,
+            width * 0.2f,
+            height * -0.1f,
+            width * 0.5f,
+            height * 0.25f
+        )
 
         close()
     }
