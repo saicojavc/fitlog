@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,11 +22,14 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -44,6 +48,7 @@ import com.saico.core.ui.navigation.routes.dashboard.DashboardRoute
 import com.saico.core.ui.theme.CornerDim
 import com.saico.core.ui.theme.LightPrimary
 import com.saico.core.ui.theme.PaddingDim
+import com.saico.core.ui.theme.techBlue
 import com.saico.feature.onboarding.state.OnboardingUiState
 
 @Composable
@@ -53,6 +58,7 @@ fun OnboardingFinish(
     navController: NavHostController,
     unitsConfig: UnitsConfig,
 ) {
+
     val userLevel = remember(uiState.dailySteps, uiState.caloriesToBurn) {
         when {
             uiState.dailySteps > 19000 || uiState.caloriesToBurn > 1500 -> "Professional"
@@ -71,28 +77,29 @@ fun OnboardingFinish(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        // Cabecera de Éxito
+        // --- CABECERA DE ÉXITO (Look Cyber) ---
         Column(
-            modifier = Modifier.padding(top = 40.dp, start = PaddingDim.LARGE, end = PaddingDim.LARGE),
+            modifier = Modifier.padding(top = 60.dp, start = PaddingDim.LARGE, end = PaddingDim.LARGE),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Icono de Check con brillo
             Box(
                 modifier = Modifier
                     .size(80.dp)
-                    .background(Color(0xFF10B981).copy(alpha = 0.1f), CircleShape)
-                    .border(2.dp, Color(0xFF10B981), CircleShape),
+                    .shadow(20.dp, CircleShape, spotColor = techBlue)
+                    .background(techBlue.copy(alpha = 0.1f), CircleShape)
+                    .border(2.dp, techBlue, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = FitlogIcons.Check,
                     contentDescription = null,
-                    tint = Color(0xFF10B981),
+                    tint = techBlue,
                     modifier = Modifier.size(40.dp)
                 )
             }
 
             SpacerHeight(PaddingDim.MEDIUM)
+
             FitlogText(
                 text = stringResource(id = R.string.all_set).uppercase(),
                 style = MaterialTheme.typography.headlineMedium,
@@ -100,59 +107,79 @@ fun OnboardingFinish(
                 letterSpacing = 2.sp,
                 color = Color.White
             )
+
             FitlogText(
                 text = stringResource(id = R.string.review_your_data),
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFF94A3B8)
+                color = Color.White.copy(alpha = 0.6f)
             )
         }
 
         SpacerHeight(PaddingDim.EXTRA_LARGE)
-
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = PaddingDim.MEDIUM)
         ) {
+            // Título Sección Perfil
             FitlogText(
                 text = stringResource(id = R.string.your_profile).uppercase(),
-                style = MaterialTheme.typography.labelMedium,
-                color = Color(0xFF94A3B8),
-                modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)
+                style = MaterialTheme.typography.labelSmall,
+                color = techBlue,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.5.sp,
+                modifier = Modifier.padding(start = 8.dp, bottom = 12.dp)
             )
 
-
+            // Card de Datos Glassmorphism
             FitlogCard(
                 modifier = Modifier.fillMaxWidth(),
-                color = Color(0xFF1E293B).copy(alpha = 0.6f),
-                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
+                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.12f)),
+                shape = RoundedCornerShape(24.dp)
             ) {
                 Row(
-                    modifier = Modifier.padding(PaddingDim.MEDIUM).fillMaxWidth(),
+                    modifier = Modifier.padding(24.dp).fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    ProfileInfoItem(icon = FitlogIcons.Cake, label = stringResource(id = R.string.age), value = "${uiState.age} ${stringResource(id = R.string.years)}")
-                    ProfileInfoItem(icon = if (uiState.gender == "Male") FitlogIcons.Male else FitlogIcons.Female, label = stringResource(id = R.string.gender), value = uiState.gender)
-                    ProfileInfoItem(icon = FitlogIcons.Weight, label = stringResource(id = R.string.weight), value = "${uiState.weight} ${if (unitsConfig == UnitsConfig.METRIC) "kg" else "lb"}  ")
+                    ProfileInfoItem(
+                        icon = FitlogIcons.Cake,
+                        label = stringResource(id = R.string.age),
+                        value = "${uiState.age} ${stringResource(id = R.string.years)}",
+                        accentColor = techBlue
+                    )
+                    ProfileInfoItem(
+                        icon = if (uiState.gender == "Male") FitlogIcons.Male else FitlogIcons.Female,
+                        label = stringResource(id = R.string.gender),
+                        value = uiState.gender,
+                        accentColor = techBlue
+                    )
+                    ProfileInfoItem(
+                        icon = FitlogIcons.Weight,
+                        label = stringResource(id = R.string.weight),
+                        value = "${uiState.weight} ${if (unitsConfig == UnitsConfig.METRIC) "kg" else "lb"}",
+                        accentColor = techBlue
+                    )
                 }
             }
 
             SpacerHeight(PaddingDim.LARGE)
 
+            // Título Sección Meta
             FitlogText(
                 text = stringResource(id = R.string.your_main_goal).uppercase(),
-                style = MaterialTheme.typography.labelMedium,
-                color = Color(0xFF94A3B8),
-                modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)
+                style = MaterialTheme.typography.labelSmall,
+                color = techBlue,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.5.sp,
+                modifier = Modifier.padding(start = 8.dp, bottom = 12.dp)
             )
 
-
-            LevelCard(levelText = levelText)
+            LevelCard(levelText = levelText, accentColor = techBlue)
 
             Spacer(modifier = Modifier.weight(1f))
 
-
+            // --- BOTÓN FINAL CON DEGRADADO ---
             Button(
                 onClick = {
                     onSaveUserProfile()
@@ -160,53 +187,107 @@ fun OnboardingFinish(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = PaddingDim.VERY_HUGE, start = PaddingDim.LARGE, end = PaddingDim.LARGE)
-                    .height(60.dp),
+                    .padding(bottom = 40.dp, start = PaddingDim.LARGE, end = PaddingDim.LARGE)
+                    .height(60.dp)
+                    .shadow(15.dp, CircleShape, spotColor = techBlue),
                 shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981))
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                contentPadding = PaddingValues()
             ) {
-                Text(
-                    text = stringResource(id = R.string.save_and_continue).uppercase(),
-                    fontWeight = FontWeight.Black,
-                    letterSpacing = 1.sp
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Brush.horizontalGradient(listOf(techBlue, Color(0xFF216EE0))))
+                        .border(1.dp, Color.White.copy(alpha = 0.2f), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.save_and_continue).uppercase(),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 1.5.sp,
+                        color = Color.White
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-fun ProfileInfoItem(icon: ImageVector, label: String, value: String) {
+fun ProfileInfoItem(icon: ImageVector, label: String, value: String, accentColor: Color) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(imageVector = icon, contentDescription = null, tint = Color(0xFF10B981), modifier = Modifier.size(20.dp))
-        SpacerHeight(4.dp)
-        FitlogText(text = label, style = MaterialTheme.typography.labelSmall, color = Color(0xFF94A3B8))
-        FitlogText(text = value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, color = Color.White)
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = accentColor,
+            modifier = Modifier.size(20.dp)
+        )
+        SpacerHeight(6.dp)
+        FitlogText(
+            text = label.uppercase(),
+            style = MaterialTheme.typography.labelSmall,
+            color = Color.White.copy(alpha = 0.4f),
+            fontWeight = FontWeight.Bold
+        )
+        FitlogText(
+            text = value,
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Black,
+            color = Color.White
+        )
     }
 }
 
 @Composable
-fun LevelCard(levelText: String) {
+fun LevelCard(levelText: String, accentColor: Color) {
     FitlogCard(
         modifier = Modifier.fillMaxWidth(),
-        color = Color(0xFF10B981).copy(alpha = 0.15f), // Verde traslúcido
-        border = BorderStroke(1.dp, Color(0xFF10B981).copy(alpha = 0.3f)),
+        color = accentColor.copy(alpha = 0.08f),
+        border = BorderStroke(1.dp, accentColor.copy(alpha = 0.2f)),
+        shape = RoundedCornerShape(24.dp)
     ) {
-        Column(modifier = Modifier.padding(PaddingDim.MEDIUM)) {
+        Column(modifier = Modifier.padding(20.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(imageVector = FitlogIcons.Walk, contentDescription = null, tint = Color(0xFF10B981))
-                Spacer(Modifier.width(8.dp))
-                FitlogText(text = stringResource(id = R.string.lose_weight), color = Color.White, fontWeight = FontWeight.Bold)
-            }
-            SpacerHeight(PaddingDim.MEDIUM)
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                FitlogText(text = stringResource(id = R.string.level), color = Color(0xFF94A3B8))
-                Text(
-                    text = levelText,
-                    color = Color(0xFF10B981),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Black
+                Icon(
+                    imageVector = FitlogIcons.Walk,
+                    contentDescription = null,
+                    tint = accentColor
                 )
+                Spacer(Modifier.width(12.dp))
+                FitlogText(
+                    text = stringResource(id = R.string.lose_weight).uppercase(),
+                    color = Color.White,
+                    fontWeight = FontWeight.Black,
+                    letterSpacing = 1.sp
+                )
+            }
+            SpacerHeight(16.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                FitlogText(
+                    text = stringResource(id = R.string.level).uppercase(),
+                    color = Color.White.copy(alpha = 0.5f),
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Surface(
+                    color = accentColor.copy(alpha = 0.15f),
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(1.dp, accentColor.copy(alpha = 0.3f))
+                ) {
+                    FitlogText(
+                        text = levelText.uppercase(),
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                        color = accentColor,
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 1.sp
+                    )
+                }
             }
         }
     }

@@ -42,6 +42,8 @@ import com.saico.core.ui.R
 import com.saico.core.ui.icon.FitlogIcons
 import androidx.core.net.toUri
 import com.saico.core.ui.components.FitlogText
+import com.saico.core.ui.theme.BottomColor
+import com.saico.core.ui.theme.techBlue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,8 +53,6 @@ fun UpdateVersionDialog(
     context: Context,
     updateUrl: String,
 ) {
-    val techBlue = Color(0xFF3FB9F6)
-    val blueGradient = Brush.horizontalGradient(listOf(techBlue, Color(0xFF216EE0)))
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -154,7 +154,7 @@ fun UpdateVersionDialog(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(blueGradient)
+                            .background(BottomColor)
                             .border(1.dp, Color.White.copy(alpha = 0.2f), CircleShape),
                         contentAlignment = Alignment.Center
                     ) {

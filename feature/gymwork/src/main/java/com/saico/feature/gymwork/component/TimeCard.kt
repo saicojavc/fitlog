@@ -29,12 +29,12 @@ import androidx.compose.ui.unit.sp
 import com.saico.core.ui.R
 import com.saico.core.ui.components.FitlogCard
 import com.saico.core.ui.icon.FitlogIcons
+import com.saico.core.ui.theme.techBlue
 import com.saico.feature.gymwork.state.GymWorkUiState
 
 @Composable
 fun TimeCard(uiState: GymWorkUiState, onToggleTimer: () -> Unit) {
-    // Definimos los colores de la nueva identidad
-    val techBlue = Color(0xFF3FB9F6)
+
     val stopRed = Color(0xFFFF4550) // Un rojo más vibrante/neon para "Parar"
 
     FitlogCard(

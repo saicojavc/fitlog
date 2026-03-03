@@ -70,6 +70,7 @@ import com.saico.core.ui.components.GravityParticlesBackground
 import com.saico.core.ui.icon.FitlogIcons
 import com.saico.core.ui.navigation.routes.about.AboutRoute
 import com.saico.core.ui.theme.PaddingDim
+import com.saico.core.ui.theme.techBlue
 import com.saico.feature.setting.state.SettingUiState
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -109,12 +110,12 @@ fun SettingScreen(
                     onClick = { navController.navigate(AboutRoute.AboutScreenRoute.route) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = PaddingDim.LARGE)
+                        .padding(bottom = PaddingDim.VERY_HUGE)
                 ) {
                     FitlogText(
                         text = stringResource(id = R.string.about_me),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = Color.White.copy(alpha = 0.4f),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = techBlue,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -393,8 +394,6 @@ fun <T> FitlogSettingDropdown(
     var expanded by remember { mutableStateOf(false) }
     val currentLabel = options.find { it.first == selectedOption }?.second ?: ""
 
-    // El color de acento azul de tu BottomColor
-    val techBlue = Color(0xFF3FB9F6)
 
     Column(modifier = Modifier.padding(PaddingDim.MEDIUM)) {
         FitlogText(

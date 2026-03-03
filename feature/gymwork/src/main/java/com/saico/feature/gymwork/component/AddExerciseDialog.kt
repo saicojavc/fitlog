@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.saico.core.ui.R
 import com.saico.core.ui.components.FitlogCard
+import com.saico.core.ui.theme.techBlue
 import com.saico.feature.gymwork.state.GymExerciseItem
 
 @Composable
@@ -57,7 +58,7 @@ fun AddExerciseDialog(
     var reps by remember { mutableStateOf(initialExercise?.reps?.toString() ?: "") }
     var weight by remember { mutableStateOf(initialExercise?.weightLb?.toString() ?: "") }
 
-    val techBlue = Color(0xFF3FB9F6)
+
 
     Dialog(onDismissRequest = onDismiss) {
         // Usamos FitlogCard para mantener el Glassmorphism y las partículas de fondo visibles
@@ -195,7 +196,6 @@ fun AddExerciseDialog(
 
 @Composable
 fun CompactInput(value: String, label: String, onValueChange: (String) -> Unit) {
-    val techBlue = Color(0xFF3FB9F6)
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = label,

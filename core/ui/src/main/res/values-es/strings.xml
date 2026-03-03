@@ -104,7 +104,7 @@
     <!-- Measurement Units -->
     <string name="measurement_units">Unidades de medida</string>
     <string name="metric_system">Métrico (km, kg, cm)</string>
-    <string name="imperial_system">Imperial (mi, lb, ft/in)</string>
+    <string name="imperial_system">Imperial (mi, lb, ft)</string>
 
     <!-- Reminders -->
     <string name="notifications">Notificaciones</string>

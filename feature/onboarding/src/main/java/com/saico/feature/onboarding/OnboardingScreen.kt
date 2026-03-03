@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,8 +25,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -35,8 +38,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.saico.core.model.UnitsConfig
 import com.saico.core.ui.R
+import com.saico.core.ui.components.GravityParticlesBackground
 import com.saico.core.ui.theme.GradientColors
 import com.saico.core.ui.theme.PaddingDim
+import com.saico.core.ui.theme.techBlue
 import com.saico.feature.onboarding.components.OnboardingDailyGoal
 import com.saico.feature.onboarding.components.OnboardingFinish
 import com.saico.feature.onboarding.components.OnboardingProfileConfiguration
@@ -87,104 +92,127 @@ fun Content(
     val pagerState = rememberPagerState { 3 }
     val scope = rememberCoroutineScope()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Brush.verticalGradient(GradientColors)), // Tu degradado azul-verde
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        // FONDO DE PARTÍCULAS (Nueva estética)
+        GravityParticlesBackground()
 
-        // 1. INDICADORES DE PASO (Más finos y modernos)
-        if (pagerState.currentPage < pagerState.pageCount) {
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(top = 48.dp, bottom = 24.dp),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                repeat(pagerState.pageCount) { iteration ->
-                    val isActive = pagerState.currentPage == iteration
-                    val color = if (isActive) Color(0xFF10B981) else Color.White.copy(alpha = 0.2f)
-                    val width = if (isActive) 32.dp else 12.dp // El paso activo es más largo
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Transparent), // Dejamos ver las partículas
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // 1. INDICADORES DE PASO (Estética Tech)
+            if (pagerState.currentPage < pagerState.pageCount) {
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(top = 60.dp, bottom = 24.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    repeat(pagerState.pageCount) { iteration ->
+                        val isActive = pagerState.currentPage == iteration
+                        val color = if (isActive) techBlue else Color.White.copy(alpha = 0.15f)
+                        val width = if (isActive) 32.dp else 8.dp
 
-                    Box(
-                        modifier = Modifier
-                            .padding(horizontal = 4.dp)
-                            .clip(CircleShape)
-                            .background(color)
-                            .width(width)
-                            .height(4.dp)
-                            .animateContentSize() // Animación suave al cambiar
+                        Box(
+                            modifier = Modifier
+                                .padding(horizontal = 4.dp)
+                                .clip(CircleShape)
+                                .background(color)
+                                .width(width)
+                                .height(4.dp)
+                                .animateContentSize()
+                                .then(
+                                    if (isActive) Modifier.shadow(
+                                        8.dp,
+                                        CircleShape,
+                                        spotColor = techBlue
+                                    ) else Modifier
+                                )
+                        )
+                    }
+                }
+            }
+
+            // 2. PAGER (userScrollEnabled = false para bloquear el dedo)
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.weight(1f),
+                userScrollEnabled = false, // BLOQUEO DE GESTO MANUAL
+                beyondViewportPageCount = 1
+            ) { page ->
+                when (page) {
+                    0 -> OnboardingProfileConfiguration(
+                        age = state.age,
+                        onAgeChange = onAgeChange,
+                        weight = state.weight,
+                        onWeightChange = onWeightChange,
+                        height = state.height,
+                        onHeightChange = onHeightChange,
+                        heightFt = state.heightFt,
+                        onHeightFtChange = onHeightFtChange,
+                        heightIn = state.heightIn,
+                        onHeightInChange = onHeightInChange,
+                        gender = state.gender,
+                        onGenderSelected = onGenderSelected,
+                        isGenderMenuExpanded = state.isGenderMenuExpanded,
+                        onGenderMenuExpanded = onGenderMenuExpanded,
+                        unitsConfig = state.unitsConfig,
+                        onUnitsConfigSelected = onUnitsConfigSelected
+                    )
+
+                    1 -> OnboardingDailyGoal(
+                        dailySteps = state.dailySteps,
+                        onDailyStepsChange = onDailyStepsChange,
+                        caloriesToBurn = state.caloriesToBurn,
+                        onCaloriesToBurnChange = onCaloriesToBurnChange
+                    )
+
+                    2 -> OnboardingFinish(
+                        uiState = state,
+                        onSaveUserProfile = onSaveUserProfile,
+                        navController = navController,
+                        unitsConfig = state.unitsConfig,
                     )
                 }
             }
-        }
 
-        // 2. PAGER (userScrollEnabled = false para bloquear el dedo)
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier.weight(1f),
-            userScrollEnabled = false, // BLOQUEO DE GESTO MANUAL
-            beyondViewportPageCount = 1
-        ) { page ->
-            when (page) {
-                0 -> OnboardingProfileConfiguration(
-                    age = state.age,
-                    onAgeChange = onAgeChange,
-                    weight = state.weight,
-                    onWeightChange = onWeightChange,
-                    height = state.height,
-                    onHeightChange = onHeightChange,
-                    heightFt = state.heightFt,
-                    onHeightFtChange = onHeightFtChange,
-                    heightIn = state.heightIn,
-                    onHeightInChange = onHeightInChange,
-                    gender = state.gender,
-                    onGenderSelected = onGenderSelected,
-                    isGenderMenuExpanded = state.isGenderMenuExpanded,
-                    onGenderMenuExpanded = onGenderMenuExpanded,
-                    unitsConfig = state.unitsConfig,
-                    onUnitsConfigSelected = onUnitsConfigSelected
-                )
-                1 -> OnboardingDailyGoal(
-                    dailySteps = state.dailySteps,
-                    onDailyStepsChange = onDailyStepsChange,
-                    caloriesToBurn = state.caloriesToBurn,
-                    onCaloriesToBurnChange = onCaloriesToBurnChange
-                )
-                2 -> OnboardingFinish(
-                    uiState = state,
-                    onSaveUserProfile = onSaveUserProfile,
-                    navController = navController,
-                    unitsConfig = state.unitsConfig,
-                )
-            }
-        }
+            // 3. BOTÓN INFERIOR (Estilo Pill Premium Azul)
+            if (pagerState.currentPage < pagerState.pageCount - 1) {
+                Button(
+                    onClick = {
+                        scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
+                    },
+                    enabled = if (pagerState.currentPage == 0) state.isProfileConfigurationValid else true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 40.dp, start = 32.dp, end = 32.dp)
+                        .height(56.dp)
+                        .shadow(if(state.isProfileConfigurationValid) 15.dp else 0.dp, CircleShape, spotColor = techBlue),
+                    shape = CircleShape,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent, // Usaremos Box con gradient dentro
+                        disabledContainerColor = Color.White.copy(alpha = 0.05f)
+                    ),
+                    contentPadding = PaddingValues()
+                ) {
+                    val buttonBrush = if (state.isProfileConfigurationValid)
+                        Brush.horizontalGradient(listOf(techBlue, Color(0xFF216EE0)))
+                    else SolidColor(Color.White.copy(alpha = 0.1f))
 
-        // 3. BOTÓN INFERIOR (Estilo Pill Premium)
-        if (pagerState.currentPage < pagerState.pageCount - 1) {
-            Button(
-                onClick = {
-                    scope.launch {
-                        pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                    Box(
+                        modifier = Modifier.fillMaxSize().background(buttonBrush),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.next).uppercase(),
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = 2.sp,
+                            color = if (state.isProfileConfigurationValid) Color.White else Color.White.copy(alpha = 0.3f)
+                        )
                     }
-                },
-                enabled = if (pagerState.currentPage == 0) state.isProfileConfigurationValid else true,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = PaddingDim.VERY_HUGE, start = PaddingDim.LARGE, end = PaddingDim.LARGE)
-                    .height(56.dp),
-                shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF10B981),
-                    disabledContainerColor = Color(0xFF1E293B)
-                )
-            ) {
-                Text(
-                    text = stringResource(id = R.string.next).uppercase(),
-                    fontWeight = FontWeight.Black,
-                    letterSpacing = 1.sp
-                )
+                }
             }
         }
     }

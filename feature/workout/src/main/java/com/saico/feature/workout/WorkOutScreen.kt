@@ -57,6 +57,7 @@ import com.saico.core.ui.components.FitlogTopAppBar
 import com.saico.core.ui.components.SpacerHeight
 import com.saico.core.ui.icon.FitlogIcons
 import com.saico.core.ui.theme.PaddingDim
+import com.saico.core.ui.theme.techBlue
 import com.saico.feature.workout.component.WorkoutStat
 import com.saico.feature.workout.state.WorkoutUiState
 
@@ -383,7 +384,6 @@ fun CircularControlBlue(
     isMain: Boolean = false,
     isSecondary: Boolean = false
 ) {
-    val techBlue = Color(0xFF3FB9F6)
 
     Box(
         modifier = Modifier

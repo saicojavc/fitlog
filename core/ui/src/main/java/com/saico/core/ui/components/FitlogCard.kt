@@ -30,15 +30,10 @@ import com.saico.core.ui.theme.FitlogTheme
 fun FitlogCard(
     modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(32.dp), // Aumentamos un poco el radio para el estilo web
-    color: Color = Color(0xFF1E293B).copy(alpha = 0.6f), // Color base traslúcido
+    color: Color = Color(0xFF0D1424).copy(alpha = 0.7f),
     contentColor: Color = contentColorFor(color),
     elevation: Dp = 0.dp,
-    border: BorderStroke = BorderStroke(
-        width = 1.dp,
-        brush = Brush.linearGradient(
-            listOf(Color.White.copy(alpha = 0.3f), Color.Transparent, Color.White.copy(alpha = 0.05f))
-        )
-    ), // Borde sutil
+    border: BorderStroke = BorderStroke(1.dp, Color.White.copy(alpha = 0.12f)), // Borde sutil
     content: @Composable ColumnScope.() -> Unit,
 
 

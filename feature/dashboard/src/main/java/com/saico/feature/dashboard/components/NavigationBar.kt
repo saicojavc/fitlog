@@ -60,7 +60,7 @@ fun NavigationBar(
                     ),
                     shape = RoundedCornerShape(32.dp)
                 ),
-            color = Color(0xFF1E293B).copy(alpha = 0.8f), // Glassmorphism
+            color = Color(0xFF0D1424).copy(alpha = 0.7f), // Glassmorphism
             tonalElevation = 0.dp
         ) {
             // 2. Usamos una Row simple para los ítems en lugar del componente NavigationBar de Material

@@ -23,6 +23,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -75,9 +76,9 @@ import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.components.FitlogTopAppBar
 import com.saico.core.ui.icon.FitlogIcons
 import com.saico.core.ui.theme.CoolGray
-import com.saico.core.ui.theme.EmeraldGreen
 import com.saico.core.ui.theme.GradientColors
 import com.saico.core.ui.theme.PaddingDim
+import com.saico.core.ui.theme.techBlue
 import com.saico.feature.weighttracking.state.WeightTrackingUiState
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -223,18 +224,42 @@ fun WeightTrackingContent(
                 OutlinedTextField(
                     value = weightInput,
                     onValueChange = { weightInput = it },
-                    label = { Text(stringResource(id = R.string.new_weight_label, weightLabel)) },
+                    label = {
+                        Text(
+                            text = stringResource(
+                                id = R.string.new_weight_label,
+                                weightLabel
+                            ).uppercase(),
+                            style = MaterialTheme.typography.labelSmall,
+                            letterSpacing = 1.sp
+                        )
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     shape = RoundedCornerShape(16.dp),
                     colors = OutlinedTextFieldDefaults.colors(
+                        // Texto principal
                         focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        cursorColor = EmeraldGreen,
-                        focusedBorderColor = EmeraldGreen,
-                        unfocusedBorderColor = CoolGray.copy(alpha = 0.3f),
-                        focusedLabelColor = EmeraldGreen,
-                        unfocusedLabelColor = CoolGray
+                        unfocusedTextColor = Color.White.copy(alpha = 0.8f),
+
+                        // Bordes (Look de Neón)
+                        focusedBorderColor = techBlue,
+                        unfocusedBorderColor = Color.White.copy(alpha = 0.1f),
+
+                        // Etiquetas (Labels)
+                        focusedLabelColor = techBlue,
+                        unfocusedLabelColor = Color.White.copy(alpha = 0.4f),
+
+                        // Otros elementos
+                        cursorColor = techBlue,
+                        selectionColors = TextSelectionColors(
+                            handleColor = techBlue,
+                            backgroundColor = techBlue.copy(alpha = 0.4f)
+                        ),
+
+                        // Fondo interno (Opcional, para dar profundidad)
+                        focusedContainerColor = techBlue.copy(alpha = 0.05f),
+                        unfocusedContainerColor = Color.White.copy(alpha = 0.02f)
                     )
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -309,9 +334,9 @@ fun WeightTrackerCardReal(
 ) {
     val statusColors = mapOf(
         BmiStatus.LOW_WEIGHT to Color(0xFFFACC15),
-        BmiStatus.NORMAL to Color(0xFF10B981),
-        BmiStatus.OVERWEIGHT to Color(0xFFFF6F00),
-        BmiStatus.OBESE to Color(0xFFEF4444)
+        BmiStatus.NORMAL to Color(0xFF3FB9F6),
+        BmiStatus.OVERWEIGHT to Color(0xFFFF9F1C),
+        BmiStatus.OBESE to Color(0xFFFF4550)
     )
 
     val statusColor = statusColors[bmiStatus] ?: CoolGray
@@ -358,7 +383,7 @@ fun WeightTrackerCardReal(
                         // Diferencia de peso con iconos
                         if (weightDiff != null && weightDiff != 0.0) {
                             val isIncrease = weightDiff > 0
-                            val color = if (isIncrease) Color.Red else EmeraldGreen
+                            val color = if (isIncrease) Color.Red else techBlue
                             val icon =
                                 if (isIncrease) FitlogIcons.ArrowUp else FitlogIcons.ArrowDown
 
@@ -445,7 +470,7 @@ fun WeightTrackerCardReal(
                     FitlogText(
                         text = "%.1f%%".format(bodyFatValue),
                         style = MaterialTheme.typography.titleMedium,
-                        color = EmeraldGreen,
+                        color = techBlue,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -510,7 +535,6 @@ fun WeightTrackerCardReal(
 @Composable
 fun HistoryList(history: List<WeightEntry>, units: UnitsConfig) {
     var isExpanded by remember { mutableStateOf(false) }
-
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -572,7 +596,7 @@ fun HistoryList(history: List<WeightEntry>, units: UnitsConfig) {
                             )
                             FitlogText(
                                 text = "%.1f %s".format(displayW, unit),
-                                color = EmeraldGreen,
+                                color = techBlue,
                                 fontWeight = FontWeight.Bold,
                                 style = MaterialTheme.typography.bodyLarge
                             )
