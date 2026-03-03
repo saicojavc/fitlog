@@ -18,6 +18,7 @@ data class DashboardUiState(
     val workoutSessions: List<WorkoutSession> = emptyList(),
     val selectedFilter: HistoryFilter = HistoryFilter.TODAY,
     val remoteVersion: String? = null,
+    val updateUrl: String? = null,
     val isLoadingLogin: Boolean = false,
     val authUser: AuthUser? = null
 )

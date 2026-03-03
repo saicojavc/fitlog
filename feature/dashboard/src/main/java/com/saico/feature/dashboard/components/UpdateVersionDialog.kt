@@ -40,8 +40,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import com.saico.core.ui.R
 import com.saico.core.ui.icon.FitlogIcons
-import com.saico.core.ui.theme.CoolGray
-import com.saico.core.ui.theme.EmeraldGreen
 import androidx.core.net.toUri
 import com.saico.core.ui.components.FitlogText
 
@@ -51,6 +49,7 @@ fun UpdateVersionDialog(
     remoteVersion: String,
     onDismiss: () -> Unit,
     context: Context,
+    updateUrl: String,
 ) {
     val techBlue = Color(0xFF3FB9F6)
     val blueGradient = Brush.horizontalGradient(listOf(techBlue, Color(0xFF216EE0)))
@@ -139,7 +138,7 @@ fun UpdateVersionDialog(
                     onClick = {
                         val intent = Intent(
                             Intent.ACTION_VIEW,
-                            "https://play.google.com/store/apps/details?id=com.saico.fitlog".toUri()
+                            updateUrl.toUri()
                         )
                         context.startActivity(intent)
                         onDismiss()

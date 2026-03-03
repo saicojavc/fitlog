@@ -67,6 +67,7 @@ fun ContentHomeScreen(
     if (showUpdateDialog) {
         UpdateVersionDialog(
             remoteVersion = uiState.remoteVersion ?: "",
+            updateUrl = uiState.updateUrl ?: "",
             onDismiss = { showUpdateDialog = false },
             context = context,
         )

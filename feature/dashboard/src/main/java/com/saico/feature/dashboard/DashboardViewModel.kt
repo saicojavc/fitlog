@@ -2,6 +2,7 @@ package com.saico.feature.dashboard
 
 import android.content.Context
 import android.text.format.DateUtils
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.database.DataSnapshot
@@ -59,6 +60,7 @@ class DashboardViewModel @Inject constructor(
     private val database = FirebaseDatabase.getInstance("https://fitlog-cb7c8-default-rtdb.firebaseio.com/")
 
     init {
+        getUpdateUri()
         getUserProfile()
         initStepCounter()
         getWeeklyWorkouts()
@@ -66,6 +68,7 @@ class DashboardViewModel @Inject constructor(
         getUserData()
         checkAppVersion()
         observeAuthState()
+
     }
 
     private fun observeAuthState() {
@@ -100,11 +103,38 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
+
+
+    private fun getUpdateUri() {
+        // 1. Usamos addListenerForSingleValueEvent para que solo se ejecute UNA VEZ
+        // Esto ahorra batería y cuota de Firebase
+        database.getReference("updateurl").addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                // 2. Extraemos el valor con un valor por defecto por seguridad
+                val updateUrl = snapshot.getValue(String::class.java) ?: ""
+
+                if (updateUrl.isNotEmpty()) {
+                    _uiState.update { it.copy(updateUrl = updateUrl) }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Es buena práctica registrar el error aunque no hagas nada visual
+                Log.e("FirebaseUpdate", "Error al obtener URL: ${error.message}")
+            }
+        })
+    }
     private fun checkAppVersion() {
         database.getReference("version").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val remoteVersion = snapshot.getValue(String::class.java)
-                _uiState.update { it.copy(remoteVersion = remoteVersion) }
+
+                _uiState.update {
+                    it.copy(
+                        remoteVersion = remoteVersion,
+
+                    )
+                }
             }
             override fun onCancelled(error: DatabaseError) {}
         })
