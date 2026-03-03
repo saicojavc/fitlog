@@ -9,20 +9,17 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.saico.core.common.util.FitnessCalculator
+import com.saico.core.common.util.StepCounterSensor
 import com.saico.core.datastore.StepCounterDataStore
+import com.saico.core.datastore.UserSettingsDataStore
 import com.saico.core.domain.repository.AuthRepository
 import com.saico.core.domain.usecase.SyncUserDataUseCase
-import com.saico.core.domain.usecase.user_profile.UserProfileUseCase
-import com.saico.core.model.Workout
-import com.saico.core.common.util.StepCounterSensor
-import com.saico.core.datastore.UserSettingsDataStore
 import com.saico.core.domain.usecase.gym_exercise.GymUseCase
+import com.saico.core.domain.usecase.user_profile.UserProfileUseCase
 import com.saico.core.domain.usecase.workout.WorkoutUseCase
-import com.saico.core.model.UserProfile
 import com.saico.core.model.UnitsConfig
+import com.saico.core.model.UserProfile
 import com.saico.core.model.WeightEntry
-import com.saico.core.model.WorkoutSession
 import com.saico.core.notification.NotificationHelper
 import com.saico.feature.dashboard.state.DashboardUiState
 import com.saico.feature.dashboard.state.HistoryFilter
@@ -34,11 +31,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.sql.Time
-import java.util.*
+import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
@@ -57,7 +52,8 @@ class DashboardViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(DashboardUiState())
     val uiState: StateFlow<DashboardUiState> = _uiState.asStateFlow()
 
-    private val database = FirebaseDatabase.getInstance("https://fitlog-cb7c8-default-rtdb.firebaseio.com/")
+    private val database =
+        FirebaseDatabase.getInstance("https://fitlog-cb7c8-default-rtdb.firebaseio.com/")
 
     init {
         getUpdateUri()
@@ -104,26 +100,27 @@ class DashboardViewModel @Inject constructor(
     }
 
 
-
     private fun getUpdateUri() {
         // 1. Usamos addListenerForSingleValueEvent para que solo se ejecute UNA VEZ
         // Esto ahorra batería y cuota de Firebase
-        database.getReference("updateurl").addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                // 2. Extraemos el valor con un valor por defecto por seguridad
-                val updateUrl = snapshot.getValue(String::class.java) ?: ""
+        database.getReference("updateurl")
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    // 2. Extraemos el valor con un valor por defecto por seguridad
+                    val updateUrl = snapshot.getValue(String::class.java) ?: ""
 
-                if (updateUrl.isNotEmpty()) {
-                    _uiState.update { it.copy(updateUrl = updateUrl) }
+                    if (updateUrl.isNotEmpty()) {
+                        _uiState.update { it.copy(updateUrl = updateUrl) }
+                    }
                 }
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-                // Es buena práctica registrar el error aunque no hagas nada visual
-                Log.e("FirebaseUpdate", "Error al obtener URL: ${error.message}")
-            }
-        })
+                override fun onCancelled(error: DatabaseError) {
+                    // Es buena práctica registrar el error aunque no hagas nada visual
+                    Log.e("FirebaseUpdate", "Error al obtener URL: ${error.message}")
+                }
+            })
     }
+
     private fun checkAppVersion() {
         database.getReference("version").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -133,9 +130,10 @@ class DashboardViewModel @Inject constructor(
                     it.copy(
                         remoteVersion = remoteVersion,
 
-                    )
+                        )
                 }
             }
+
             override fun onCancelled(error: DatabaseError) {}
         })
     }
@@ -161,21 +159,22 @@ class DashboardViewModel @Inject constructor(
     fun updateUserProfile(updatedProfile: UserProfile) {
         viewModelScope.launch {
             val currentProfile = _uiState.value.userProfile
-            
-            val finalProfile = if (currentProfile != null && currentProfile.weightKg != updatedProfile.weightKg) {
-                val newWeightEntry = WeightEntry(
-                    weight = updatedProfile.weightKg,
-                    date = System.currentTimeMillis()
-                )
-                updatedProfile.copy(
-                    weightHistory = updatedProfile.weightHistory + newWeightEntry
-                )
-            } else {
-                updatedProfile
-            }
+
+            val finalProfile =
+                if (currentProfile != null && currentProfile.weightKg != updatedProfile.weightKg) {
+                    val newWeightEntry = WeightEntry(
+                        weight = updatedProfile.weightKg,
+                        date = System.currentTimeMillis()
+                    )
+                    updatedProfile.copy(
+                        weightHistory = updatedProfile.weightHistory + newWeightEntry
+                    )
+                } else {
+                    updatedProfile
+                }
 
             userProfileUseCase.updateUserProfileUseCase(finalProfile)
-            
+
             // Sincronizar cambio con la nube si está logueado
             _uiState.value.authUser?.let { user ->
                 syncUserDataUseCase.syncProfile(user.id, finalProfile)
@@ -218,20 +217,26 @@ class DashboardViewModel @Inject constructor(
     fun exportHistoryToPdf(context: Context) {
         val state = _uiState.value
         val filter = state.selectedFilter
-        
+
         val filteredGym = filterData(state.gymExercises, filter) { it.date }
         val filteredSessions = filterData(state.workoutSessions, filter) { it.date }
 
         if (filteredGym.isEmpty() && filteredSessions.isEmpty()) {
-            android.widget.Toast.makeText(context, "No hay datos para exportar", android.widget.Toast.LENGTH_SHORT).show()
+            android.widget.Toast.makeText(
+                context,
+                "No hay datos para exportar",
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
             return
         }
 
-        val totalCalories = filteredGym.sumOf { it.totalCalories } + filteredSessions.sumOf { it.calories }
+        val totalCalories =
+            filteredGym.sumOf { it.totalCalories } + filteredSessions.sumOf { it.calories }
         val totalSteps = filteredSessions.sumOf { it.steps }
         val totalDistance = filteredSessions.sumOf { it.distance.toDouble() }
-        val totalTimeSeconds = filteredGym.sumOf { it.elapsedTime } + filteredSessions.sumOf { it.time.time / 1000 }
-        
+        val totalTimeSeconds =
+            filteredGym.sumOf { it.elapsedTime } + filteredSessions.sumOf { it.time.time / 1000 }
+
         val filterName = when (filter) {
             HistoryFilter.TODAY -> "Hoy"
             HistoryFilter.LAST_WEEK -> "Última Semana"
@@ -254,7 +259,11 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
-    private fun <T> filterData(data: List<T>, filter: HistoryFilter, dateSelector: (T) -> Long): List<T> {
+    private fun <T> filterData(
+        data: List<T>,
+        filter: HistoryFilter,
+        dateSelector: (T) -> Long
+    ): List<T> {
         val cal = Calendar.getInstance()
         cal.set(Calendar.HOUR_OF_DAY, 0)
         cal.set(Calendar.MINUTE, 0)
@@ -265,6 +274,7 @@ class DashboardViewModel @Inject constructor(
             HistoryFilter.TODAY -> {
                 data.filter { dateSelector(it) >= cal.timeInMillis }
             }
+
             HistoryFilter.LAST_WEEK -> {
                 cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
                 if (Calendar.getInstance().get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
@@ -272,10 +282,12 @@ class DashboardViewModel @Inject constructor(
                 }
                 data.filter { dateSelector(it) >= cal.timeInMillis }
             }
+
             HistoryFilter.LAST_MONTH -> {
                 cal.set(Calendar.DAY_OF_MONTH, 1)
                 data.filter { dateSelector(it) >= cal.timeInMillis }
             }
+
             HistoryFilter.ALL -> data
         }
     }
