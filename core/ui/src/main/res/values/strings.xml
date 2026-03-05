@@ -243,4 +243,9 @@
     <string name="outdoor_run">Outdoor Run</string>
     <string name="cycling">Cycling</string>
     <string name="swimming">Swimming</string>
+
+    <!-- Location strings -->
+    <string name="gps_disabled_title">GPS Disabled</string>
+    <string name="gps_disabled_message">To track your outdoor run, you need to turn on GPS on your device.</string>
+    <string name="enable_gps">Activate GPS</string>
 </resources>

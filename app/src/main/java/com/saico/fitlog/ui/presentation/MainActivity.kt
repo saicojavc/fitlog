@@ -67,7 +67,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val userData by viewModel.userData.collectAsState()
             
-            // Launcher para múltiples permisos necesarios para el servicio de salud
+            // Launcher para múltiples permisos necesarios
             val permissionLauncher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.RequestMultiplePermissions()
             ) { permissions ->
@@ -88,6 +88,7 @@ class MainActivity : ComponentActivity() {
             LaunchedEffect(Unit) {
                 val permissionsToRequest = mutableListOf<String>()
                 
+                // Actividad Física
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     if (ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
                         permissionsToRequest.add(Manifest.permission.ACTIVITY_RECOGNITION)
@@ -98,10 +99,19 @@ class MainActivity : ComponentActivity() {
                     startStepCounterService()
                 }
 
+                // Notificaciones
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     if (ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                         permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
                     }
+                }
+
+                // Localización (Necesaria para OutdoorRun)
+                if (ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    permissionsToRequest.add(Manifest.permission.ACCESS_FINE_LOCATION)
+                }
+                if (ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    permissionsToRequest.add(Manifest.permission.ACCESS_COARSE_LOCATION)
                 }
 
                 if (permissionsToRequest.isNotEmpty()) {
@@ -193,8 +203,6 @@ private fun MainContainer(
             aboutGraph(navController = navController)
             weighttrackingGraph(navController = navController)
             outdoorRunGraph(navController = navController)
-
-
         }
     }
 }

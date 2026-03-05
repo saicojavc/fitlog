@@ -232,4 +232,9 @@
     <string name="outdoor_run">Carrera al aire libre</string>
     <string name="cycling">Ciclismo</string>
     <string name="swimming">Natación</string>
+
+    <!-- Location strings -->
+    <string name="gps_disabled_title">GPS Deshabilitado</string>
+    <string name="gps_disabled_message">Para realizar el seguimiento de tu carrera al aire libre, necesitas activar el GPS en tu dispositivo.</string>
+    <string name="enable_gps">Activar GPS</string>
 </resources>
