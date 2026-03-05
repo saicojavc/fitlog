@@ -80,6 +80,7 @@ dependencies {
     implementation(project(":feature:stepshistory"))
     implementation(project(":feature:about"))
     implementation(project(":feature:weighttracking"))
+    implementation(project(":feature:outdoorrun"))
 
 
     //    firebase

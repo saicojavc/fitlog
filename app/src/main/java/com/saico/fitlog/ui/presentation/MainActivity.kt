@@ -35,6 +35,7 @@ import com.saico.feature.dashboard.navigation.dashboardGraph
 import com.saico.feature.dashboard.service.StepCounterService
 import com.saico.feature.gymwork.navigation.gymWorkGraph
 import com.saico.feature.onboarding.navigation.onboardingGraph
+import com.saico.feature.outdoorrun.navigation.outdoorRunGraph
 import com.saico.feature.setting.navigation.settingGraph
 import com.saico.feature.stepshistory.navigation.stepsHistoryGraph
 import com.saico.feature.weighttracking.navigation.weighttrackingGraph
@@ -191,6 +192,8 @@ private fun MainContainer(
             stepsHistoryGraph(navController = navController)
             aboutGraph(navController = navController)
             weighttrackingGraph(navController = navController)
+            outdoorRunGraph(navController = navController)
+
 
         }
     }

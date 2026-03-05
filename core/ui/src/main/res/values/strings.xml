@@ -238,4 +238,9 @@
     <string name="error_no_account_found">A synced account was not found. Please create a new one.</string>
     <string name="error_verifying_account">Account verification failed.</string>
     <string name="error_auth_failed">Authentication failed.</string>
+
+    <string name="treadmill">Tread Mill</string>
+    <string name="outdoor_run">Outdoor Run</string>
+    <string name="cycling">Cycling</string>
+    <string name="swimming">Swimming</string>
 </resources>

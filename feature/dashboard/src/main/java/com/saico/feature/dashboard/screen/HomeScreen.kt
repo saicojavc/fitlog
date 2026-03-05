@@ -90,6 +90,9 @@ fun ContentHomeScreen(
             )
         }
         item {
+            RegisterWork(navController = navController)
+        }
+        item {
             WeeklyActivityCard(
                 workouts = uiState.weeklyWorkouts,
                 dailySteps = uiState.dailySteps,
@@ -97,8 +100,6 @@ fun ContentHomeScreen(
                 navController = navController
             )
         }
-        item {
-            RegisterWork(navController = navController)
-        }
+
     }
 }

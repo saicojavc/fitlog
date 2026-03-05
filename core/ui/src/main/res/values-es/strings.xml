@@ -227,4 +227,9 @@
     <string name="error_no_account_found">No se encontró una cuenta sincronizada. Por favor, crea una nueva.</string>
     <string name="error_verifying_account">Error al verificar la cuenta.</string>
     <string name="error_auth_failed">Error de autenticación.</string>
+
+    <string name="treadmill">Cinta de correr</string>
+    <string name="outdoor_run">Carrera al aire libre</string>
+    <string name="cycling">Ciclismo</string>
+    <string name="swimming">Natación</string>
 </resources>

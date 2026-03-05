@@ -2,6 +2,8 @@ package com.saico.core.ui.icon
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.DirectionsBike
+import androidx.compose.material.icons.automirrored.outlined.DirectionsRun
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
@@ -9,6 +11,7 @@ import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DirectionsBike
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Error
@@ -29,6 +32,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Pool
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Scale
 import androidx.compose.material.icons.filled.Settings
@@ -47,6 +51,8 @@ import androidx.compose.material.icons.outlined.DirectionsRun
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
@@ -113,6 +119,102 @@ object FitlogIcons {
     val ChevronRight : ImageVector = Icons.Default.ArrowForward
 
     val SystemUpdate : ImageVector = Icons.Default.Update
+
+    val DirectionsRun : ImageVector = Icons.AutoMirrored.Outlined.DirectionsRun
+
+    val DirectionsBike : ImageVector = Icons.AutoMirrored.Filled.DirectionsBike
+
+    val Pool : ImageVector = Icons.Default.Pool
+
+    val Treadmill: ImageVector
+        get() = ImageVector.Builder(
+            name = "Treadmill",
+            defaultWidth = 24.0.dp,
+            defaultHeight = 24.0.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f
+        ).apply {
+
+            // ══════════════════════════════════════════
+            //  PLATAFORMA / CINTA
+            //  Rectángulo con esquinas redondeadas
+            //  fill gris oscuro + stroke gris claro
+            // ══════════════════════════════════════════
+            path(
+                fill = SolidColor(Color(0xFF3A3A3A)),
+                stroke = SolidColor(Color(0xFF888888)),
+                strokeLineWidth = 1f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+                pathFillType = PathFillType.NonZero
+            ) {
+                moveTo(4f, 17f)
+                lineTo(20f, 17f)
+                curveTo(21.1f, 17f, 22f, 17.9f, 22f, 19f)
+                curveTo(22f, 20.1f, 21.1f, 21f, 20f, 21f)
+                lineTo(4f, 21f)
+                curveTo(2.9f, 21f, 2f, 20.1f, 2f, 19f)
+                curveTo(2f, 17.9f, 2.9f, 17f, 4f, 17f)
+                close()
+            }
+
+            // Línea interior de la banda (cinta corriente)
+            path(
+                fill = null,
+                stroke = SolidColor(Color(0xFF888888)),
+                strokeLineWidth = 0.8f,
+                strokeLineCap = StrokeCap.Round,
+                pathFillType = PathFillType.NonZero
+            ) {
+                moveTo(5f, 19f)
+                lineTo(19f, 19f)
+            }
+
+            // ══════════════════════════════════════════
+            //  POSTE VERTICAL — gris, lado derecho
+            // ══════════════════════════════════════════
+            path(
+                fill = null,
+                stroke = SolidColor(Color(0xFF888888)),
+                strokeLineWidth = 1.5f,
+                strokeLineCap = StrokeCap.Round,
+                pathFillType = PathFillType.NonZero
+            ) {
+                moveTo(17f, 17f)
+                lineTo(17f, 7f)
+            }
+
+            // ══════════════════════════════════════════
+            //  BRAZO DIAGONAL — rojo
+            //  Desde la parte alta del poste hacia izq-arriba
+            // ══════════════════════════════════════════
+            path(
+                fill = null,
+                stroke = SolidColor(Color(0xFFE53935)),
+                strokeLineWidth = 1.8f,
+                strokeLineCap = StrokeCap.Round,
+                pathFillType = PathFillType.NonZero
+            ) {
+                moveTo(15f, 9f)
+                lineTo(19f, 5f)
+            }
+
+            // ══════════════════════════════════════════
+            //  MANUBRIO HORIZONTAL — rojo
+            //  Barra horizontal a media altura
+            // ══════════════════════════════════════════
+            path(
+                fill = null,
+                stroke = SolidColor(Color(0xFFE53935)),
+                strokeLineWidth = 1.8f,
+                strokeLineCap = StrokeCap.Round,
+                pathFillType = PathFillType.NonZero
+            ) {
+                moveTo(10f, 13f)
+                lineTo(17f, 13f)
+            }
+
+        }.build()
 
     // Icono de Google personalizado con nombres de funciones corregidos
     val Google: ImageVector
