@@ -14,7 +14,7 @@ fun NavGraphBuilder.outdoorRunGraph(navController: NavHostController) {
         route = OutdoorRunRoute.RootRoute.route
     ){
         composable(route = OutdoorRunRoute.OutdoorRunScreenRoute.route){
-            OutdoorRunScreen()
+            OutdoorRunScreen(navController = navController)
         }
     }
 }

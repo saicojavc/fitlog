@@ -51,6 +51,13 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
 
+    // Google Maps para Jetpack Compose
+    implementation("com.google.maps.android:maps-compose:6.1.2")
+
+    // Google Play Services para Mapas y Ubicación
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
+    implementation("com.google.android.gms:play-services-location:21.1.0")
+
     // AndroidX & Compose
     implementation(libs.androidx.core.ktx)
     implementation(platform(libs.androidx.compose.bom))
@@ -59,6 +66,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.navigation.compose)
+
 
     // Accompanist
     implementation(libs.accompanist.permissions)

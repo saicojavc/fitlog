@@ -22,6 +22,7 @@ val CoolGray = Color(0xFF94A3B8)
 val GradientColors = listOf(Color(0xFF020509), Color(0xFF0D1424), Color(0xFF16223B))
 val BottomColor = Brush.horizontalGradient(listOf(Color(0xFF3FB9F6), Color(0xFF216EE0)))
 val techBlue = Color(0xFF3FB9F6)
+val fireOrange = Color(0xFFFF9F1C)
 
 //val NightBlueGradient = Brush.verticalGradient(
 //    colors = listOf(
