@@ -25,6 +25,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -33,6 +35,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -73,7 +76,7 @@ import com.saico.feature.outdoorrun.style.MapStyle
 import kotlinx.coroutines.launch
 
 @Composable
-fun OutdoorRunScreen(navController: NavHostController) {
+fun OutdoorRunScreen(navController: NavHostController, activityType: String) {
     val context = LocalContext.current
     var showGpsDialog by remember { mutableStateOf(false) }
 
@@ -144,15 +147,26 @@ fun OutdoorRunScreen(navController: NavHostController) {
         )
     }
 
-    Content(navController = navController)
+    Content(navController = navController, activityType = activityType)
 }
 
 @SuppressLint("MissingPermission")
 @Composable
-fun Content(navController: NavHostController) {
+fun Content(navController: NavHostController, activityType: String) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+
+    // Determinar textos e íconos según el tipo de actividad
+    val activityTitle = when (activityType) {
+        "cycling" -> stringResource(R.string.cycling)
+        else -> stringResource(R.string.outdoor_run)
+    }
+    
+    val mainIcon = when (activityType) {
+        "cycling" -> FitlogIcons.DirectionsBike
+        else -> FitlogIcons.DirectionsRun
+    }
 
     // Verificar permisos
     val hasLocationPermission = remember {
@@ -164,7 +178,6 @@ fun Content(navController: NavHostController) {
 
     // Estado de la cámara
     val cameraPositionState = rememberCameraPositionState {
-        // Bogotá por defecto hasta obtener ubicación
         position = CameraPosition.fromLatLngZoom(LatLng(4.6097, -74.0817), 16f)
     }
 
@@ -189,12 +202,10 @@ fun Content(navController: NavHostController) {
         }
     }
 
-    // Centrar automáticamente al abrir si hay permisos
     LaunchedEffect(Unit) {
         centerMapOnMyLocation()
     }
 
-    // Configuración Visual del Mapa
     val mapProperties = remember(hasLocationPermission) {
         MapProperties(
             mapStyleOptions = MapStyleOptions(MapStyle.JSON),
@@ -208,7 +219,6 @@ fun Content(navController: NavHostController) {
 
     Box(modifier = Modifier.fillMaxSize()) {
 
-        // --- 1. MAPA ---
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
@@ -224,10 +234,63 @@ fun Content(navController: NavHostController) {
             )
         }
 
+        // --- 2. BOTÓN ATRÁS Y TÍTULO ---
+        Row(
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(top = 30.dp, start = 20.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Surface(
+                onClick = { navController.popBackStack() },
+                color = Color(0xFF0D1424).copy(alpha = 0.75f),
+                shape = CircleShape,
+                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f)),
+                modifier = Modifier.size(48.dp)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
+
+            Surface(
+                color = Color(0xFF0D1424).copy(alpha = 0.75f),
+                shape = RoundedCornerShape(24.dp),
+                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(
+                        imageVector = mainIcon,
+                        contentDescription = null,
+                        tint = if (activityType == "cycling") Color(0xFFD4FF00) else fireOrange,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Text(
+                        text = activityTitle.uppercase(),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Black,
+                        color = Color.White,
+                        letterSpacing = 1.sp
+                    )
+                }
+            }
+        }
+
+        // --- 3. CABECERA CON MÉTRICAS ---
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 110.dp, start = 20.dp, end = 20.dp),
+                .padding(top = 90.dp, start = 10.dp, end = 10.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Row(
@@ -262,16 +325,15 @@ fun Content(navController: NavHostController) {
                     modifier = Modifier.weight(1f)
                 )
                 MetricBubble(
-                    label = "Time",
-                    value = "00.00.00",
-                    icon = FitlogIcons.Clock,
+                    label = "Elevation",
+                    value = "+0m",
+                    icon = Icons.Default.KeyboardArrowUp,
                     accentColor = Color(0xFFA855F7),
                     modifier = Modifier.weight(1f)
                 )
             }
         }
 
-        // --- 4. BOTÓN RECENTRAR (Abajo Derecha - Encima del botón guardar) ---
         Surface(
             onClick = { centerMapOnMyLocation() },
             color = Color(0xFF0D1424).copy(alpha = 0.75f),

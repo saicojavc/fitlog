@@ -70,13 +70,13 @@ fun RegisterWork(navController: NavHostController) {
             name = stringResource(R.string.outdoor_run),
             icon = FitlogIcons.DirectionsRun,
             color = fireOrange,
-            route = OutdoorRunRoute.OutdoorRunScreenRoute.route
+            route = OutdoorRunRoute.OutdoorRunScreenRoute.createRoute("outdoor_run")
         ),
         ActivityItem(
             name = stringResource(R.string.cycling), // "Bicicleta" o "Ciclismo"
             icon = FitlogIcons.DirectionsBike,
             color = cyclingLime,
-            route = "cycling_route"
+            route = OutdoorRunRoute.OutdoorRunScreenRoute.createRoute("cycling")
         ),
 
         ActivityItem(
