@@ -5,6 +5,8 @@ import com.google.firebase.database.FirebaseDatabase
 import com.saico.core.common.util.FitnessCalculator
 import com.saico.core.domain.repository.SyncRepository
 import com.saico.core.model.GymExercise
+import com.saico.core.model.LocationPoint
+import com.saico.core.model.OutdoorSession
 import com.saico.core.model.UserProfile
 import com.saico.core.model.Workout
 import com.saico.core.model.WorkoutSession
@@ -77,12 +79,23 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun syncOutdoorSession(uid: String, session: OutdoorSession): Result<Unit> {
+        if (session.date <= 0L) return Result.success(Unit)
+        return try {
+            usersRef.child(uid).child("outdoorSessions").child(session.date.toString()).setValue(session).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     override suspend fun uploadAllLocalData(
         uid: String,
         profile: UserProfile,
         workouts: List<Workout>,
         sessions: List<WorkoutSession>,
-        gymExercises: List<GymExercise>
+        gymExercises: List<GymExercise>,
+        outdoorSessions: List<OutdoorSession>
     ): Result<Unit> {
         return try {
             val dataMap = mutableMapOf<String, Any>()
@@ -103,6 +116,7 @@ class SyncRepositoryImpl @Inject constructor(
                 "date" to it.date
             )}
             dataMap["gymExercises"] = gymExercises.filter { it.date > 0 }.associateBy { it.date.toString() }
+            dataMap["outdoorSessions"] = outdoorSessions.filter { it.date > 0 }.associateBy { it.date.toString() }
 
             usersRef.child(uid).updateChildren(dataMap).await()
             Result.success(Unit)
@@ -184,12 +198,17 @@ class SyncRepositoryImpl @Inject constructor(
         }
     }
 
-    /**
-     * Formatea milisegundos a HH:mm:ss tratando la entrada como una DURACIÓN pura,
-     * eliminando cualquier offset de zona horaria que java.sql.Time haya aplicado.
-     */
+    override suspend fun fetchOutdoorSessions(uid: String): Result<List<OutdoorSession>> {
+        return try {
+            val snapshot = usersRef.child(uid).child("outdoorSessions").get().await()
+            val list = snapshot.children.mapNotNull { it.getValue(OutdoorSession::class.java) }
+            Result.success(list)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     private fun formatTimeMillisToDuration(millis: Long): String {
-        // Obtenemos los campos usando UTC para ignorar la zona horaria del dispositivo
         val cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
         cal.timeInMillis = millis
         

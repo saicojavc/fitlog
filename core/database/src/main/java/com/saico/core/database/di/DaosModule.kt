@@ -2,6 +2,7 @@ package com.saico.core.database.di
 
 import com.saico.core.database.FitlogDatabase
 import com.saico.core.database.dao.GymExerciseDao
+import com.saico.core.database.dao.OutdoorSessionDao
 import com.saico.core.database.dao.UserProfileDao
 import com.saico.core.database.dao.WorkoutDao
 import com.saico.core.database.dao.WorkoutSessionDao
@@ -25,4 +26,7 @@ object DaosModule {
 
     @Provides
     fun provideGymExerciseDao(database: FitlogDatabase): GymExerciseDao = database.gymExerciseDao()
+
+    @Provides
+    fun provideOutdoorSessionDao(database: FitlogDatabase): OutdoorSessionDao = database.outdoorSessionDao()
 }

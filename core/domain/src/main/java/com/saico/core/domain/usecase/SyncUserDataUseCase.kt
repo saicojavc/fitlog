@@ -12,7 +12,8 @@ class SyncUserDataUseCase @Inject constructor(
     private val workoutRepository: WorkoutRepository,
     private val gymExerciseRepository: GymExerciseRepository,
     private val workoutSessionRepository: WorkoutSessionRepository,
-    private val stepCounterRepository: StepCounterRepository
+    private val stepCounterRepository: StepCounterRepository,
+    private val outdoorSessionRepository: OutdoorSessionRepository
 ) {
     /**
      * Sincronización inteligente: Solo sube si hay datos locales válidos.
@@ -29,13 +30,15 @@ class SyncUserDataUseCase @Inject constructor(
                 val localWorkouts = workoutRepository.getWorkouts().first()
                 val localSessions = workoutSessionRepository.getWorkoutSessions().first()
                 val localGym = gymExerciseRepository.getGymExercises().first()
+                val localOutdoor = outdoorSessionRepository.getAllSessions().first()
 
                 syncRepository.uploadAllLocalData(
                     uid = uid,
                     profile = localProfile!!,
                     workouts = localWorkouts,
                     sessions = localSessions,
-                    gymExercises = localGym
+                    gymExercises = localGym,
+                    outdoorSessions = localOutdoor
                 ).getOrThrow()
             }
 
@@ -57,6 +60,7 @@ class SyncUserDataUseCase @Inject constructor(
             val cloudWorkouts = syncRepository.fetchWorkouts(uid).getOrDefault(emptyList())
             val cloudSessions = syncRepository.fetchWorkoutSessions(uid).getOrDefault(emptyList())
             val cloudGym = syncRepository.fetchGymExercises(uid).getOrDefault(emptyList())
+            val cloudOutdoor = syncRepository.fetchOutdoorSessions(uid).getOrDefault(emptyList())
 
             // Solo guardamos el perfil de la nube si trae datos reales.
             if (cloudProfile != null && cloudProfile.weightKg > 0) {
@@ -80,6 +84,7 @@ class SyncUserDataUseCase @Inject constructor(
 
             cloudSessions.forEach { workoutSessionRepository.insertWorkoutSession(it) }
             cloudGym.forEach { gymExerciseRepository.insertGymExercise(it) }
+            cloudOutdoor.forEach { outdoorSessionRepository.saveSession(it) }
 
             Result.success(Unit)
         } catch (e: Exception) {
@@ -91,4 +96,5 @@ class SyncUserDataUseCase @Inject constructor(
     suspend fun syncWorkout(uid: String, workout: Workout) = syncRepository.syncWorkout(uid, workout)
     suspend fun syncSession(uid: String, session: WorkoutSession) = syncRepository.syncWorkoutSession(uid, session)
     suspend fun syncGymExercise(uid: String, exercise: GymExercise) = syncRepository.syncGymExercise(uid, exercise)
+    suspend fun syncOutdoorSession(uid: String, session: OutdoorSession) = syncRepository.syncOutdoorSession(uid, session)
 }

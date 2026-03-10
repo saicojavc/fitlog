@@ -2,6 +2,7 @@ package com.saico.core.database.util
 
 import androidx.room.TypeConverter
 import com.saico.core.model.GymExerciseItem
+import com.saico.core.model.LocationPoint
 import com.saico.core.model.WeightEntry
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
@@ -19,6 +20,9 @@ class FitlogTypeConverters {
 
     private val weightEntryListType = Types.newParameterizedType(List::class.java, WeightEntry::class.java)
     private val weightEntryAdapter = moshi.adapter<List<WeightEntry>>(weightEntryListType)
+
+    private val locationPointListType = Types.newParameterizedType(List::class.java, LocationPoint::class.java)
+    private val locationPointAdapter = moshi.adapter<List<LocationPoint>>(locationPointListType)
 
     @TypeConverter
     fun fromTime(time: Time?): Long? {
@@ -48,5 +52,15 @@ class FitlogTypeConverters {
     @TypeConverter
     fun toWeightHistory(value: String?): List<WeightEntry>? {
         return value?.let { weightEntryAdapter.fromJson(it) }
+    }
+
+    @TypeConverter
+    fun fromLocationPointList(value: List<LocationPoint>?): String? {
+        return locationPointAdapter.toJson(value)
+    }
+
+    @TypeConverter
+    fun toLocationPointList(value: String?): List<LocationPoint>? {
+        return value?.let { locationPointAdapter.fromJson(it) }
     }
 }

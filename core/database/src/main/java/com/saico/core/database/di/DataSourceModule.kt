@@ -2,6 +2,8 @@ package com.saico.core.database.di
 
 import com.saico.core.database.datasource.local.GymExerciseLocalDataSource
 import com.saico.core.database.datasource.local.GymExerciseLocalDataSourceImpl
+import com.saico.core.database.datasource.local.OutdoorSessionLocalDataSource
+import com.saico.core.database.datasource.local.OutdoorSessionLocalDataSourceImpl
 import com.saico.core.database.datasource.local.UserProfileLocalDataSource
 import com.saico.core.database.datasource.local.UserProfileLocalDataSourceImpl
 import com.saico.core.database.datasource.local.WorkoutLocalDataSource
@@ -28,4 +30,7 @@ abstract class DataSourceModule {
 
     @Binds
     internal abstract fun bindGymExerciseLocalDataSource(impl: GymExerciseLocalDataSourceImpl): GymExerciseLocalDataSource
+
+    @Binds
+    internal abstract fun bindOutdoorSessionLocalDataSource(impl: OutdoorSessionLocalDataSourceImpl): OutdoorSessionLocalDataSource
 }
