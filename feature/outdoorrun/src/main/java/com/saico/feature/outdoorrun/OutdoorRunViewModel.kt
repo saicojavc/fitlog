@@ -12,6 +12,7 @@ import com.google.android.gms.location.Priority
 import com.saico.core.domain.repository.OutdoorSessionRepository
 import com.saico.core.model.LocationPoint
 import com.saico.core.model.OutdoorSession
+import com.saico.feature.outdoorrun.model.OutdoorUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -21,17 +22,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class OutdoorUiState(
-    val isRunning: Boolean = false,
-    val timeMillis: Long = 0L,
-    val distanceMeters: Float = 0f,
-    val steps: Int = 0,
-    val currentSpeed: Float = 0f,
-    val averageSpeed: Float = 0f,
-    val elevationGain: Float = 0f,
-    val routePath: List<LocationPoint> = emptyList(),
-    val activityType: String = "outdoor_run"
-)
+
 
 @HiltViewModel
 class OutdoorRunViewModel @Inject constructor(
