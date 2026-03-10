@@ -2,6 +2,7 @@ package com.saico.feature.dashboard.state
 
 import com.saico.core.model.AuthUser
 import com.saico.core.model.GymExercise
+import com.saico.core.model.OutdoorSession
 import com.saico.core.model.UserData
 import com.saico.core.model.UserProfile
 import com.saico.core.model.Workout
@@ -16,6 +17,7 @@ data class DashboardUiState(
     val weeklyWorkouts: List<Workout> = emptyList(),
     val gymExercises: List<GymExercise> = emptyList(),
     val workoutSessions: List<WorkoutSession> = emptyList(),
+    val outdoorSessions: List<OutdoorSession> = emptyList(),
     val selectedFilter: HistoryFilter = HistoryFilter.TODAY,
     val remoteVersion: String? = null,
     val updateUrl: String? = null,

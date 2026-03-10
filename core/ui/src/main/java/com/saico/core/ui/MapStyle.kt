@@ -1,4 +1,4 @@
-package com.saico.feature.outdoorrun.style
+package com.saico.core.ui
 
 object MapStyle {
     // Este JSON define los colores oscuros/azulados del mapa

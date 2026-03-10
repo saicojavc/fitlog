@@ -76,7 +76,7 @@ import com.saico.core.ui.icon.FitlogIcons
 import com.saico.core.ui.theme.fireOrange
 import com.saico.core.ui.theme.techBlue
 import com.saico.feature.outdoorrun.model.OutdoorUiState
-import com.saico.feature.outdoorrun.style.MapStyle
+import com.saico.core.ui.MapStyle
 import kotlinx.coroutines.launch
 import java.util.Locale
 

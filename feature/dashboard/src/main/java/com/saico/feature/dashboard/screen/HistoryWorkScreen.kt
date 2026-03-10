@@ -38,17 +38,28 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.android.gms.maps.model.RoundCap
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.Polyline
+import com.google.maps.android.compose.rememberCameraPositionState
 import com.saico.core.common.util.UnitsConverter
 import com.saico.core.model.GymExercise
+import com.saico.core.model.OutdoorSession
 import com.saico.core.model.UnitsConfig
 import com.saico.core.model.WorkoutSession
 import com.saico.core.ui.R
@@ -59,12 +70,15 @@ import com.saico.core.ui.icon.FitlogIcons
 import com.saico.core.ui.theme.LightBackground
 import com.saico.core.ui.theme.LightPrimary
 import com.saico.core.ui.theme.PaddingDim
+import com.saico.core.ui.theme.fireOrange
+import com.saico.core.ui.theme.techBlue
 import com.saico.feature.dashboard.state.DashboardUiState
 import com.saico.feature.dashboard.state.HistoryFilter
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import com.saico.core.ui.MapStyle
 
 @Composable
 fun HistoryWorkScreen(
@@ -147,17 +161,26 @@ fun HistoryContent(
         filterData(uiState.workoutSessions, uiState.selectedFilter) { it.date }
     }
 
-    val totalCalories = remember(filteredGymExercises, filteredWorkoutSessions) {
-        filteredGymExercises.sumOf { it.totalCalories } + filteredWorkoutSessions.sumOf { it.calories }
+    val filteredOutdoorSessions = remember(uiState.outdoorSessions, uiState.selectedFilter) {
+        filterData(uiState.outdoorSessions, uiState.selectedFilter) { it.date }
     }
 
-    val totalTimeSeconds = remember(filteredGymExercises, filteredWorkoutSessions) {
-        filteredGymExercises.sumOf { it.elapsedTime } + filteredWorkoutSessions.sumOf { it.time.time / 1000 }
+    val totalCalories = remember(filteredGymExercises, filteredWorkoutSessions, filteredOutdoorSessions) {
+        filteredGymExercises.sumOf { it.totalCalories } + 
+        filteredWorkoutSessions.sumOf { it.calories } +
+        filteredOutdoorSessions.sumOf { 0 } // Ajustar si se calculan calorías en outdoor
     }
 
-    val combinedHistory = remember(filteredGymExercises, filteredWorkoutSessions) {
+    val totalTimeSeconds = remember(filteredGymExercises, filteredWorkoutSessions, filteredOutdoorSessions) {
+        filteredGymExercises.sumOf { it.elapsedTime } + 
+        filteredWorkoutSessions.sumOf { it.time.time / 1000 } +
+        filteredOutdoorSessions.sumOf { it.time / 1000 }
+    }
+
+    val combinedHistory = remember(filteredGymExercises, filteredWorkoutSessions, filteredOutdoorSessions) {
         (filteredGymExercises.map { HistoryItem.Gym(it) } +
-                filteredWorkoutSessions.map { HistoryItem.Session(it) })
+                filteredWorkoutSessions.map { HistoryItem.Session(it) } +
+                filteredOutdoorSessions.map { HistoryItem.Outdoor(it) })
             .sortedByDescending { it.date }
     }
 
@@ -210,6 +233,11 @@ fun HistoryContent(
                             )
 
                             is HistoryItem.Session -> WorkoutSessionCard(
+                                session = item.session,
+                                units = units
+                            )
+                            
+                            is HistoryItem.Outdoor -> OutdoorSessionCard(
                                 session = item.session,
                                 units = units
                             )
@@ -544,6 +572,136 @@ fun WorkoutSessionCard(session: WorkoutSession, units: UnitsConfig) {
 }
 
 @Composable
+fun OutdoorSessionCard(session: OutdoorSession, units: UnitsConfig) {
+    var expanded by remember { mutableStateOf(false) }
+    val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
+    val calendar = remember { Calendar.getInstance().apply { timeInMillis = session.date } }
+    val dayOfWeek = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()) ?: ""
+    
+    val activityTitle = if (session.activityType == "cycling") stringResource(R.string.cycling) else stringResource(R.string.outdoor_run)
+    val activityIcon = if (session.activityType == "cycling") FitlogIcons.DirectionsBike else FitlogIcons.DirectionsRun
+    val accentColor = if (session.activityType == "cycling") Color(0xFFD4FF00) else fireOrange
+
+    FitlogCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { expanded = !expanded },
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, LightBackground.copy(alpha = 0.7f))
+    ) {
+        Column(modifier = Modifier.padding(PaddingDim.MEDIUM)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = activityIcon,
+                        contentDescription = null,
+                        tint = accentColor,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    FitlogText(
+                        text = activityTitle,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                FitlogIcon(
+                    imageVector = if (expanded) FitlogIcons.ArrowUp else FitlogIcons.ArrowDown,
+                    contentDescription = null,
+                    background = Color.Unspecified,
+                )
+            }
+            FitlogText(
+                text = "$dayOfWeek, ${dateFormat.format(Date(session.date))}",
+                style = MaterialTheme.typography.bodySmall
+            )
+            Spacer(modifier = Modifier.height(PaddingDim.SMALL))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                StatItem(
+                    label = stringResource(id = R.string.distance),
+                    value = UnitsConverter.formatDistance(session.distance.toDouble(), units)
+                )
+                StatItem(
+                    label = stringResource(id = R.string.average_pace),
+                    value = String.format(Locale.getDefault(), "%.1f km/h", session.averageSpeed)
+                )
+                StatItem(
+                    label = "Elev.",
+                    value = "+${session.elevation.toInt()}m"
+                )
+                StatItem(
+                    label = stringResource(id = R.string.time),
+                    value = formatElapsedTime(session.time / 1000)
+                )
+            }
+
+            AnimatedVisibility(visible = expanded) {
+                Column(modifier = Modifier.padding(top = PaddingDim.MEDIUM)) {
+                    HorizontalDivider(modifier = Modifier.padding(vertical = PaddingDim.SMALL))
+                    
+                    if (session.routePath.isNotEmpty()) {
+                        // Mapa Estático del recorrido
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .border(1.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(16.dp))
+                        ) {
+                            val routeLatLng = remember(session.routePath) {
+                                session.routePath.map { LatLng(it.latitude, it.longitude) }
+                            }
+                            
+                            val cameraPositionState = rememberCameraPositionState {
+                                // Centrar en el primer punto de la ruta
+                                val firstPoint = routeLatLng.first()
+                                position = CameraPosition.fromLatLngZoom(firstPoint, 15f)
+                            }
+
+                            GoogleMap(
+                                modifier = Modifier.fillMaxSize(),
+                                cameraPositionState = cameraPositionState,
+                                properties = MapProperties(
+                                    mapStyleOptions = MapStyleOptions(MapStyle.JSON),
+                                    isMyLocationEnabled = false
+                                ),
+                                uiSettings = MapUiSettings(
+                                    zoomControlsEnabled = false,
+                                    myLocationButtonEnabled = false,
+                                    scrollGesturesEnabled = false,
+                                    zoomGesturesEnabled = false,
+                                    tiltGesturesEnabled = false
+                                )
+                            ) {
+                                Polyline(
+                                    points = routeLatLng,
+                                    color = techBlue,
+                                    width = 8f,
+                                    startCap = RoundCap(),
+                                    endCap = RoundCap()
+                                )
+                            }
+                        }
+                    } else {
+                        FitlogText(
+                            text = "No hay datos de GPS disponibles",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White.copy(alpha = 0.4f),
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun StatItem(label: String, value: String) {
     Column {
         FitlogText(
@@ -562,6 +720,7 @@ fun StatItem(label: String, value: String) {
 sealed class HistoryItem(val date: Long) {
     data class Gym(val exercise: GymExercise) : HistoryItem(exercise.date)
     data class Session(val session: WorkoutSession) : HistoryItem(session.date)
+    data class Outdoor(val session: OutdoorSession) : HistoryItem(session.date)
 }
 
 private fun <T> filterData(

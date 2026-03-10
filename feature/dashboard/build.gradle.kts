@@ -56,6 +56,10 @@ dependencies {
 
     implementation("nl.dionsegijn:konfetti-compose:2.0.4")
 
+    // Google Maps para Jetpack Compose (Para el historial detallado)
+    implementation("com.google.maps.android:maps-compose:6.1.2")
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
+
     // AndroidX & Compose
     implementation(libs.androidx.core.ktx)
     implementation(platform(libs.androidx.compose.bom))

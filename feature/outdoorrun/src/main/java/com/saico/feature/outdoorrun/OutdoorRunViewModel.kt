@@ -9,7 +9,7 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.Priority
-import com.saico.core.domain.repository.OutdoorSessionRepository
+import com.saico.core.domain.usecase.outdoor.OutdoorUseCase
 import com.saico.core.model.LocationPoint
 import com.saico.core.model.OutdoorSession
 import com.saico.feature.outdoorrun.model.OutdoorUiState
@@ -22,11 +22,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
-
 @HiltViewModel
 class OutdoorRunViewModel @Inject constructor(
-    private val repository: OutdoorSessionRepository,
+    private val outdoorUseCase: OutdoorUseCase,
     private val fusedLocationClient: FusedLocationProviderClient
 ) : ViewModel() {
 
@@ -81,7 +79,7 @@ class OutdoorRunViewModel @Inject constructor(
                 date = System.currentTimeMillis(),
                 routePath = state.routePath
             )
-            repository.saveSession(session)
+            outdoorUseCase.saveOutdoorSessionUseCase(session)
             // Reset UI State after saving
             _uiState.update { OutdoorUiState(activityType = state.activityType) }
         }

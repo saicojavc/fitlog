@@ -15,11 +15,15 @@ import com.saico.core.datastore.UserSettingsDataStore
 import com.saico.core.domain.repository.AuthRepository
 import com.saico.core.domain.usecase.SyncUserDataUseCase
 import com.saico.core.domain.usecase.gym_exercise.GymUseCase
+import com.saico.core.domain.usecase.outdoor.OutdoorUseCase
 import com.saico.core.domain.usecase.user_profile.UserProfileUseCase
 import com.saico.core.domain.usecase.workout.WorkoutUseCase
+import com.saico.core.model.GymExercise
+import com.saico.core.model.OutdoorSession
 import com.saico.core.model.UnitsConfig
 import com.saico.core.model.UserProfile
 import com.saico.core.model.WeightEntry
+import com.saico.core.model.WorkoutSession
 import com.saico.core.notification.NotificationHelper
 import com.saico.feature.dashboard.state.DashboardUiState
 import com.saico.feature.dashboard.state.HistoryFilter
@@ -41,6 +45,7 @@ class DashboardViewModel @Inject constructor(
     private val userProfileUseCase: UserProfileUseCase,
     private val workoutUseCase: WorkoutUseCase,
     private val gymUseCase: GymUseCase,
+    private val outdoorUseCase: OutdoorUseCase,
     private val stepCounterSensor: StepCounterSensor,
     private val stepCounterDataStore: StepCounterDataStore,
     private val userDataStore: UserSettingsDataStore,
@@ -196,14 +201,16 @@ class DashboardViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 gymUseCase.getGymExercisesUseCase(),
-                workoutUseCase.getWorkoutSessionsUseCase()
-            ) { gym, sessions ->
-                Pair(gym, sessions)
-            }.collectLatest { (gym, sessions) ->
+                workoutUseCase.getWorkoutSessionsUseCase(),
+                outdoorUseCase.getOutdoorSessionsUseCase()
+            ) { gym, sessions, outdoor ->
+                Triple(gym, sessions, outdoor)
+            }.collectLatest { (gym, sessions, outdoor) ->
                 _uiState.update { state ->
                     state.copy(
                         gymExercises = gym,
-                        workoutSessions = sessions
+                        workoutSessions = sessions,
+                        outdoorSessions = outdoor
                     )
                 }
             }
@@ -220,8 +227,9 @@ class DashboardViewModel @Inject constructor(
 
         val filteredGym = filterData(state.gymExercises, filter) { it.date }
         val filteredSessions = filterData(state.workoutSessions, filter) { it.date }
+        val filteredOutdoor = filterData(state.outdoorSessions, filter) { it.date }
 
-        if (filteredGym.isEmpty() && filteredSessions.isEmpty()) {
+        if (filteredGym.isEmpty() && filteredSessions.isEmpty() && filteredOutdoor.isEmpty()) {
             android.widget.Toast.makeText(
                 context,
                 "No hay datos para exportar",
@@ -230,12 +238,19 @@ class DashboardViewModel @Inject constructor(
             return
         }
 
+        // Para el PDF, sumamos las calorías de outdoor si las tienes implementadas, 
+        // de lo contrario solo sumamos gym y cardio sessions
         val totalCalories =
-            filteredGym.sumOf { it.totalCalories } + filteredSessions.sumOf { it.calories }
-        val totalSteps = filteredSessions.sumOf { it.steps }
-        val totalDistance = filteredSessions.sumOf { it.distance.toDouble() }
+            filteredGym.sumOf { it.totalCalories } + 
+            filteredSessions.sumOf { it.calories } +
+            filteredOutdoor.sumOf { 0 } // Ajustar si calculas calorías en outdoor
+
+        val totalSteps = filteredSessions.sumOf { it.steps } + filteredOutdoor.sumOf { it.steps ?: 0 }
+        val totalDistance = filteredSessions.sumOf { it.distance.toDouble() } + filteredOutdoor.sumOf { it.distance.toDouble() }
         val totalTimeSeconds =
-            filteredGym.sumOf { it.elapsedTime } + filteredSessions.sumOf { it.time.time / 1000 }
+            filteredGym.sumOf { it.elapsedTime } + 
+            filteredSessions.sumOf { it.time.time / 1000 } +
+            filteredOutdoor.sumOf { it.time / 1000 }
 
         val filterName = when (filter) {
             HistoryFilter.TODAY -> "Hoy"
