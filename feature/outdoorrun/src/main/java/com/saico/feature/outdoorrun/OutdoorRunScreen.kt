@@ -72,6 +72,8 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.saico.core.common.util.UnitsConverter
+import com.saico.core.model.UnitsConfig
 import com.saico.core.ui.MapStyle
 import com.saico.core.ui.R
 import com.saico.core.ui.components.FitlogDialog
@@ -108,7 +110,7 @@ fun OutdoorRunScreen(
 
     if (showGpsDialog) {
         FitlogDialog(
-            onDismiss = {  },
+            onDismiss = { },
             title = R.string.gps_disabled_title,
             text = stringResource(id = R.string.gps_disabled_message),
             icon = Icons.Default.LocationOn,
@@ -135,7 +137,11 @@ fun OutdoorRunScreen(
                             ),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(stringResource(id = R.string.activate), color = Color.White, fontWeight = FontWeight.Bold)
+                        Text(
+                            stringResource(id = R.string.activate),
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             },
@@ -227,11 +233,11 @@ fun Content(
     LaunchedEffect(uiState.routePath.lastOrNull()) {
         uiState.routePath.lastOrNull()?.let { lastPoint ->
             val target = LatLng(lastPoint.latitude, lastPoint.longitude)
-            
+
             // Si la cámara está en (0,0), centramos inmediatamente sin importar si corre o no (primer fix)
             if (cameraPositionState.position.target.latitude == 0.0) {
                 cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(target, 17f))
-            } 
+            }
             // Si está corriendo, seguimos la posición automáticamente
             else if (uiState.isRunning) {
                 cameraPositionState.animate(
@@ -351,11 +357,18 @@ fun Content(
                 )
                 MetricBubble(
                     label = "Distance",
-                    value = String.format(
-                        Locale.getDefault(),
-                        "%.2f km",
-                        uiState.distanceMeters / 1000f
-                    ),
+                    value = if (uiState.unitsConfig == UnitsConfig.IMPERIAL) {
+                        UnitsConverter.formatDistance(
+                            uiState.distanceMeters / 1000.0,
+                            UnitsConfig.IMPERIAL
+                        )
+                    } else {
+                        String.format(
+                            Locale.getDefault(),
+                            "%.2f km",
+                            uiState.distanceMeters / 1000f
+                        )
+                    },
                     icon = FitlogIcons.Height,
                     accentColor = techBlue,
                     modifier = Modifier.weight(1f)
@@ -367,15 +380,29 @@ fun Content(
             ) {
                 MetricBubble(
                     label = "Avg Speed",
-                    value = String.format(Locale.getDefault(), "%.1f km/h", uiState.averageSpeed),
-                    icon = FitlogIcons.Speed,
+                    value = if (uiState.unitsConfig == UnitsConfig.IMPERIAL) {
+                        String.format(
+                            Locale.getDefault(),
+                            "%.1f mph",
+                            uiState.averageSpeed * 0.621371f
+                        )
+                    } else {
+                        String.format(Locale.getDefault(), "%.1f km/h", uiState.averageSpeed)
+                    }, icon = FitlogIcons.Speed,
                     accentColor = fireOrange,
                     modifier = Modifier.weight(1f)
                 )
                 MetricBubble(
                     label = "Elevation",
-                    value = String.format(Locale.getDefault(), "+%.0fm", uiState.elevationGain),
-                    icon = Icons.Default.KeyboardArrowUp,
+                    value = if (uiState.unitsConfig == UnitsConfig.IMPERIAL) {
+                        String.format(
+                            Locale.getDefault(),
+                            "+%.0f ft",
+                            uiState.elevationGain * 3.28084f
+                        )
+                    } else {
+                        String.format(Locale.getDefault(), "+%.0fm", uiState.elevationGain)
+                    }, icon = Icons.Default.KeyboardArrowUp,
                     accentColor = Color(0xFFA855F7),
                     modifier = Modifier.weight(1f)
                 )

@@ -7,9 +7,11 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.saico.core.datastore.UserSettingsDataStore
 import com.saico.core.domain.usecase.outdoor.OutdoorUseCase
 import com.saico.core.model.LocationPoint
 import com.saico.core.model.OutdoorSession
+import com.saico.core.model.UnitsConfig
 import com.saico.feature.outdoorrun.model.OutdoorUiState
 import com.saico.feature.outdoorrun.service.LocationTrackingService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,6 +28,7 @@ import javax.inject.Inject
 @HiltViewModel
 class OutdoorRunViewModel @Inject constructor(
     private val outdoorUseCase: OutdoorUseCase,
+    private val userSettingsDataStore: UserSettingsDataStore,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -36,6 +39,13 @@ class OutdoorRunViewModel @Inject constructor(
     private var lastLocation: Location? = null
 
     init {
+        // Observar configuración del usuario
+        viewModelScope.launch {
+            userSettingsDataStore.userData.collectLatest { data ->
+                _uiState.update { it.copy(unitsConfig = data.unitsConfig) }
+            }
+        }
+
         // Observar actualizaciones del servicio de forma reactiva
         viewModelScope.launch {
             LocationTrackingService.locationUpdates.collectLatest { location ->
@@ -80,14 +90,14 @@ class OutdoorRunViewModel @Inject constructor(
                 activityType = state.activityType,
                 steps = if (state.activityType == "outdoor_run") state.steps else null,
                 averageSpeed = state.averageSpeed,
-                distance = state.distanceMeters / 1000f,
+                distance = state.distanceMeters / 1000f, // Siempre guardamos en KM
                 elevation = state.elevationGain,
                 time = state.timeMillis,
                 date = System.currentTimeMillis(),
                 routePath = state.routePath
             )
             outdoorUseCase.saveOutdoorSessionUseCase(session)
-            _uiState.update { OutdoorUiState(activityType = state.activityType) }
+            _uiState.update { OutdoorUiState(activityType = state.activityType, unitsConfig = state.unitsConfig) }
         }
     }
 
@@ -120,7 +130,7 @@ class OutdoorRunViewModel @Inject constructor(
         lastLocation = newLocation
 
         val avgSpeed = if (_uiState.value.timeMillis > 0) {
-            (newDistance / (_uiState.value.timeMillis / 1000f)) * 3.6f
+            (newDistance / (_uiState.value.timeMillis / 1000f)) * 3.6f // KM/H base
         } else 0f
 
         _uiState.update {
