@@ -12,6 +12,7 @@ import android.provider.MediaStore
 import android.widget.Toast
 import com.saico.core.common.util.UnitsConverter
 import com.saico.core.model.GymExercise
+import com.saico.core.model.OutdoorSession
 import com.saico.core.model.UnitsConfig
 import com.saico.core.model.WorkoutSession
 import com.saico.core.ui.R
@@ -29,6 +30,7 @@ object PdfExporter {
         filterName: String,
         gymExercises: List<GymExercise>,
         workoutSessions: List<WorkoutSession>,
+        outdoorSessions: List<OutdoorSession>,
         units: UnitsConfig,
         totalCalories: Int,
         totalSteps: Int,
@@ -36,99 +38,145 @@ object PdfExporter {
         totalTime: String
     ) {
         val pdfDocument = PdfDocument()
-        val paint = Paint()
+
+        // --- COLORES ESTÉTICA FITLOG ---
+        val colorDarkBg = Color.rgb(13, 20, 36)      // Fondo Oscuro #0D1424
+        val colorTechBlue = Color.rgb(63, 185, 246)  // Azul Neón #3FB9F6
+        val colorWhite = Color.WHITE
+        val colorGray = Color.rgb(160, 160, 160)
+        val colorCard = Color.rgb(30, 40, 60)       // Azul Grisáceo para tarjetas
+
+        // --- PAINTS ---
+        val bgPaint = Paint().apply { color = colorDarkBg }
+        val cardPaint = Paint().apply { color = colorCard }
+        val accentPaint = Paint().apply {
+            color = colorTechBlue
+            strokeWidth = 2f
+        }
         val titlePaint = Paint().apply {
-            textSize = 20f
+            textSize = 22f
             isFakeBoldText = true
-            color = Color.BLACK
+            color = colorTechBlue
+            letterSpacing = 0.05f
         }
         val headerPaint = Paint().apply {
-            textSize = 14f
+            textSize = 15f
             isFakeBoldText = true
-            color = Color.DKGRAY
+            color = colorWhite
         }
         val textPaint = Paint().apply {
-            textSize = 12f
-            color = Color.BLACK
+            textSize = 11f
+            color = colorWhite
+            isAntiAlias = true
+        }
+        val subTextPaint = Paint().apply {
+            textSize = 10f
+            color = colorGray
         }
 
         val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create()
         var page = pdfDocument.startPage(pageInfo)
         var canvas = page.canvas
-        var y = 40f
 
-        // 1. Título y Filtro
-        canvas.drawText(context.getString(R.string.pdf_report_title), 40f, y, titlePaint)
+        // Función local para pintar fondo en cada página nueva
+        fun drawPageBackground(c: Canvas) {
+            c.drawRect(0f, 0f, 595f, 842f, bgPaint)
+            // Detalle estético: Línea neón superior
+            c.drawRect(0f, 0f, 595f, 5f, accentPaint)
+        }
+
+        drawPageBackground(canvas)
+        var y = 50f
+
+        // 1. TÍTULO Y CABECERA
+        canvas.drawText(context.getString(R.string.pdf_report_title).uppercase(), 40f, y, titlePaint)
         y += 25f
-        canvas.drawText(context.getString(R.string.pdf_filter_label, filterName), 40f, y, textPaint)
-        y += 20f
+        canvas.drawText("${context.getString(R.string.pdf_filter_label, filterName)} | Fitlog Analytics", 40f, y, subTextPaint)
+
         val dateStr = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
-        canvas.drawText(context.getString(R.string.pdf_generation_date, dateStr), 40f, y, textPaint)
-        
-        y += 30f
-        canvas.drawLine(40f, y, 555f, y, paint)
-        y += 30f
+        canvas.drawText(dateStr, 555f - subTextPaint.measureText(dateStr), y, subTextPaint)
 
-        // 2. Resumen del Periodo (CON UNIDADES CONVERTIDAS)
-        canvas.drawText(context.getString(R.string.pdf_summary_title), 40f, y, headerPaint)
-        y += 25f
-        canvas.drawText(context.getString(R.string.pdf_total_calories, totalCalories), 60f, y, textPaint)
-        y += 20f
-        canvas.drawText(context.getString(R.string.pdf_total_steps, totalSteps), 60f, y, textPaint)
-        y += 20f
-        val formattedTotalDist = UnitsConverter.formatDistance(totalDistanceKm, units)
-        canvas.drawText(context.getString(R.string.pdf_total_distance, formattedTotalDist), 60f, y, textPaint)
-        y += 20f
-        canvas.drawText(context.getString(R.string.pdf_active_time, totalTime), 60f, y, textPaint)
-        y += 20f
-        canvas.drawText(context.getString(R.string.pdf_total_sessions, gymExercises.size + workoutSessions.size), 60f, y, textPaint)
-        
         y += 40f
-        canvas.drawText(context.getString(R.string.pdf_activities_detail), 40f, y, headerPaint)
-        y += 10f
-        canvas.drawLine(40f, y, 180f, y, paint)
-        y += 30f
 
-        val combinedItems = (gymExercises.map { "GYM" to it.date } + workoutSessions.map { "CARDIO" to it.date })
-            .sortedByDescending { it.second }
+        // 2. RESUMEN (TARJETA TÉCNICA)
+        canvas.drawRoundRect(40f, y, 555f, y + 110f, 15f, 15f, cardPaint)
+        canvas.drawText(context.getString(R.string.pdf_summary_title).uppercase(), 60f, y + 30f, headerPaint)
+
+        // Dibujamos las métricas en un grid de 2x2 dentro de la tarjeta
+        val gridY = y + 55f
+        canvas.drawText("🔥 CALS: $totalCalories", 60f, gridY, textPaint)
+        canvas.drawText("👣 STEPS: $totalSteps", 280f, gridY, textPaint)
+        canvas.drawText("📏 DIST: ${UnitsConverter.formatDistance(totalDistanceKm, units)}", 60f, gridY + 25f, textPaint)
+        canvas.drawText("⏱️ TIME: $totalTime", 280f, gridY + 25f, textPaint)
+
+        y += 150f
+        canvas.drawText(context.getString(R.string.pdf_activities_detail).uppercase(), 40f, y, headerPaint)
+        canvas.drawLine(40f, y + 8f, 120f, y + 8f, accentPaint)
+        y += 40f
+
+        val combinedItems = (
+                gymExercises.map { Triple("GYM", it.date, it) } +
+                        workoutSessions.map { Triple("CARDIO", it.date, it) } +
+                        outdoorSessions.map { Triple("OUTDOOR", it.date, it) }
+                ).sortedByDescending { it.second }
 
         val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
-        combinedItems.forEach { item ->
-            if (y > 780f) {
+        combinedItems.forEach { (type, date, data) ->
+            // Verificar espacio en página (Item alto de 70f aprox)
+            if (y > 750f) {
                 pdfDocument.finishPage(page)
                 page = pdfDocument.startPage(pageInfo)
                 canvas = page.canvas
-                y = 40f
+                drawPageBackground(canvas)
+                y = 50f
             }
 
-            if (item.first == "GYM") {
-                val gym = gymExercises.find { it.date == item.second } ?: return@forEach
-                val gymTitle = context.getString(R.string.pdf_gym_workout, dateFormat.format(Date(gym.date)))
-                canvas.drawText(gymTitle, 40f, y, textPaint.apply { isFakeBoldText = true })
-                y += 18f
-                val gymSum = context.getString(R.string.pdf_activity_summary_gym, gym.totalCalories, formatElapsedTime(gym.elapsedTime))
-                canvas.drawText("   $gymSum", 40f, y, textPaint.apply { isFakeBoldText = false })
-                y += 15f
-                gym.exercises.take(5).forEach { ex ->
-                    canvas.drawText("   - ${ex.name}: ${ex.sets}x${ex.reps} (${UnitsConverter.formatWeight(ex.weightKg, units)})", 50f, y, textPaint)
-                    y += 15f
-                }
-            } else {
-                val session = workoutSessions.find { it.date == item.second } ?: return@forEach
-                val cardioTitle = context.getString(R.string.pdf_cardio_session, dateFormat.format(Date(session.date)))
-                canvas.drawText(cardioTitle, 40f, y, textPaint.apply { isFakeBoldText = true })
-                y += 18f
-                val dist = UnitsConverter.formatDistance(session.distance.toDouble(), units)
-                val cardioSum = context.getString(R.string.pdf_activity_summary_cardio, session.steps, dist, session.calories)
-                canvas.drawText("   $cardioSum", 40f, y, textPaint.apply { isFakeBoldText = false })
-                y += 15f
+            // Fondo del Item (Glassmorphism sutil)
+            canvas.drawRoundRect(40f, y - 15f, 555f, y + 50f, 10f, 10f, Paint().apply {
+                color = colorWhite; alpha = 15
+            })
+
+            // Barra lateral de color según actividad
+            val activityColor = when(type) {
+                "GYM" -> Color.rgb(168, 85, 247) // Morado neón
+                "CARDIO" -> Color.rgb(255, 159, 28) // Naranja neón
+                else -> colorTechBlue
             }
-            y += 15f
+            canvas.drawRect(40f, y - 15f, 44f, y + 50f, Paint().apply { color = activityColor })
+
+            when (type) {
+                "GYM" -> {
+                    val gym = data as GymExercise
+                    canvas.drawText("GYM - ${dateFormat.format(Date(gym.date))}", 60f, y + 5f, textPaint.apply { isFakeBoldText = true })
+                    val gymSum = context.getString(R.string.pdf_activity_summary_gym, gym.totalCalories, formatElapsedTime(gym.elapsedTime))
+                    canvas.drawText(gymSum, 60f, y + 25f, subTextPaint)
+                }
+                "CARDIO" -> {
+                    val session = data as WorkoutSession
+                    canvas.drawText("CARDIO - ${dateFormat.format(Date(session.date))}", 60f, y + 5f, textPaint.apply { isFakeBoldText = true })
+                    val dist = UnitsConverter.formatDistance(session.distance.toDouble(), units)
+                    val cardioSum = context.getString(R.string.pdf_activity_summary_cardio, session.steps, dist, session.calories)
+                    canvas.drawText(cardioSum, 60f, y + 25f, subTextPaint)
+                }
+                "OUTDOOR" -> {
+                    val outdoor = data as OutdoorSession
+                    val activityName = if (outdoor.activityType == "cycling") "CYCLING" else "OUTDOOR RUN"
+                    canvas.drawText("$activityName - ${dateFormat.format(Date(outdoor.date))}", 60f, y + 5f, textPaint.apply { isFakeBoldText = true })
+
+                    val dist = UnitsConverter.formatDistance(outdoor.distance.toDouble(), units)
+                    val time = formatElapsedTime(outdoor.time / 1000)
+                    val speed = if (units == UnitsConfig.IMPERIAL) String.format("%.1f mph", outdoor.averageSpeed * 0.621371f) else String.format("%.1f km/h", outdoor.averageSpeed)
+
+                    canvas.drawText("Dist: $dist | Time: $time | Speed: $speed", 60f, y + 25f, subTextPaint)
+                }
+            }
+            y += 80f // Salto de línea entre items
         }
 
         pdfDocument.finishPage(page)
 
+        // --- PROCESO DE GUARDADO (Tú código original) ---
         val fileName = "FitLog_History_${System.currentTimeMillis()}.pdf"
         try {
             saveFile(context, pdfDocument, fileName)

@@ -265,6 +265,7 @@ class DashboardViewModel @Inject constructor(
                 filterName = filterName,
                 gymExercises = filteredGym,
                 workoutSessions = filteredSessions,
+                outdoorSessions = filteredOutdoor,
                 units = state.userData?.unitsConfig ?: UnitsConfig.METRIC,
                 totalCalories = totalCalories,
                 totalSteps = totalSteps,
