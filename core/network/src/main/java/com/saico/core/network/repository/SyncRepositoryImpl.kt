@@ -100,23 +100,35 @@ class SyncRepositoryImpl @Inject constructor(
         return try {
             val dataMap = mutableMapOf<String, Any>()
             dataMap["profile"] = profile
-            dataMap["workouts"] = workouts.filter { it.date > 0 }.associate { it.date.toString() to mapOf(
-                "steps" to it.steps, 
-                "calories" to it.calories, 
-                "distance" to it.distance, 
-                "time" to formatTimeMillisToDuration(it.time.time), 
-                "date" to it.date, 
-                "dayOfWeek" to it.dayOfWeek
-            )}
-            dataMap["workoutSessions"] = sessions.filter { it.date > 0 }.associate { it.date.toString() to mapOf(
-                "steps" to it.steps, 
-                "calories" to it.calories, 
-                "distance" to it.distance, 
-                "time" to formatTimeMillisToDuration(it.time.time), 
-                "date" to it.date
-            )}
-            dataMap["gymExercises"] = gymExercises.filter { it.date > 0 }.associateBy { it.date.toString() }
-            dataMap["outdoorSessions"] = outdoorSessions.filter { it.date > 0 }.associateBy { it.date.toString() }
+
+            if (workouts.isNotEmpty()) {
+                dataMap["workouts"] = workouts.filter { it.date > 0 }.associate { it.date.toString() to mapOf(
+                    "steps" to it.steps,
+                    "calories" to it.calories,
+                    "distance" to it.distance,
+                    "time" to formatTimeMillisToDuration(it.time.time),
+                    "date" to it.date,
+                    "dayOfWeek" to it.dayOfWeek
+                )}
+            }
+
+            if (sessions.isNotEmpty()) {
+                dataMap["workoutSessions"] = sessions.filter { it.date > 0 }.associate { it.date.toString() to mapOf(
+                    "steps" to it.steps,
+                    "calories" to it.calories,
+                    "distance" to it.distance,
+                    "time" to formatTimeMillisToDuration(it.time.time),
+                    "date" to it.date
+                )}
+            }
+
+            if (gymExercises.isNotEmpty()) {
+                dataMap["gymExercises"] = gymExercises.filter { it.date > 0 }.associateBy { it.date.toString() }
+            }
+
+            if (outdoorSessions.isNotEmpty()) {
+                dataMap["outdoorSessions"] = outdoorSessions.filter { it.date > 0 }.associateBy { it.date.toString() }
+            }
 
             usersRef.child(uid).updateChildren(dataMap).await()
             Result.success(Unit)
@@ -141,7 +153,6 @@ class SyncRepositoryImpl @Inject constructor(
                 try {
                     val steps = child.child("steps").value?.let { (it as? Long)?.toInt() ?: (it as? Int) } ?: 0
                     val timeString = child.child("time").getValue(String::class.java)
-                    
                     val timeMillis = parseTimeDurationToMillis(timeString)
 
                     Workout(
@@ -153,7 +164,7 @@ class SyncRepositoryImpl @Inject constructor(
                         dayOfWeek = child.child("dayOfWeek").getValue(String::class.java) ?: ""
                     )
                 } catch (e: Exception) {
-                    Log.e("FirebaseSync", "Error parseando workout: ${e.message}")
+                    Log.e("FirebaseSync", "Error parsing workout: ${e.message}")
                     null
                 }
             }
@@ -170,7 +181,6 @@ class SyncRepositoryImpl @Inject constructor(
                 try {
                     val steps = child.child("steps").value?.let { (it as? Long)?.toInt() ?: (it as? Int) } ?: 0
                     val timeString = child.child("time").getValue(String::class.java)
-                    
                     val timeMillis = parseTimeDurationToMillis(timeString)
 
                     WorkoutSession(
@@ -201,7 +211,36 @@ class SyncRepositoryImpl @Inject constructor(
     override suspend fun fetchOutdoorSessions(uid: String): Result<List<OutdoorSession>> {
         return try {
             val snapshot = usersRef.child(uid).child("outdoorSessions").get().await()
-            val list = snapshot.children.mapNotNull { it.getValue(OutdoorSession::class.java) }
+            val list = snapshot.children.mapNotNull { child ->
+                try {
+                    // Mapeo manual para asegurar tipos correctos (Float vs Double)
+                    val activityType = child.child("activityType").getValue(String::class.java) ?: ""
+                    val steps = child.child("steps").value?.let { (it as? Long)?.toInt() ?: (it as? Int) }
+                    val averageSpeed = child.child("averageSpeed").value?.let { (it as? Double)?.toFloat() ?: (it as? Float) } ?: 0f
+                    val distance = child.child("distance").value?.let { (it as? Double)?.toFloat() ?: (it as? Float) } ?: 0f
+                    val elevation = child.child("elevation").value?.let { (it as? Double)?.toFloat() ?: (it as? Float) } ?: 0f
+                    val time = child.child("time").getValue(Long::class.java) ?: 0L
+                    val date = child.child("date").getValue(Long::class.java) ?: child.key?.toLong() ?: 0L
+
+                    val routePath = child.child("routePath").children.mapNotNull { point ->
+                        point.getValue(LocationPoint::class.java)
+                    }
+
+                    OutdoorSession(
+                        activityType = activityType,
+                        steps = steps,
+                        averageSpeed = averageSpeed,
+                        distance = distance,
+                        elevation = elevation,
+                        time = time,
+                        date = date,
+                        routePath = routePath
+                    )
+                } catch (e: Exception) {
+                    Log.e("FirebaseSync", "Error parsing OutdoorSession: ${e.message}")
+                    null
+                }
+            }
             Result.success(list)
         } catch (e: Exception) {
             Result.failure(e)
