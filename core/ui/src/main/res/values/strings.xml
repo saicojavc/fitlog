@@ -261,4 +261,14 @@
 
     <string name="activate">Activate</string>
     <string name="no_gps_data">No GPS data available</string>
+
+    <!-- PDF Export Refined -->
+    <string name="pdf_analytics_suffix"> | Fitlog Analytics</string>
+    <string name="pdf_stat_cals_label">🔥 CALS: %1$d</string>
+    <string name="pdf_stat_steps_label">👣 STEPS: %1$d</string>
+    <string name="pdf_stat_dist_label">📏 DIST: %1$s</string>
+    <string name="pdf_stat_time_label">⏱️ TIME: %1$s</string>
+    <string name="pdf_gym_label">GYM - %1$s</string>
+    <string name="pdf_cardio_label">CARDIO - %1$s</string>
+    <string name="pdf_outdoor_detail">Dist: %1$s | Time: %2$s | Speed: %3$s</string>
 </resources>
