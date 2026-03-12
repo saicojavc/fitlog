@@ -1,23 +1,24 @@
 package com.saico.feature.outdoorrun
 
-import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
 import android.location.Location
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.Priority
 import com.saico.core.domain.usecase.outdoor.OutdoorUseCase
 import com.saico.core.model.LocationPoint
 import com.saico.core.model.OutdoorSession
 import com.saico.feature.outdoorrun.model.OutdoorUiState
+import com.saico.feature.outdoorrun.service.LocationTrackingService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -25,7 +26,7 @@ import javax.inject.Inject
 @HiltViewModel
 class OutdoorRunViewModel @Inject constructor(
     private val outdoorUseCase: OutdoorUseCase,
-    private val fusedLocationClient: FusedLocationProviderClient
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OutdoorUiState())
@@ -34,9 +35,10 @@ class OutdoorRunViewModel @Inject constructor(
     private var timerJob: Job? = null
     private var lastLocation: Location? = null
 
-    private val locationCallback = object : LocationCallback() {
-        override fun onLocationResult(result: LocationResult) {
-            result.lastLocation?.let { location ->
+    init {
+        // Observar actualizaciones del servicio de forma reactiva
+        viewModelScope.launch {
+            LocationTrackingService.locationUpdates.collectLatest { location ->
                 updateMetrics(location)
             }
         }
@@ -46,24 +48,29 @@ class OutdoorRunViewModel @Inject constructor(
         _uiState.update { it.copy(activityType = type) }
     }
 
-    @SuppressLint("MissingPermission")
+    @RequiresApi(Build.VERSION_CODES.O)
     fun startTracking() {
         if (_uiState.value.isRunning) return
 
         _uiState.update { it.copy(isRunning = true) }
         startTimer()
 
-        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 3000L)
-            .setMinUpdateDistanceMeters(2f)
-            .build()
-
-        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null)
+        // Iniciar el Foreground Service
+        val intent = Intent(context, LocationTrackingService::class.java).apply {
+            action = LocationTrackingService.ACTION_START
+        }
+        context.startForegroundService(intent)
     }
 
     fun stopTracking() {
         _uiState.update { it.copy(isRunning = false) }
         timerJob?.cancel()
-        fusedLocationClient.removeLocationUpdates(locationCallback)
+
+        // Detener el Foreground Service
+        val intent = Intent(context, LocationTrackingService::class.java).apply {
+            action = LocationTrackingService.ACTION_STOP
+        }
+        context.stopService(intent)
     }
 
     fun saveSession() {
@@ -73,14 +80,13 @@ class OutdoorRunViewModel @Inject constructor(
                 activityType = state.activityType,
                 steps = if (state.activityType == "outdoor_run") state.steps else null,
                 averageSpeed = state.averageSpeed,
-                distance = state.distanceMeters / 1000f, // Convert to Km
+                distance = state.distanceMeters / 1000f,
                 elevation = state.elevationGain,
                 time = state.timeMillis,
                 date = System.currentTimeMillis(),
                 routePath = state.routePath
             )
             outdoorUseCase.saveOutdoorSessionUseCase(session)
-            // Reset UI State after saving
             _uiState.update { OutdoorUiState(activityType = state.activityType) }
         }
     }
@@ -104,10 +110,7 @@ class OutdoorRunViewModel @Inject constructor(
         var newElevation = _uiState.value.elevationGain
 
         lastLocation?.let { last ->
-            // Calcular distancia
             newDistance += last.distanceTo(newLocation)
-            
-            // Calcular elevación (solo si sube)
             if (newLocation.hasAltitude() && last.hasAltitude()) {
                 val diff = newLocation.altitude - last.altitude
                 if (diff > 0) newElevation += diff.toFloat()
@@ -117,7 +120,7 @@ class OutdoorRunViewModel @Inject constructor(
         lastLocation = newLocation
 
         val avgSpeed = if (_uiState.value.timeMillis > 0) {
-            (newDistance / (_uiState.value.timeMillis / 1000f)) * 3.6f // m/s to km/h
+            (newDistance / (_uiState.value.timeMillis / 1000f)) * 3.6f
         } else 0f
 
         _uiState.update {
@@ -129,10 +132,5 @@ class OutdoorRunViewModel @Inject constructor(
                 elevationGain = newElevation
             )
         }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 }

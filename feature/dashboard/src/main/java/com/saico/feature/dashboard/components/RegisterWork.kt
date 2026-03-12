@@ -79,12 +79,12 @@ fun RegisterWork(navController: NavHostController) {
             route = OutdoorRunRoute.OutdoorRunScreenRoute.createRoute("cycling")
         ),
 
-        ActivityItem(
-            name = stringResource(R.string.swimming),
-            icon = FitlogIcons.Pool,
-            color = techBlue,
-            route = "swimming_route"
-        )
+//        ActivityItem(
+//            name = stringResource(R.string.swimming),
+//            icon = FitlogIcons.Pool,
+//            color = techBlue,
+//            route = "swimming_route"
+//        )
     )
 
     LazyRow(

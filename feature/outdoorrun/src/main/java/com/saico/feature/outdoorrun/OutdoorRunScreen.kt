@@ -6,7 +6,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.os.Build
 import android.provider.Settings
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -70,16 +72,17 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.saico.core.ui.MapStyle
 import com.saico.core.ui.R
 import com.saico.core.ui.components.FitlogDialog
 import com.saico.core.ui.icon.FitlogIcons
 import com.saico.core.ui.theme.fireOrange
 import com.saico.core.ui.theme.techBlue
 import com.saico.feature.outdoorrun.model.OutdoorUiState
-import com.saico.core.ui.MapStyle
 import kotlinx.coroutines.launch
 import java.util.Locale
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun OutdoorRunScreen(
     navController: NavHostController,
@@ -105,7 +108,7 @@ fun OutdoorRunScreen(
 
     if (showGpsDialog) {
         FitlogDialog(
-            onDismiss = { showGpsDialog = false },
+            onDismiss = {  },
             title = R.string.gps_disabled_title,
             text = stringResource(id = R.string.gps_disabled_message),
             icon = Icons.Default.LocationOn,
@@ -132,13 +135,13 @@ fun OutdoorRunScreen(
                             ),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("ACTIVAR", color = Color.White, fontWeight = FontWeight.Bold)
+                        Text(stringResource(id = R.string.activate), color = Color.White, fontWeight = FontWeight.Bold)
                     }
                 }
             },
             dismissButton = {
                 OutlinedButton(
-                    onClick = { showGpsDialog = false },
+                    onClick = { navController.popBackStack() },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
@@ -150,7 +153,7 @@ fun OutdoorRunScreen(
                         )
                     )
                 ) {
-                    Text("CANCELAR")
+                    Text(stringResource(id = R.string.close))
                 }
             }
         )
@@ -218,6 +221,30 @@ fun Content(
                 }
             }
         }
+    }
+
+    // Centrar automáticamente cuando hay nuevos puntos y la sesión está activa
+    LaunchedEffect(uiState.routePath.lastOrNull()) {
+        uiState.routePath.lastOrNull()?.let { lastPoint ->
+            val target = LatLng(lastPoint.latitude, lastPoint.longitude)
+            
+            // Si la cámara está en (0,0), centramos inmediatamente sin importar si corre o no (primer fix)
+            if (cameraPositionState.position.target.latitude == 0.0) {
+                cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(target, 17f))
+            } 
+            // Si está corriendo, seguimos la posición automáticamente
+            else if (uiState.isRunning) {
+                cameraPositionState.animate(
+                    update = CameraUpdateFactory.newLatLng(target),
+                    durationMs = 1000
+                )
+            }
+        }
+    }
+
+    // Inicial centrado si ya tenemos permisos
+    LaunchedEffect(Unit) {
+        centerMapOnMyLocation()
     }
 
     // Dibujar ruta en el mapa
@@ -404,10 +431,8 @@ fun Content(
                         .fillMaxSize()
                         .background(
                             Brush.horizontalGradient(
-                                if (uiState.isRunning) listOf(
-                                    stopColor,
-                                    Color(0xFFE11D48)
-                                ) else listOf(startColor, Color(0xFF059669))
+                                if (uiState.isRunning) listOf(stopColor, Color(0xFFE11D48))
+                                else listOf(startColor, Color(0xFF059669))
                             )
                         )
                         .border(1.dp, Color.White.copy(alpha = 0.2f), CircleShape),
@@ -434,9 +459,11 @@ fun Content(
 
         // Botón Guardar definitivo si se paró la sesión
         if (!uiState.isRunning && uiState.timeMillis > 0) {
-            Box(modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 125.dp)) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 125.dp)
+            ) {
                 TextButton(onClick = onSaveClick) {
                     Text("FINALIZAR Y GUARDAR", color = techBlue, fontWeight = FontWeight.Bold)
                 }

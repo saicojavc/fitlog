@@ -62,6 +62,7 @@ import com.saico.core.model.GymExercise
 import com.saico.core.model.OutdoorSession
 import com.saico.core.model.UnitsConfig
 import com.saico.core.model.WorkoutSession
+import com.saico.core.ui.MapStyle
 import com.saico.core.ui.R
 import com.saico.core.ui.components.FitlogCard
 import com.saico.core.ui.components.FitlogIcon
@@ -78,7 +79,6 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import com.saico.core.ui.MapStyle
 
 @Composable
 fun HistoryWorkScreen(
@@ -168,7 +168,7 @@ fun HistoryContent(
     val totalCalories = remember(filteredGymExercises, filteredWorkoutSessions, filteredOutdoorSessions) {
         filteredGymExercises.sumOf { it.totalCalories } + 
         filteredWorkoutSessions.sumOf { it.calories } +
-        filteredOutdoorSessions.sumOf { 0 } // Ajustar si se calculan calorías en outdoor
+        filteredOutdoorSessions.sumOf { 0 } 
     }
 
     val totalTimeSeconds = remember(filteredGymExercises, filteredWorkoutSessions, filteredOutdoorSessions) {
@@ -253,18 +253,15 @@ private fun getHeaderLabelString(date: Long, filter: HistoryFilter, locale: Loca
     val cal = Calendar.getInstance().apply { timeInMillis = date }
     return when (filter) {
         HistoryFilter.TODAY -> {
-            // "Lunes"
             SimpleDateFormat("EEEE", locale).format(Date(date)).replaceFirstChar { it.uppercase() }
         }
 
         HistoryFilter.LAST_WEEK -> {
-            // "Lunes 12"
             SimpleDateFormat("EEEE d", locale).format(Date(date))
                 .replaceFirstChar { it.uppercase() }
         }
 
         HistoryFilter.LAST_MONTH -> {
-            // "Lunes 12 - Semana X de Mes"
             val dayInfo = SimpleDateFormat("EEEE d", locale).format(Date(date))
                 .replaceFirstChar { it.uppercase() }
             val weekOfMonth = cal.get(Calendar.WEEK_OF_MONTH)
@@ -274,7 +271,6 @@ private fun getHeaderLabelString(date: Long, filter: HistoryFilter, locale: Loca
         }
 
         HistoryFilter.ALL -> {
-            // "Enero 2026"
             SimpleDateFormat("MMMM yyyy", locale).format(Date(date))
                 .replaceFirstChar { it.uppercase() }
         }
@@ -294,14 +290,11 @@ fun SummaryCard(
         HistoryFilter.ALL -> stringResource(id = R.string.total_history)
     }
 
-    // Usamos la FitlogCard traslúcida que ya configuramos
     FitlogCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
-        // Mantenemos el radio de la web para consistencia
         shape = RoundedCornerShape(24.dp),
-        // El borde sutil le da el toque "Premium" contra las partículas
         border = BorderStroke(1.dp, Color.White.copy(alpha = 0.15f))
     ) {
         Column(
@@ -309,7 +302,6 @@ fun SummaryCard(
                 .fillMaxWidth()
                 .padding(PaddingDim.MEDIUM)
         ) {
-            // Título con un pequeño indicador de color (Cian de la web)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
@@ -332,7 +324,6 @@ fun SummaryCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Calorías con tono naranja neón
                 SummaryStat(
                     label = stringResource(id = R.string.total_calories),
                     value = "$totalCalories",
@@ -341,7 +332,6 @@ fun SummaryCard(
                     tint = Color(0xFFFF6F00).copy(alpha = 0.9f)
                 )
 
-                // Divisor vertical sutil entre stats
                 Box(
                     modifier = Modifier
                         .width(1.dp)
@@ -349,7 +339,6 @@ fun SummaryCard(
                         .background(Color.White.copy(alpha = 0.1f))
                 )
 
-                // Tiempo con tono blanco/azul claro
                 SummaryStat(
                     label = stringResource(id = R.string.active_time),
                     value = formatElapsedTime(totalTimeSeconds),
@@ -446,6 +435,7 @@ fun FilterRow(
 fun GymExerciseCard(gymExercise: GymExercise, units: UnitsConfig) {
     var expanded by remember { mutableStateOf(false) }
     val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
+    val neonPurple = Color(0xFFA855F7)
 
     FitlogCard(
         modifier = Modifier
@@ -460,16 +450,25 @@ fun GymExerciseCard(gymExercise: GymExercise, units: UnitsConfig) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
-                    FitlogText(
-                        text = stringResource(id = R.string.gym_workout),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = FitlogIcons.Weight,
+                        contentDescription = null,
+                        tint = neonPurple,
+                        modifier = Modifier.size(20.dp)
                     )
-                    FitlogText(
-                        text = "${gymExercise.dayOfWeek}, ${dateFormat.format(Date(gymExercise.date))}",
-                        style = MaterialTheme.typography.bodySmall
-                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Column {
+                        FitlogText(
+                            text = stringResource(id = R.string.gym_workout),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        FitlogText(
+                            text = "${gymExercise.dayOfWeek}, ${dateFormat.format(Date(gymExercise.date))}",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
                 }
                 FitlogIcon(
                     imageVector = if (expanded) FitlogIcons.ArrowUp else FitlogIcons.ArrowDown,
@@ -503,14 +502,12 @@ fun GymExerciseCard(gymExercise: GymExercise, units: UnitsConfig) {
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // Nombre del ejercicio con peso para permitir salto de línea
                             FitlogText(
                                 text = exercise.name,
                                 fontWeight = FontWeight.Medium,
                                 modifier = Modifier.weight(1f)
                             )
                             Spacer(modifier = Modifier.width(PaddingDim.MEDIUM))
-                            // Detalles técnicos alineados a la derecha
                             FitlogText(
                                 text = "${exercise.sets}x${exercise.reps} - ${
                                     UnitsConverter.formatWeight(
@@ -541,11 +538,20 @@ fun WorkoutSessionCard(session: WorkoutSession, units: UnitsConfig) {
         border = BorderStroke(1.dp, LightBackground.copy(alpha = 0.7f))
     ) {
         Column(modifier = Modifier.padding(PaddingDim.MEDIUM)) {
-            FitlogText(
-                text = stringResource(id = R.string.cardio_session),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = FitlogIcons.Treadmill,
+                    contentDescription = null,
+                    tint = techBlue,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                FitlogText(
+                    text = stringResource(id = R.string.cardio_session),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
             FitlogText(
                 text = "$dayOfWeek, ${dateFormat.format(Date(session.date))}",
                 style = MaterialTheme.typography.bodySmall
@@ -644,7 +650,6 @@ fun OutdoorSessionCard(session: OutdoorSession, units: UnitsConfig) {
                     HorizontalDivider(modifier = Modifier.padding(vertical = PaddingDim.SMALL))
                     
                     if (session.routePath.isNotEmpty()) {
-                        // Mapa Estático del recorrido
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -657,7 +662,6 @@ fun OutdoorSessionCard(session: OutdoorSession, units: UnitsConfig) {
                             }
                             
                             val cameraPositionState = rememberCameraPositionState {
-                                // Centrar en el primer punto de la ruta
                                 val firstPoint = routeLatLng.first()
                                 position = CameraPosition.fromLatLngZoom(firstPoint, 15f)
                             }
@@ -688,7 +692,7 @@ fun OutdoorSessionCard(session: OutdoorSession, units: UnitsConfig) {
                         }
                     } else {
                         FitlogText(
-                            text = "No hay datos de GPS disponibles",
+                            text = stringResource(id = R.string.no_gps_data),
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.White.copy(alpha = 0.4f),
                             modifier = Modifier.fillMaxWidth(),
@@ -729,7 +733,6 @@ private fun <T> filterData(
     dateSelector: (T) -> Long
 ): List<T> {
     val cal = Calendar.getInstance()
-    // Resetear a 00:00:00.000 de hoy
     cal.set(Calendar.HOUR_OF_DAY, 0)
     cal.set(Calendar.MINUTE, 0)
     cal.set(Calendar.SECOND, 0)
@@ -741,9 +744,7 @@ private fun <T> filterData(
         }
 
         HistoryFilter.LAST_WEEK -> {
-            // Ajustar al lunes de la semana actual
             cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
-            // Si hoy es domingo, retroceder 7 días para estar en la semana que acaba
             if (Calendar.getInstance().get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
                 cal.add(Calendar.DAY_OF_YEAR, -7)
             }
@@ -751,7 +752,6 @@ private fun <T> filterData(
         }
 
         HistoryFilter.LAST_MONTH -> {
-            // Ajustar al día 1 del mes actual
             cal.set(Calendar.DAY_OF_MONTH, 1)
             data.filter { dateSelector(it) >= cal.timeInMillis }
         }
@@ -780,7 +780,6 @@ fun EmptyHistoryState(filter: HistoryFilter) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Icono con efecto de profundidad y gradiente
         Box(
             modifier = Modifier
                 .size(120.dp)
@@ -793,7 +792,7 @@ fun EmptyHistoryState(filter: HistoryFilter) {
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = FitlogIcons.History, // O un icono de "Fitness"
+                imageVector = FitlogIcons.History,
                 contentDescription = null,
                 modifier = Modifier.size(64.dp),
                 tint = Color.White.copy(alpha = 0.4f)

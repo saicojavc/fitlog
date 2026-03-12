@@ -248,4 +248,17 @@
     <string name="gps_disabled_title">GPS Disabled</string>
     <string name="gps_disabled_message">To track your outdoor run, you need to turn on GPS on your device.</string>
     <string name="enable_gps">Activate GPS</string>
+
+    <!-- Outdoor Run Notification -->
+    <string name="outdoor_notification_title">FITLOG • ACTIVE WORKOUT</string>
+    <string name="outdoor_notification_subtext">HIGH PRECISION GPS</string>
+    <string name="outdoor_notification_distance">Distance: %.2f KM</string>
+    <string name="outdoor_notification_big_title">SESSION SUMMARY</string>
+    <string name="outdoor_notification_big_text">📍 Distance: %.2f km\n⚡ Keep it up, you\'re pushing your limits!</string>
+    <string name="outdoor_notification_pause">PAUSE</string>
+    <string name="outdoor_notification_view_map">VIEW MAP</string>
+    <string name="location_channel_name">Location Tracking</string>
+
+    <string name="activate">Activate</string>
+    <string name="no_gps_data">No GPS data available</string>
 </resources>

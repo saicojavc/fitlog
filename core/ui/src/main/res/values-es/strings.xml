@@ -237,4 +237,17 @@
     <string name="gps_disabled_title">GPS Deshabilitado</string>
     <string name="gps_disabled_message">Para realizar el seguimiento de tu carrera al aire libre, necesitas activar el GPS en tu dispositivo.</string>
     <string name="enable_gps">Activar GPS</string>
+
+    <!-- Outdoor Run Notification -->
+    <string name="outdoor_notification_title">FITLOG • ENTRENAMIENTO ACTIVO</string>
+    <string name="outdoor_notification_subtext">GPS DE ALTA PRECISIÓN</string>
+    <string name="outdoor_notification_distance">Distancia: %.2f KM</string>
+    <string name="outdoor_notification_big_title">RESUMEN DE SESIÓN</string>
+    <string name="outdoor_notification_big_text">📍 Distancia: %.2f km\n⚡ Mantén el ritmo, ¡estás superando tus límites!</string>
+    <string name="outdoor_notification_pause">PAUSAR</string>
+    <string name="outdoor_notification_view_map">VER MAPA</string>
+    <string name="location_channel_name">Seguimiento de Ubicación</string>
+
+    <string name="activate">Activar</string>
+    <string name="no_gps_data">No hay datos de GPS disponibles</string>
 </resources>
