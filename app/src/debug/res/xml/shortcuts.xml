@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="gym"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_gym"
+        android:shortcutShortLabel="@string/gym"
+        android:shortcutLongLabel="@string/gym">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.saico.fitlog.debug"
+            android:targetClass="com.saico.fitlog.ui.presentation.MainActivity">
+            <extra android:name="navigate_to" android:value="gym" />
+        </intent>
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="workout"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_treadmill"
+        android:shortcutShortLabel="@string/treadmill"
+        android:shortcutLongLabel="@string/treadmill">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.saico.fitlog.debug"
+            android:targetClass="com.saico.fitlog.ui.presentation.MainActivity">
+            <extra android:name="navigate_to" android:value="workout" />
+        </intent>
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="run"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_run"
+        android:shortcutShortLabel="@string/outdoor_run"
+        android:shortcutLongLabel="@string/outdoor_run">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.saico.fitlog.debug"
+            android:targetClass="com.saico.fitlog.ui.presentation.MainActivity">
+            <extra android:name="navigate_to" android:value="outdoor" />
+            <extra android:name="activityType" android:value="outdoor_run" />
+        </intent>
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="bike"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_bike"
+        android:shortcutShortLabel="@string/cycling"
+        android:shortcutLongLabel="@string/cycling">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.saico.fitlog.debug"
+            android:targetClass="com.saico.fitlog.ui.presentation.MainActivity">
+            <extra android:name="navigate_to" android:value="outdoor" />
+            <extra android:name="activityType" android:value="cycling" />
+        </intent>
+    </shortcut>
+</shortcuts>

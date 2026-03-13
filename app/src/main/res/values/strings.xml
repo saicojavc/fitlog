@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Fitlog</string>
+    <string name="shortcut_package">com.saico.fitlog</string>
 </resources>

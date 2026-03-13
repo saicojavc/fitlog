@@ -24,6 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -31,7 +32,11 @@ import androidx.navigation.compose.rememberNavController
 import com.saico.core.model.LanguageConfig
 import com.saico.core.notification.NotificationHelper
 import com.saico.core.notification.NotificationScheduler
+import com.saico.core.ui.navigation.NavigationCommand
 import com.saico.core.ui.navigation.Navigator
+import com.saico.core.ui.navigation.routes.gymwork.GymWorkRoute
+import com.saico.core.ui.navigation.routes.outdoorrun.OutdoorRunRoute
+import com.saico.core.ui.navigation.routes.workout.WorkoutRoute
 import com.saico.core.ui.theme.FitlogTheme
 import com.saico.feature.about.navigation.aboutGraph
 import com.saico.feature.dashboard.navigation.dashboardGraph
@@ -46,6 +51,8 @@ import com.saico.feature.workout.navigation.workoutGraph
 import com.saico.fitlog.ui.presentation.splash.SplashScreen
 import com.saico.lfeature.ogin.navigation.loginGraph
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.yield
 import java.util.Locale
 import javax.inject.Inject
 
@@ -63,7 +70,6 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: MainActivityViewModel by viewModels()
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -107,7 +113,6 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                // Localización (Necesaria para OutdoorRun)
                 if (ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     permissionsToRequest.add(Manifest.permission.ACCESS_FINE_LOCATION)
                 }
@@ -141,7 +146,8 @@ class MainActivity : ComponentActivity() {
                         MainContainer(
                             startDestination = viewModel.firstScreen,
                             navigator = navigator,
-                            navController = navController
+                            navController = navController,
+                            activityIntent = intent // Pasamos el intent inicial explícitamente
                         )
                     }
                 }
@@ -149,13 +155,12 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun startStepCounterService() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
-                return
-            }
-        }
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+    }
 
+    private fun startStepCounterService() {
         val intent = Intent(this, StepCounterService::class.java)
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -164,11 +169,8 @@ class MainActivity : ComponentActivity() {
                 startService(intent)
             }
         } catch (e: Exception) {
-            // Manejo preventivo para Android 12+ (ForegroundServiceStartNotAllowedException)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && e is ForegroundServiceStartNotAllowedException) {
-                Log.e("FitlogService", "No se permite iniciar el servicio de pasos desde background: ${e.message}")
-            } else {
-                Log.e("FitlogService", "Error al iniciar StepCounterService: ${e.message}")
+                Log.e("FitlogService", "No se permite iniciar el servicio desde background")
             }
         }
     }
@@ -191,8 +193,52 @@ class MainActivity : ComponentActivity() {
 private fun MainContainer(
     startDestination: String,
     navigator: Navigator,
-    navController: NavHostController
+    navController: NavHostController,
+    activityIntent: Intent?
 ) {
+    val context = LocalContext.current
+    val activity = context as? MainActivity
+
+    // 1. Escuchar comandos del Navigator inyectado
+    LaunchedEffect(navController) {
+        navigator.commands.collectLatest { command ->
+            when (command) {
+                is NavigationCommand.NavigateTo -> {
+                    navController.navigate(command.route, command.navOptions)
+                    navigator.onNavigated()
+                }
+                is NavigationCommand.PopBackstack -> {
+                    navController.popBackStack()
+                    navigator.onNavigated()
+                }
+                else -> {}
+            }
+        }
+    }
+
+    // 2. Escuchar Shortcuts y Notificaciones (Intents)
+    // Se dispara cada vez que el activityIntent cambia (incluyendo el onNewIntent)
+    LaunchedEffect(activityIntent) {
+        activityIntent?.let { intent ->
+            val target = intent.getStringExtra("navigate_to")
+            if (target != null) {
+                // Esperar a que el NavHost esté listo
+                yield() 
+                
+                when (target) {
+                    "gym" -> navController.navigate(GymWorkRoute.GymWorkScreenRoute.route)
+                    "workout" -> navController.navigate(WorkoutRoute.WorkoutScreenRoute.route)
+                    "outdoor" -> {
+                        val type = intent.getStringExtra("activityType") ?: "outdoor_run"
+                        navController.navigate(OutdoorRunRoute.OutdoorRunScreenRoute.createRoute(type))
+                    }
+                }
+                // Limpiar el extra para que no se repita la navegación
+                intent.removeExtra("navigate_to")
+            }
+        }
+    }
+
     Column {
         NavHost(
             navController = navController,
