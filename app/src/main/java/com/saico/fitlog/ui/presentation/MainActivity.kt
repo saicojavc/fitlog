@@ -1,12 +1,14 @@
 package com.saico.fitlog.ui.presentation
 
 import android.Manifest
+import android.app.ForegroundServiceStartNotAllowedException
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -67,7 +69,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             val userData by viewModel.userData.collectAsState()
             
-            // Launcher para múltiples permisos necesarios
             val permissionLauncher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.RequestMultiplePermissions()
             ) { permissions ->
@@ -88,7 +89,6 @@ class MainActivity : ComponentActivity() {
             LaunchedEffect(Unit) {
                 val permissionsToRequest = mutableListOf<String>()
                 
-                // Actividad Física
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     if (ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
                         permissionsToRequest.add(Manifest.permission.ACTIVITY_RECOGNITION)
@@ -99,7 +99,6 @@ class MainActivity : ComponentActivity() {
                     startStepCounterService()
                 }
 
-                // Notificaciones
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     if (ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                         permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
@@ -109,9 +108,6 @@ class MainActivity : ComponentActivity() {
                 // Localización (Necesaria para OutdoorRun)
                 if (ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     permissionsToRequest.add(Manifest.permission.ACCESS_FINE_LOCATION)
-                }
-                if (ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    permissionsToRequest.add(Manifest.permission.ACCESS_COARSE_LOCATION)
                 }
 
                 if (permissionsToRequest.isNotEmpty()) {
@@ -123,7 +119,6 @@ class MainActivity : ComponentActivity() {
 
             val dynamicColor = userData?.useDynamicColor ?: false
 
-            // Aplicar Idioma
             LaunchedEffect(userData?.languageConfig) {
                 userData?.languageConfig?.let { config ->
                     val locale = when (config) {
@@ -135,7 +130,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            // FORZADO: Siempre tema oscuro (darkTheme = true)
             FitlogTheme(dynamicColor = dynamicColor) {
                 val navController = rememberNavController()
                 Surface(modifier = Modifier.fillMaxSize()) {
@@ -161,10 +155,19 @@ class MainActivity : ComponentActivity() {
         }
 
         val intent = Intent(this, StepCounterService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intent)
-        } else {
-            startService(intent)
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(intent)
+            } else {
+                startService(intent)
+            }
+        } catch (e: Exception) {
+            // Manejo preventivo para Android 12+ (ForegroundServiceStartNotAllowedException)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && e is ForegroundServiceStartNotAllowedException) {
+                Log.e("FitlogService", "No se permite iniciar el servicio de pasos desde background: ${e.message}")
+            } else {
+                Log.e("FitlogService", "Error al iniciar StepCounterService: ${e.message}")
+            }
         }
     }
 
