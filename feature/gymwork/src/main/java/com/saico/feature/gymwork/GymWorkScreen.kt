@@ -1,5 +1,6 @@
 package com.saico.feature.gymwork
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -65,6 +67,11 @@ fun GymWorkScreen(
     viewModel: GymWorkViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    // BLOQUEO DE BOTÓN ATRÁS: Si hay una sesión activa (tiempo > 0 o hay ejercicios), no permite salir por accidente.
+    BackHandler(enabled = uiState.isTimerRunning || uiState.exercises.isNotEmpty()) {
+        // Bloqueado. Debe guardar o vaciar la lista para salir.
+    }
 
     Content(
         uiState = uiState,
@@ -240,12 +247,15 @@ fun Content(
                     containerColor = Color.Black.copy(alpha = 0.3f)
                 ),
                 navigationIcon = {
-                    FitlogIcon(
-                        modifier = Modifier.clickable { navController.popBackStack() },
-                        imageVector = FitlogIcons.ArrowBack,
-                        background = Color.Transparent,
-                        contentDescription = null
-                    )
+                    // Solo mostramos el botón de atrás si NO hay sesión activa
+                    if (!uiState.isTimerRunning && uiState.exercises.isEmpty()) {
+                        FitlogIcon(
+                            modifier = Modifier.clickable { navController.popBackStack() },
+                            imageVector = FitlogIcons.ArrowBack,
+                            background = Color.Transparent,
+                            contentDescription = null
+                        )
+                    }
                 }
             )
         },

@@ -14,6 +14,7 @@ import com.saico.core.model.OutdoorSession
 import com.saico.core.model.UnitsConfig
 import com.saico.feature.outdoorrun.model.OutdoorUiState
 import com.saico.feature.outdoorrun.service.LocationTrackingService
+import com.saico.feature.outdoorrun.service.TrackingState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
@@ -37,6 +38,8 @@ class OutdoorRunViewModel @Inject constructor(
 
     private var timerJob: Job? = null
     private var lastLocation: Location? = null
+    private var pausedTimeOffset: Long = 0L
+    private var lastStartTime: Long = 0L
 
     init {
         // Observar configuración del usuario
@@ -52,35 +55,75 @@ class OutdoorRunViewModel @Inject constructor(
                 updateMetrics(location)
             }
         }
+
+        // Sincronizar estado con el servicio (notificación)
+        viewModelScope.launch {
+            LocationTrackingService.serviceStatus.collectLatest { state ->
+                handleServiceStateChange(state)
+            }
+        }
+    }
+
+    private fun handleServiceStateChange(state: TrackingState) {
+        when (state) {
+            TrackingState.RUNNING -> {
+                if (!_uiState.value.isRunning) {
+                    _uiState.update { it.copy(isRunning = true) }
+                    startTimer()
+                }
+            }
+            TrackingState.PAUSED -> {
+                if (_uiState.value.isRunning) {
+                    _uiState.update { it.copy(isRunning = false) }
+                    timerJob?.cancel()
+                    timerJob = null
+                    pausedTimeOffset = _uiState.value.timeMillis
+                }
+            }
+            TrackingState.STOPPED -> {
+                _uiState.update { it.copy(isRunning = false) }
+                timerJob?.cancel()
+                timerJob = null
+            }
+        }
     }
 
     fun setActivityType(type: String) {
         _uiState.update { it.copy(activityType = type) }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun startTracking() {
-        if (_uiState.value.isRunning) return
+        if (LocationTrackingService.serviceStatus.value == TrackingState.RUNNING) return
 
-        _uiState.update { it.copy(isRunning = true) }
-        startTimer()
-
-        // Iniciar el Foreground Service
         val intent = Intent(context, LocationTrackingService::class.java).apply {
             action = LocationTrackingService.ACTION_START
         }
-        context.startForegroundService(intent)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(intent)
+        } else {
+            context.startService(intent)
+        }
+    }
+
+    fun pauseTracking() {
+        val intent = Intent(context, LocationTrackingService::class.java).apply {
+            action = LocationTrackingService.ACTION_PAUSE
+        }
+        context.startService(intent)
+    }
+
+    fun resumeTracking() {
+        val intent = Intent(context, LocationTrackingService::class.java).apply {
+            action = LocationTrackingService.ACTION_RESUME
+        }
+        context.startService(intent)
     }
 
     fun stopTracking() {
-        _uiState.update { it.copy(isRunning = false) }
-        timerJob?.cancel()
-
-        // Detener el Foreground Service
         val intent = Intent(context, LocationTrackingService::class.java).apply {
             action = LocationTrackingService.ACTION_STOP
         }
-        context.stopService(intent)
+        context.startService(intent)
     }
 
     fun saveSession() {
@@ -90,7 +133,7 @@ class OutdoorRunViewModel @Inject constructor(
                 activityType = state.activityType,
                 steps = if (state.activityType == "outdoor_run") state.steps else null,
                 averageSpeed = state.averageSpeed,
-                distance = state.distanceMeters / 1000f, // Siempre guardamos en KM
+                distance = state.distanceMeters / 1000f,
                 elevation = state.elevationGain,
                 time = state.timeMillis,
                 date = System.currentTimeMillis(),
@@ -98,14 +141,16 @@ class OutdoorRunViewModel @Inject constructor(
             )
             outdoorUseCase.saveOutdoorSessionUseCase(session)
             _uiState.update { OutdoorUiState(activityType = state.activityType, unitsConfig = state.unitsConfig) }
+            pausedTimeOffset = 0L
         }
     }
 
     private fun startTimer() {
+        timerJob?.cancel()
+        lastStartTime = System.currentTimeMillis() - _uiState.value.timeMillis
         timerJob = viewModelScope.launch {
-            val startTime = System.currentTimeMillis() - _uiState.value.timeMillis
             while (true) {
-                _uiState.update { it.copy(timeMillis = System.currentTimeMillis() - startTime) }
+                _uiState.update { it.copy(timeMillis = System.currentTimeMillis() - lastStartTime) }
                 delay(1000L)
             }
         }
@@ -130,7 +175,7 @@ class OutdoorRunViewModel @Inject constructor(
         lastLocation = newLocation
 
         val avgSpeed = if (_uiState.value.timeMillis > 0) {
-            (newDistance / (_uiState.value.timeMillis / 1000f)) * 3.6f // KM/H base
+            (newDistance / (_uiState.value.timeMillis / 1000f)) * 3.6f
         } else 0f
 
         _uiState.update {

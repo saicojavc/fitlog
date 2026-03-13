@@ -5,6 +5,7 @@ import com.saico.core.model.UnitsConfig
 
 data class OutdoorUiState(
     val isRunning: Boolean = false,
+    val isPaused: Boolean = false,
     val timeMillis: Long = 0L,
     val distanceMeters: Float = 0f,
     val steps: Int = 0,

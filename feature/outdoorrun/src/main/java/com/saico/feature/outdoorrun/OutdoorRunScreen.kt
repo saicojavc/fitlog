@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Build
 import android.provider.Settings
+import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -81,6 +82,8 @@ import com.saico.core.ui.icon.FitlogIcons
 import com.saico.core.ui.theme.fireOrange
 import com.saico.core.ui.theme.techBlue
 import com.saico.feature.outdoorrun.model.OutdoorUiState
+import com.saico.feature.outdoorrun.service.LocationTrackingService
+import com.saico.feature.outdoorrun.service.TrackingState
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -95,6 +98,12 @@ fun OutdoorRunScreen(
     var showGpsDialog by remember { mutableStateOf(false) }
 
     val uiState by viewModel.uiState.collectAsState()
+    val serviceStatus = LocationTrackingService.serviceStatus.collectAsState().value
+
+    // BLOQUEO DE BOTÓN ATRÁS: Si la sesión está activa o pausada, no se puede salir.
+    BackHandler(enabled = serviceStatus != TrackingState.STOPPED) {
+        // No hacemos nada, bloqueando el retroceso.
+    }
 
     fun isGpsEnabled(context: Context): Boolean {
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -121,20 +130,14 @@ fun OutdoorRunScreen(
                         context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
                     },
                     shape = RoundedCornerShape(16.dp),
-                    color = Color.Transparent
+                    color = Color.Transparent,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp)
-                            .background(
-                                Brush.horizontalGradient(
-                                    listOf(
-                                        techBlue,
-                                        Color(0xFF216EE0)
-                                    )
-                                )
-                            ),
+                            .background(Brush.horizontalGradient(listOf(techBlue, Color(0xFF216EE0)))),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -168,10 +171,12 @@ fun OutdoorRunScreen(
     Content(
         navController = navController,
         uiState = uiState,
+        serviceStatus = serviceStatus,
         onStartClick = { viewModel.startTracking() },
+        onPauseClick = { viewModel.pauseTracking() },
+        onResumeClick = { viewModel.resumeTracking() },
         onStopClick = { viewModel.stopTracking() },
-        onSaveClick = { viewModel.saveSession() },
-        onRecentrar = { /* Implementado internamente en Content */ }
+        onSaveClick = { viewModel.saveSession() }
     )
 }
 
@@ -180,10 +185,12 @@ fun OutdoorRunScreen(
 fun Content(
     navController: NavHostController,
     uiState: OutdoorUiState,
+    serviceStatus: TrackingState,
     onStartClick: () -> Unit,
+    onPauseClick: () -> Unit,
+    onResumeClick: () -> Unit,
     onStopClick: () -> Unit,
-    onSaveClick: () -> Unit,
-    onRecentrar: () -> Unit
+    onSaveClick: () -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -200,10 +207,7 @@ fun Content(
     }
 
     val hasLocationPermission = remember {
-        ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
+        ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
     }
 
     val cameraPositionState = rememberCameraPositionState {
@@ -215,45 +219,27 @@ fun Content(
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 location?.let {
                     scope.launch {
-                        cameraPositionState.animate(
-                            CameraUpdateFactory.newLatLngZoom(
-                                LatLng(
-                                    it.latitude,
-                                    it.longitude
-                                ), 17f
-                            )
-                        )
+                        cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(LatLng(it.latitude, it.longitude), 17f))
                     }
                 }
             }
         }
     }
 
-    // Centrar automáticamente cuando hay nuevos puntos y la sesión está activa
     LaunchedEffect(uiState.routePath.lastOrNull()) {
         uiState.routePath.lastOrNull()?.let { lastPoint ->
             val target = LatLng(lastPoint.latitude, lastPoint.longitude)
-
-            // Si la cámara está en (0,0), centramos inmediatamente sin importar si corre o no (primer fix)
             if (cameraPositionState.position.target.latitude == 0.0) {
                 cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(target, 17f))
-            }
-            // Si está corriendo, seguimos la posición automáticamente
+            } 
             else if (uiState.isRunning) {
-                cameraPositionState.animate(
-                    update = CameraUpdateFactory.newLatLng(target),
-                    durationMs = 1000
-                )
+                cameraPositionState.animate(update = CameraUpdateFactory.newLatLng(target), durationMs = 1000)
             }
         }
     }
 
-    // Inicial centrado si ya tenemos permisos
-    LaunchedEffect(Unit) {
-        centerMapOnMyLocation()
-    }
+    LaunchedEffect(Unit) { centerMapOnMyLocation() }
 
-    // Dibujar ruta en el mapa
     val polylinePoints = remember(uiState.routePath) {
         uiState.routePath.map { LatLng(it.latitude, it.longitude) }
     }
@@ -264,8 +250,7 @@ fun Content(
             isMyLocationEnabled = hasLocationPermission
         )
     }
-    val uiSettings =
-        remember { MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false) }
+    val uiSettings = remember { MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         GoogleMap(
@@ -275,137 +260,60 @@ fun Content(
             uiSettings = uiSettings
         ) {
             if (polylinePoints.isNotEmpty()) {
-                Polyline(
-                    points = polylinePoints,
-                    color = techBlue,
-                    width = 12f,
-                    startCap = RoundCap(),
-                    endCap = RoundCap()
-                )
+                Polyline(points = polylinePoints, color = techBlue, width = 12f, startCap = RoundCap(), endCap = RoundCap())
             }
         }
 
-        // Header
-        Row(
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(top = 30.dp, start = 20.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Surface(
-                onClick = { navController.popBackStack() },
-                color = Color(0xFF0D1424).copy(alpha = 0.75f),
-                shape = CircleShape,
-                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f)),
-                modifier = Modifier.size(48.dp)
+        // Header (Solo visible si no está corriendo para poder salir al inicio)
+        if (serviceStatus == TrackingState.STOPPED) {
+            Row(
+                modifier = Modifier.align(Alignment.TopStart).padding(top = 30.dp, start = 20.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
-                        tint = Color.White,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-            }
-
-            Surface(
-                color = Color(0xFF0D1424).copy(alpha = 0.75f),
-                shape = RoundedCornerShape(24.dp),
-                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                Surface(
+                    onClick = { navController.popBackStack() },
+                    color = Color(0xFF0D1424).copy(alpha = 0.75f),
+                    shape = CircleShape,
+                    border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f)),
+                    modifier = Modifier.size(48.dp)
                 ) {
-                    Icon(
-                        imageVector = mainIcon,
-                        contentDescription = null,
-                        tint = if (uiState.activityType == "cycling") Color(0xFFD4FF00) else fireOrange,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Text(
-                        text = activityTitle.uppercase(),
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Black,
-                        color = Color.White,
-                        letterSpacing = 1.sp
-                    )
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White, modifier = Modifier.size(24.dp))
+                    }
+                }
+
+                Surface(
+                    color = Color(0xFF0D1424).copy(alpha = 0.75f),
+                    shape = RoundedCornerShape(24.dp),
+                    border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
+                ) {
+                    Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Icon(imageVector = mainIcon, contentDescription = null, tint = if (uiState.activityType == "cycling") Color(0xFFD4FF00) else fireOrange, modifier = Modifier.size(20.dp))
+                        Text(text = activityTitle.uppercase(), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Black, color = Color.White, letterSpacing = 1.sp)
+                    }
                 }
             }
         }
 
         // Metrics
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 90.dp, start = 10.dp, end = 10.dp),
+            modifier = Modifier.fillMaxWidth().padding(top = 90.dp, start = 10.dp, end = 10.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                MetricBubble(
-                    label = "Time",
-                    value = formatMillis(uiState.timeMillis),
-                    icon = FitlogIcons.History,
-                    accentColor = Color.White,
-                    modifier = Modifier.weight(1f)
-                )
-                MetricBubble(
-                    label = "Distance",
-                    value = if (uiState.unitsConfig == UnitsConfig.IMPERIAL) {
-                        UnitsConverter.formatDistance(
-                            uiState.distanceMeters / 1000.0,
-                            UnitsConfig.IMPERIAL
-                        )
-                    } else {
-                        String.format(
-                            Locale.getDefault(),
-                            "%.2f km",
-                            uiState.distanceMeters / 1000f
-                        )
-                    },
-                    icon = FitlogIcons.Height,
-                    accentColor = techBlue,
-                    modifier = Modifier.weight(1f)
-                )
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                MetricBubble(label = "Time", value = formatMillis(uiState.timeMillis), icon = FitlogIcons.History, accentColor = Color.White, modifier = Modifier.weight(1f))
+                val distanceValue = if (uiState.unitsConfig == UnitsConfig.IMPERIAL) (uiState.distanceMeters / 1000f) * 0.621371f else uiState.distanceMeters / 1000f
+                val distanceUnit = if (uiState.unitsConfig == UnitsConfig.IMPERIAL) "mi" else "km"
+                MetricBubble(label = "Distance", value = String.format(Locale.getDefault(), "%.2f $distanceUnit", distanceValue), icon = FitlogIcons.Height, accentColor = techBlue, modifier = Modifier.weight(1f))
             }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                MetricBubble(
-                    label = "Avg Speed",
-                    value = if (uiState.unitsConfig == UnitsConfig.IMPERIAL) {
-                        String.format(
-                            Locale.getDefault(),
-                            "%.1f mph",
-                            uiState.averageSpeed * 0.621371f
-                        )
-                    } else {
-                        String.format(Locale.getDefault(), "%.1f km/h", uiState.averageSpeed)
-                    }, icon = FitlogIcons.Speed,
-                    accentColor = fireOrange,
-                    modifier = Modifier.weight(1f)
-                )
-                MetricBubble(
-                    label = "Elevation",
-                    value = if (uiState.unitsConfig == UnitsConfig.IMPERIAL) {
-                        String.format(
-                            Locale.getDefault(),
-                            "+%.0f ft",
-                            uiState.elevationGain * 3.28084f
-                        )
-                    } else {
-                        String.format(Locale.getDefault(), "+%.0fm", uiState.elevationGain)
-                    }, icon = Icons.Default.KeyboardArrowUp,
-                    accentColor = Color(0xFFA855F7),
-                    modifier = Modifier.weight(1f)
-                )
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                val speedValue = if (uiState.unitsConfig == UnitsConfig.IMPERIAL) uiState.averageSpeed * 0.621371f else uiState.averageSpeed
+                val speedUnit = if (uiState.unitsConfig == UnitsConfig.IMPERIAL) "mph" else "km/h"
+                MetricBubble(label = "Avg Speed", value = String.format(Locale.getDefault(), "%.1f $speedUnit", speedValue), icon = FitlogIcons.Speed, accentColor = fireOrange, modifier = Modifier.weight(1f))
+                val elevValue = if (uiState.unitsConfig == UnitsConfig.IMPERIAL) uiState.elevationGain * 3.28084f else uiState.elevationGain
+                val elevUnit = if (uiState.unitsConfig == UnitsConfig.IMPERIAL) "ft" else "m"
+                MetricBubble(label = "Elevation", value = String.format(Locale.getDefault(), "+%.0f$elevUnit", elevValue), icon = Icons.Default.KeyboardArrowUp, accentColor = Color(0xFFA855F7), modifier = Modifier.weight(1f))
             }
         }
 
@@ -415,82 +323,58 @@ fun Content(
             color = Color(0xFF0D1424).copy(alpha = 0.75f),
             shape = CircleShape,
             border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f)),
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(bottom = 135.dp, end = 25.dp)
-                .size(56.dp)
+            modifier = Modifier.align(Alignment.BottomEnd).padding(bottom = 135.dp, end = 25.dp).size(56.dp)
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    imageVector = Icons.Default.LocationOn,
-                    contentDescription = "My Location",
-                    tint = techBlue,
-                    modifier = Modifier.size(28.dp)
-                )
+                Icon(imageVector = Icons.Default.LocationOn, contentDescription = "My Location", tint = techBlue, modifier = Modifier.size(28.dp))
             }
         }
 
-        // Botón Iniciar / Guardar
-        val startColor = Color(0xFF10B981)
-        val stopColor = fireOrange
+        // Botón Principal
+        val buttonColor = when (serviceStatus) {
+            TrackingState.STOPPED -> Color(0xFF10B981)
+            TrackingState.RUNNING -> fireOrange
+            TrackingState.PAUSED -> techBlue
+        }
 
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 50.dp, start = 30.dp, end = 30.dp)
-        ) {
+        Box(modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 50.dp, start = 30.dp, end = 30.dp)) {
             Button(
-                onClick = { if (uiState.isRunning) onStopClick() else onStartClick() },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(64.dp)
-                    .shadow(
-                        20.dp,
-                        CircleShape,
-                        spotColor = if (uiState.isRunning) stopColor else startColor
-                    ),
+                onClick = { 
+                    when(serviceStatus) {
+                        TrackingState.STOPPED -> onStartClick()
+                        TrackingState.RUNNING -> onPauseClick()
+                        TrackingState.PAUSED -> onResumeClick()
+                    }
+                },
+                modifier = Modifier.fillMaxWidth().height(64.dp).shadow(20.dp, CircleShape, spotColor = buttonColor),
                 shape = CircleShape,
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                 contentPadding = PaddingValues()
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            Brush.horizontalGradient(
-                                if (uiState.isRunning) listOf(stopColor, Color(0xFFE11D48))
-                                else listOf(startColor, Color(0xFF059669))
-                            )
-                        )
-                        .border(1.dp, Color.White.copy(alpha = 0.2f), CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
+                Box(modifier = Modifier.fillMaxSize().background(Brush.horizontalGradient(listOf(buttonColor, buttonColor.copy(alpha = 0.7f)))).border(1.dp, Color.White.copy(alpha = 0.2f), CircleShape), contentAlignment = Alignment.Center) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = if (uiState.isRunning) FitlogIcons.Save else Icons.Default.PlayArrow,
-                            contentDescription = null,
-                            tint = Color.White
-                        )
+                        Icon(imageVector = if (serviceStatus == TrackingState.RUNNING) FitlogIcons.Pause else Icons.Default.PlayArrow, contentDescription = null, tint = Color.White)
                         Spacer(Modifier.width(12.dp))
-                        Text(
-                            text = (if (uiState.isRunning) "GUARDAR SESIÓN" else "EMPEZAR").uppercase(),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Black,
-                            letterSpacing = 1.5.sp,
-                            color = Color.White
-                        )
+                        Text(text = when(serviceStatus) {
+                            TrackingState.STOPPED -> "EMPEZAR"
+                            TrackingState.RUNNING -> "PAUSAR"
+                            TrackingState.PAUSED -> "REANUDAR"
+                        }.uppercase(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black, letterSpacing = 1.5.sp, color = Color.White)
                     }
                 }
             }
         }
+        
+        if (serviceStatus != TrackingState.STOPPED) {
+            Box(modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 125.dp)) {
+                 TextButton(onClick = onStopClick) {
+                     Text("DETENER", color = Color.Red, fontWeight = FontWeight.Bold)
+                 }
+            }
+        }
 
-        // Botón Guardar definitivo si se paró la sesión
-        if (!uiState.isRunning && uiState.timeMillis > 0) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 125.dp)
-            ) {
+        if (serviceStatus == TrackingState.STOPPED && uiState.timeMillis > 0) {
+            Box(modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 125.dp)) {
                 TextButton(onClick = onSaveClick) {
                     Text("FINALIZAR Y GUARDAR", color = techBlue, fontWeight = FontWeight.Bold)
                 }

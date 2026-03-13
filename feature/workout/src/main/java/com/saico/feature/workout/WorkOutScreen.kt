@@ -1,5 +1,6 @@
 package com.saico.feature.workout
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -60,6 +61,7 @@ import com.saico.core.ui.theme.PaddingDim
 import com.saico.core.ui.theme.techBlue
 import com.saico.feature.workout.component.WorkoutStat
 import com.saico.feature.workout.state.WorkoutUiState
+import java.util.Locale
 
 enum class WorkoutState { IDLE, RUNNING, PAUSED }
 
@@ -70,6 +72,12 @@ fun WorkoutScreen(
     viewModel: WorkoutViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    // BLOQUEO DE BOTÓN ATRÁS: Mientras se está en sesión (RUNNING o PAUSED) no se puede salir.
+    BackHandler(enabled = uiState.workoutState != WorkoutState.IDLE) {
+        // Bloqueado hasta que termine la sesión
+    }
+
     Content(
         navController = navController,
         uiState = uiState,
@@ -115,14 +123,13 @@ fun Content(
             modifier = Modifier
                 .fillMaxWidth(0.85f)
                 .clip(RoundedCornerShape(32.dp))
-                .background(Color(0xFF0D1424).copy(alpha = 0.95f)) // Fondo azul profundo
+                .background(Color(0xFF0D1424).copy(alpha = 0.95f)) 
                 .border(1.dp, Color.White.copy(alpha = 0.15f), RoundedCornerShape(32.dp)),
             content = {
                 Column(
                     modifier = Modifier.padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // --- ICONO DE CELEBRACIÓN (GLOW AZUL) ---
                     Box(
                         modifier = Modifier
                             .size(90.dp)
@@ -130,14 +137,12 @@ fun Content(
                             .background(Color(0xFF3FB9F6).copy(alpha = 0.1f), CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
-                        // Halo intermedio
                         Box(
                             modifier = Modifier
                                 .size(64.dp)
                                 .background(Color(0xFF3FB9F6).copy(alpha = 0.15f), CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
-                            // Círculo central brillante
                             Box(
                                 modifier = Modifier
                                     .size(48.dp)
@@ -161,7 +166,6 @@ fun Content(
 
                     Spacer(Modifier.height(28.dp))
 
-                    // --- TÍTULO ---
                     FitlogText(
                         text = stringResource(id = R.string.workout_saved_title).uppercase(),
                         style = MaterialTheme.typography.titleLarge,
@@ -173,7 +177,6 @@ fun Content(
 
                     Spacer(Modifier.height(12.dp))
 
-                    // --- MENSAJE ---
                     FitlogText(
                         text = stringResource(id = R.string.workout_saved_text),
                         style = MaterialTheme.typography.bodyMedium,
@@ -184,7 +187,6 @@ fun Content(
 
                     Spacer(Modifier.height(36.dp))
 
-                    // --- BOTÓN DE CIERRE (DEGRADADO AZUL) ---
                     Button(
                         onClick = onDialogDismissed,
                         modifier = Modifier
@@ -229,14 +231,17 @@ fun Content(
                     containerColor = Color.Black.copy(alpha = 0.3f)
                 ),
                 navigationIcon = {
-                    FitlogIcon(
-                        modifier = Modifier.clickable {
-                            navController.popBackStack()
-                        },
-                        imageVector = FitlogIcons.ArrowBack,
-                        background = Color.Transparent,
-                        contentDescription = null
-                    )
+                    // Solo mostramos botón de atrás si no hay sesión activa
+                    if (uiState.workoutState == WorkoutState.IDLE) {
+                        FitlogIcon(
+                            modifier = Modifier.clickable {
+                                navController.popBackStack()
+                            },
+                            imageVector = FitlogIcons.ArrowBack,
+                            background = Color.Transparent,
+                            contentDescription = null
+                        )
+                    }
                 }
             )
         }
@@ -252,10 +257,9 @@ fun Content(
             ) {
                 SpacerHeight(PaddingDim.EXTRA_HUGE)
 
-                // -- TIEMPO (Estilo Cronómetro Digital Pro) --
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.alpha(0.7f) // Un poco más sutil para que el tiempo destaque
+                    modifier = Modifier.alpha(0.7f) 
                 ) {
                     Icon(
                         imageVector = FitlogIcons.Clock,
@@ -275,7 +279,7 @@ fun Content(
                 FitlogText(
                     text = elapsedTime,
                     style = MaterialTheme.typography.displayLarge.copy(
-                        fontWeight = FontWeight.ExtraLight, // Elegancia pura
+                        fontWeight = FontWeight.ExtraLight, 
                         letterSpacing = (-2).sp
                     ),
                     color = Color.White,
@@ -284,7 +288,6 @@ fun Content(
 
                 SpacerHeight(PaddingDim.LARGE)
 
-                // -- TARJETA DE ESTADÍSTICAS (Holográfica) --
                 FitlogCard(
                     modifier = Modifier.fillMaxWidth(),
                     color = Color(0xFF0D1424).copy(alpha = 0.6f),
@@ -303,19 +306,18 @@ fun Content(
                                 icon = FitlogIcons.Map,
                                 value = "%.2f".format(displayDistance),
                                 unit = distanceUnit.uppercase(),
-                                tint = Color(0xFF3FB9F6) // Azul Fitlog
+                                tint = Color(0xFF3FB9F6) 
                             )
                             WorkoutStat(
                                 icon = FitlogIcons.Fire,
                                 value = uiState.calories.toString(),
                                 unit = "KCAL",
-                                tint = Color(0xFFFF4550) // Rojo neón para quemar calorías
+                                tint = Color(0xFFFF4550) 
                             )
                         }
 
                         SpacerHeight(PaddingDim.LARGE)
 
-                        // Divisor sutil
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth(0.8f)
@@ -328,14 +330,13 @@ fun Content(
                             icon = FitlogIcons.Speed,
                             value = "%.1f".format(displaySpeed),
                             unit = speedUnit.uppercase(),
-                            tint = Color.White // Blanco puro para la velocidad
+                            tint = Color.White 
                         )
                     }
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                // -- CONTROLES (Batería de botones Glow) --
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -343,7 +344,6 @@ fun Content(
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // PAUSA
                     CircularControlBlue(
                         icon = FitlogIcons.Pause,
                         onClick = onPause,
@@ -351,7 +351,6 @@ fun Content(
                         isSecondary = true
                     )
 
-                    // STOP (Botón central dominante)
                     CircularControlBlue(
                         icon = FitlogIcons.Stop,
                         onClick = onStop,
@@ -360,9 +359,8 @@ fun Content(
                         isMain = true
                     )
 
-                    // PLAY
                     CircularControlBlue(
-                        icon = if (uiState.workoutState == WorkoutState.PAUSED) FitlogIcons.Play else FitlogIcons.Play,
+                        icon = FitlogIcons.Play,
                         onClick = onStart,
                         enabled = uiState.workoutState == WorkoutState.IDLE || uiState.workoutState == WorkoutState.PAUSED,
                         isSecondary = true
@@ -370,8 +368,6 @@ fun Content(
                 }
             }
         }
-
-
     }
 }
 
@@ -421,5 +417,5 @@ private fun formatElapsedTime(seconds: Long): String {
     val hours = seconds / 3600
     val minutes = (seconds % 3600) / 60
     val secs = seconds % 60
-    return String.format("%02d:%02d:%02d", hours, minutes, secs)
+    return String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, secs)
 }
