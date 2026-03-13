@@ -137,7 +137,7 @@
     <string name="half_goal_title">Halfway there! 🔥</string>
     <string name="half_goal_msg">You already have %1$d steps. Keep it up!</string>
     <string name="daily_summary_title">Daily Summary</string>
-    <string name="daily_summary_msg_incomplete">Today you did %1$d steps. Good effort! Tomorrow for the goal 😊</string>
+    <string name="daily_summary_msg_incomplete">Today you did %1$d steps. Good effort! Tomorrow for more 😊</string>
     <string name="daily_summary_msg_complete">Today you did %1$d steps. You\'ve outdone yourself! Congratulations! 😊</string>
 
     <!-- Service Notification -->

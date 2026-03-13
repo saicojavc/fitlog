@@ -73,7 +73,9 @@ class StepCounterService : Service() {
                 channelId,
                 "Fitlog Step Counter",
                 NotificationManager.IMPORTANCE_LOW
-            )
+            ).apply {
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            }
             val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             manager.createNotificationChannel(channel)
         }
@@ -85,10 +87,16 @@ class StepCounterService : Service() {
         )
 
         val notification: Notification = NotificationCompat.Builder(this, channelId)
-            .setContentTitle(getString(R.string.service_active_title))
+            .setContentTitle(getString(R.string.service_active_title).uppercase())
             .setContentText(getString(R.string.service_active_msg))
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
+            .setColor(0xFF3FB9F6.toInt())
+            .setColorized(true)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setOngoing(true)
             .setContentIntent(pendingIntent)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(getString(R.string.service_active_msg)))
             .build()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {

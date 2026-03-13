@@ -25,6 +25,8 @@ class NotificationHelper @Inject constructor(
         const val SUMMARY_CHANNEL_ID = "daily_summary"
         const val WORKOUT_CHANNEL_ID = "workout_active"
         const val WORKOUT_NOTIFICATION_ID = 3001
+        
+        const val TECH_BLUE = 0xFF3FB9F6.toInt()
     }
 
     init {
@@ -33,37 +35,10 @@ class NotificationHelper @Inject constructor(
 
     private fun createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val dailyChannel = NotificationChannel(
-                DAILY_CHANNEL_ID,
-                "Motivación Diaria",
-                NotificationManager.IMPORTANCE_DEFAULT
-            ).apply {
-                description = "Frases motivadoras por la mañana"
-                enableVibration(true)
-            }
-
-            val progressChannel = NotificationChannel(
-                PROGRESS_CHANNEL_ID,
-                "Logros y Progreso",
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = "Notificaciones al alcanzar metas de pasos"
-                enableVibration(true)
-            }
-
-            val summaryChannel = NotificationChannel(
-                SUMMARY_CHANNEL_ID,
-                "Resumen del Día",
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
-
-            val workoutChannel = NotificationChannel(
-                WORKOUT_CHANNEL_ID,
-                "Entrenamiento Activo",
-                NotificationManager.IMPORTANCE_LOW
-            ).apply {
-                description = "Muestra el progreso de tu entrenamiento actual"
-                setShowBadge(false)
+            val dailyChannel = NotificationChannel(DAILY_CHANNEL_ID, "Motivación Diaria", NotificationManager.IMPORTANCE_DEFAULT)
+            val progressChannel = NotificationChannel(PROGRESS_CHANNEL_ID, "Logros y Progreso", NotificationManager.IMPORTANCE_HIGH)
+            val summaryChannel = NotificationChannel(SUMMARY_CHANNEL_ID, "Resumen del Día", NotificationManager.IMPORTANCE_DEFAULT)
+            val workoutChannel = NotificationChannel(WORKOUT_CHANNEL_ID, "Entrenamiento Activo", NotificationManager.IMPORTANCE_LOW).apply {
                 lockscreenVisibility = android.app.Notification.VISIBILITY_PUBLIC
             }
 
@@ -76,91 +51,57 @@ class NotificationHelper @Inject constructor(
     }
 
     @SuppressLint("MissingPermission")
-    fun showWorkoutNotification(
-        title: String,
-        content: String,
-        startTimeMillis: Long? = null,
-        isPaused: Boolean = false
-    ) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return
-        }
+    fun showWorkoutNotification(title: String, content: String, startTimeMillis: Long? = null, isPaused: Boolean = false) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return
 
         val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
-        val pendingIntent = PendingIntent.getActivity(
-            context, 0, intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+        val pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
         val builder = NotificationCompat.Builder(context, WORKOUT_CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
-            .setContentTitle(title)
+            .setContentTitle(title.uppercase())
             .setContentText(content)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setOngoing(true) // Persistent
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setCategory(NotificationCompat.CATEGORY_WORKOUT)
-            .setColor(0xFF2196F3.toInt()) // Color azul de Fitlog
+            .setColor(TECH_BLUE)
+            .setColorized(true)
             .setContentIntent(pendingIntent)
             .setStyle(NotificationCompat.BigTextStyle().bigText(content))
 
-        // Si tenemos tiempo de inicio, activamos el cronómetro nativo de la notificación
         if (startTimeMillis != null && !isPaused) {
             builder.setUsesChronometer(true)
             builder.setWhen(startTimeMillis)
-            builder.setShowWhen(true)
-        } else {
-            builder.setUsesChronometer(false)
-            builder.setShowWhen(false)
         }
 
-        try {
-            NotificationManagerCompat.from(context).notify(WORKOUT_NOTIFICATION_ID, builder.build())
-        } catch (e: Exception) {}
+        NotificationManagerCompat.from(context).notify(WORKOUT_NOTIFICATION_ID, builder.build())
     }
 
     @SuppressLint("MissingPermission")
-    fun showNotification(
-        title: String,
-        message: String,
-        channelId: String,
-        notificationId: Int,
-        isOngoing: Boolean = false
-    ) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                return
-            }
-        }
+    fun showNotification(title: String, message: String, channelId: String, notificationId: Int, isOngoing: Boolean = false) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return
 
         val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
-        val pendingIntent = PendingIntent.getActivity(
-            context, 0, intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+        val pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
         val notification = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
-            .setContentTitle(title)
+            .setContentTitle(title.uppercase())
             .setContentText(message)
-            .setPriority(if (isOngoing) NotificationCompat.PRIORITY_LOW else NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(if (isOngoing) NotificationCompat.PRIORITY_MAX else NotificationCompat.PRIORITY_HIGH)
             .setOngoing(isOngoing)
             .setAutoCancel(!isOngoing)
-            .setOnlyAlertOnce(true)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setCategory(NotificationCompat.CATEGORY_WORKOUT)
-            .setColor(0xFF2196F3.toInt())
+            .setColor(TECH_BLUE)
+            .setColorized(isOngoing)
             .setContentIntent(pendingIntent)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
             .build()
 
-        try {
-            NotificationManagerCompat.from(context).notify(notificationId, notification)
-        } catch (e: Exception) {}
+        NotificationManagerCompat.from(context).notify(notificationId, notification)
     }
 
-    fun cancelNotification(notificationId: Int) {
-        NotificationManagerCompat.from(context).cancel(notificationId)
-    }
+    fun cancelNotification(notificationId: Int) = NotificationManagerCompat.from(context).cancel(notificationId)
 }

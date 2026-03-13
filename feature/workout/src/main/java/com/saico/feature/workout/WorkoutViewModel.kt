@@ -174,17 +174,16 @@ class WorkoutViewModel @Inject constructor(
         }
         
         val baseTime = if (!isPaused) {
-            SystemClock.elapsedRealtime() - (state.elapsedTimeInSeconds * 1000)
+            System.currentTimeMillis() - (state.elapsedTimeInSeconds * 1000)
         } else {
             null
         }
 
-        notificationHelper.showNotification(
-            title = context.getString(R.string.workout_ongoing_title),
-            message = content,
-            channelId = NotificationHelper.WORKOUT_CHANNEL_ID,
-            notificationId = NotificationHelper.WORKOUT_NOTIFICATION_ID,
-            isOngoing = true
+        notificationHelper.showWorkoutNotification(
+            title = title,
+            content = content,
+            startTimeMillis = baseTime,
+            isPaused = isPaused
         )
     }
 
