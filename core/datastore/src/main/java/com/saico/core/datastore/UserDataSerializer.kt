@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.saico.core.model.DarkThemeConfig
 import com.saico.core.model.LanguageConfig
@@ -32,6 +33,8 @@ class UserSettingsDataStore @Inject constructor(
         val USE_DYNAMIC_COLOR = booleanPreferencesKey("use_dynamic_color")
         val WORKOUT_REMINDER_HOUR = intPreferencesKey("workout_reminder_hour")
         val WORKOUT_REMINDER_MINUTE = intPreferencesKey("workout_reminder_minute")
+        val WORKOUT_REMINDER_ENABLED = booleanPreferencesKey("workout_reminder_enabled")
+        val WORKOUT_REMINDER_DAYS = stringSetPreferencesKey("workout_reminder_days")
         
         // Notificaciones Flags
         val GOAL_REACHED_SHOWN_DATE = longPreferencesKey("goal_reached_shown_date")
@@ -51,7 +54,9 @@ class UserSettingsDataStore @Inject constructor(
             ),
             useDynamicColor = preferences[PreferencesKeys.USE_DYNAMIC_COLOR] ?: false,
             workoutReminderHour = preferences[PreferencesKeys.WORKOUT_REMINDER_HOUR] ?: 18,
-            workoutReminderMinute = preferences[PreferencesKeys.WORKOUT_REMINDER_MINUTE] ?: 0
+            workoutReminderMinute = preferences[PreferencesKeys.WORKOUT_REMINDER_MINUTE] ?: 0,
+            workoutReminderEnabled = preferences[PreferencesKeys.WORKOUT_REMINDER_ENABLED] ?: false,
+            workoutReminderDays = preferences[PreferencesKeys.WORKOUT_REMINDER_DAYS]?.map { it.toInt() }?.toSet() ?: emptySet()
         )
     }
 
@@ -83,6 +88,18 @@ class UserSettingsDataStore @Inject constructor(
         context.userDataStore.edit { preferences ->
             preferences[PreferencesKeys.WORKOUT_REMINDER_HOUR] = hour
             preferences[PreferencesKeys.WORKOUT_REMINDER_MINUTE] = minute
+        }
+    }
+
+    suspend fun setWorkoutReminderEnabled(enabled: Boolean) {
+        context.userDataStore.edit { preferences ->
+            preferences[PreferencesKeys.WORKOUT_REMINDER_ENABLED] = enabled
+        }
+    }
+
+    suspend fun setWorkoutReminderDays(days: Set<Int>) {
+        context.userDataStore.edit { preferences ->
+            preferences[PreferencesKeys.WORKOUT_REMINDER_DAYS] = days.map { it.toString() }.toSet()
         }
     }
 

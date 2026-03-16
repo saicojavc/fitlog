@@ -35,10 +35,10 @@ class NotificationHelper @Inject constructor(
 
     private fun createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val dailyChannel = NotificationChannel(DAILY_CHANNEL_ID, "Motivación Diaria", NotificationManager.IMPORTANCE_DEFAULT)
-            val progressChannel = NotificationChannel(PROGRESS_CHANNEL_ID, "Logros y Progreso", NotificationManager.IMPORTANCE_HIGH)
-            val summaryChannel = NotificationChannel(SUMMARY_CHANNEL_ID, "Resumen del Día", NotificationManager.IMPORTANCE_DEFAULT)
-            val workoutChannel = NotificationChannel(WORKOUT_CHANNEL_ID, "Entrenamiento Activo", NotificationManager.IMPORTANCE_LOW).apply {
+            val dailyChannel = NotificationChannel(DAILY_CHANNEL_ID, "FITLOG • MOTIVACIÓN", NotificationManager.IMPORTANCE_HIGH)
+            val progressChannel = NotificationChannel(PROGRESS_CHANNEL_ID, "FITLOG • LOGROS", NotificationManager.IMPORTANCE_HIGH)
+            val summaryChannel = NotificationChannel(SUMMARY_CHANNEL_ID, "FITLOG • RESUMEN", NotificationManager.IMPORTANCE_HIGH)
+            val workoutChannel = NotificationChannel(WORKOUT_CHANNEL_ID, "FITLOG • ENTRENAMIENTO", NotificationManager.IMPORTANCE_HIGH).apply {
                 lockscreenVisibility = android.app.Notification.VISIBILITY_PUBLIC
             }
 
@@ -61,6 +61,7 @@ class NotificationHelper @Inject constructor(
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
             .setContentTitle(title.uppercase())
             .setContentText(content)
+            .setSubText("FITLOG • ENTRENAMIENTO")
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
@@ -90,12 +91,13 @@ class NotificationHelper @Inject constructor(
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
             .setContentTitle(title.uppercase())
             .setContentText(message)
-            .setPriority(if (isOngoing) NotificationCompat.PRIORITY_MAX else NotificationCompat.PRIORITY_HIGH)
+            .setSubText("FITLOG • ANALYTICS")
+            .setPriority(NotificationCompat.PRIORITY_MAX)
             .setOngoing(isOngoing)
             .setAutoCancel(!isOngoing)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setColor(TECH_BLUE)
-            .setColorized(isOngoing)
+            .setColorized(true)
             .setContentIntent(pendingIntent)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
             .build()

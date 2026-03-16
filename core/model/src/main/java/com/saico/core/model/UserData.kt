@@ -6,7 +6,9 @@ data class UserData(
     val unitsConfig: UnitsConfig,
     val useDynamicColor: Boolean,
     val workoutReminderHour: Int = 18,
-    val workoutReminderMinute: Int = 0
+    val workoutReminderMinute: Int = 0,
+    val workoutReminderEnabled: Boolean = false,
+    val workoutReminderDays: Set<Int> = emptySet()
 )
 
 enum class DarkThemeConfig {

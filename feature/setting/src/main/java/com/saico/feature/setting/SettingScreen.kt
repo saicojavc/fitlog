@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,6 +35,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
@@ -72,6 +75,7 @@ import com.saico.core.ui.navigation.routes.about.AboutRoute
 import com.saico.core.ui.theme.PaddingDim
 import com.saico.core.ui.theme.techBlue
 import com.saico.feature.setting.state.SettingUiState
+import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -137,7 +141,9 @@ fun SettingScreen(
                             settings = state.settings,
                             onLanguageChange = viewModel::updateLanguageConfig,
                             onUnitsChange = viewModel::updateUnitsConfig,
-                            onTimeChange = viewModel::updateWorkoutReminderTime
+                            onTimeChange = viewModel::updateWorkoutReminderTime,
+                            onEnabledChange = viewModel::updateWorkoutReminderEnabled,
+                            onDaysChange = viewModel::updateWorkoutReminderDays
                         )
                     }
                 }
@@ -152,7 +158,9 @@ fun SettingsContent(
     settings: UserData,
     onLanguageChange: (LanguageConfig) -> Unit,
     onUnitsChange: (UnitsConfig) -> Unit,
-    onTimeChange: (Int, Int) -> Unit
+    onTimeChange: (Int, Int) -> Unit,
+    onEnabledChange: (Boolean) -> Unit,
+    onDaysChange: (Set<Int>) -> Unit
 ) {
     val context = LocalContext.current
     val isSystem24Hour = remember { DateFormat.is24HourFormat(context) }
@@ -164,9 +172,11 @@ fun SettingsContent(
         FitlogTimePickerDialog(
             initialHour = settings.workoutReminderHour,
             initialMinute = settings.workoutReminderMinute,
+            initialDays = settings.workoutReminderDays,
             onDismissRequest = { showTimePicker = false },
-            onConfirm = { hour, minute ->
+            onConfirm = { hour, minute, days ->
                 onTimeChange(hour, minute)
+                onDaysChange(days)
                 showTimePicker = false
             }
         )
@@ -178,26 +188,57 @@ fun SettingsContent(
             title = stringResource(id = R.string.notifications).uppercase(),
             icon = FitlogIcons.Notifications
         )
+        
+        // Fila del Switch
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { showTimePicker = true }
+                .padding(PaddingDim.MEDIUM),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            FitlogText(
+                text = stringResource(id = R.string.workout_reminder),
+                color = Color.White
+            )
+            Switch(
+                checked = settings.workoutReminderEnabled,
+                onCheckedChange = onEnabledChange,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = Color.White,
+                    checkedTrackColor = activeColor,
+                    uncheckedThumbColor = Color.Gray,
+                    uncheckedTrackColor = Color.DarkGray
+                )
+            )
+        }
+
+        // Fila del TimePicker (solo clickeable si está habilitado)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(enabled = settings.workoutReminderEnabled) { showTimePicker = true }
                 .padding(PaddingDim.MEDIUM),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
                 FitlogText(
-                    text = stringResource(id = R.string.workout_reminder),
-                    color = Color.White
+                    text = String.format("%02d:%02d", settings.workoutReminderHour, settings.workoutReminderMinute),
+                    color = if (settings.workoutReminderEnabled) Color.White else Color.Gray
                 )
                 FitlogText(
-                    text = "FORMATO DE HORA",
-                    color = activeColor,
+                    text = if (settings.workoutReminderDays.isEmpty()) "TODOS LOS DÍAS" 
+                           else getFormattedDays(settings.workoutReminderDays),
+                    color = if (settings.workoutReminderEnabled) activeColor else Color.Gray.copy(alpha = 0.5f),
                     style = MaterialTheme.typography.bodySmall
                 )
             }
-            Icon(imageVector = FitlogIcons.Clock, contentDescription = null, tint = activeColor)
+            Icon(
+                imageVector = FitlogIcons.Clock, 
+                contentDescription = null, 
+                tint = if (settings.workoutReminderEnabled) activeColor else Color.Gray
+            )
         }
     }
 
@@ -236,19 +277,26 @@ fun SettingsContent(
     }
 }
 
+private fun getFormattedDays(days: Set<Int>): String {
+    val dayNames = listOf("DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB")
+    return days.sorted().joinToString(", ") { dayNames[it - 1] }
+}
+
 @Composable
 fun FitlogTimePickerDialog(
     onDismissRequest: () -> Unit,
-    onConfirm: (Int, Int) -> Unit,
+    onConfirm: (Int, Int, Set<Int>) -> Unit,
     initialHour: Int,
     initialMinute: Int,
+    initialDays: Set<Int>
 ) {
     var selectedHour by remember { mutableIntStateOf(initialHour) }
     var selectedMinute by remember { mutableIntStateOf(initialMinute) }
+    var selectedDays by remember { mutableStateOf(initialDays) }
+    
     val blueGradient = Brush.horizontalGradient(listOf(Color(0xFF3FB9F6), Color(0xFF216EE0)))
 
     Dialog(onDismissRequest = onDismissRequest) {
-        // Usamos tu FitlogCard para consistencia
         FitlogCard(
             modifier = Modifier
                 .fillMaxWidth()
@@ -288,11 +336,18 @@ fun FitlogTimePickerDialog(
                         onValueChange = { selectedMinute = it })
                 }
 
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-                // BOTÓN CON TU NUEVO DEGRADADO
+                // Selector de días
+                DaysOfWeekSelector(
+                    selectedDays = selectedDays,
+                    onDaysChanged = { selectedDays = it }
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
                 Button(
-                    onClick = { onConfirm(selectedHour, selectedMinute) },
+                    onClick = { onConfirm(selectedHour, selectedMinute, selectedDays) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp)
@@ -319,9 +374,52 @@ fun FitlogTimePickerDialog(
 }
 
 @Composable
+fun DaysOfWeekSelector(
+    selectedDays: Set<Int>,
+    onDaysChanged: (Set<Int>) -> Unit
+) {
+    val days = listOf(
+        Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY, 
+        Calendar.THURSDAY, Calendar.FRIDAY, Calendar.SATURDAY, Calendar.SUNDAY
+    )
+    val dayLabels = listOf("L", "M", "M", "J", "V", "S", "D")
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        days.forEachIndexed { index, day ->
+            val isSelected = selectedDays.contains(day)
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(CircleShape)
+                    .background(if (isSelected) techBlue else Color.White.copy(alpha = 0.1f))
+                    .clickable {
+                        val newSelection = if (isSelected) {
+                            selectedDays - day
+                        } else {
+                            selectedDays + day
+                        }
+                        onDaysChanged(newSelection)
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                FitlogText(
+                    text = dayLabels[index],
+                    color = if (isSelected) Color.Black else Color.White,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+}
+
+@Composable
 fun TimeNumberColumn(value: Int, range: IntRange, onValueChange: (Int) -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        IconButton(onClick = { if (value < range.last) onValueChange(value + 1) }) {
+        IconButton(onClick = { if (value < range.last) onValueChange(value + 1) else onValueChange(range.first) }) {
             Icon(Icons.Default.KeyboardArrowUp, null, tint = Color(0xFF10B981))
         }
         Text(
@@ -330,7 +428,7 @@ fun TimeNumberColumn(value: Int, range: IntRange, onValueChange: (Int) -> Unit) 
             fontWeight = FontWeight.Light, // El peso ligero da elegancia
             color = Color.White
         )
-        IconButton(onClick = { if (value > range.first) onValueChange(value - 1) }) {
+        IconButton(onClick = { if (value > range.first) onValueChange(value - 1) else onValueChange(range.last) }) {
             Icon(Icons.Default.KeyboardArrowDown, null, tint = Color(0xFF10B981))
         }
     }

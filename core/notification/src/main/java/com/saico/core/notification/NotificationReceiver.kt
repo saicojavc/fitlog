@@ -9,6 +9,7 @@ import com.saico.core.ui.R
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import java.util.Calendar
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -27,7 +28,6 @@ class NotificationReceiver : BroadcastReceiver() {
     lateinit var userSettingsDataStore: UserSettingsDataStore
 
     override fun onReceive(context: Context, intent: Intent) {
-        // Soporte para reprogramar al encender el teléfono o si se actualiza la app
         if (intent.action == Intent.ACTION_BOOT_COMPLETED || intent.action == Intent.ACTION_MY_PACKAGE_REPLACED) {
             notificationScheduler.rescheduleAll()
             return
@@ -41,15 +41,32 @@ class NotificationReceiver : BroadcastReceiver() {
                 notificationScheduler.scheduleDailyMotivationalNotification()
             }
             "workout_reminder" -> {
-                showWorkoutReminder(context)
-                runBlocking {
-                    val settings = userSettingsDataStore.userData.first()
-                    notificationScheduler.scheduleWorkoutReminder(settings.workoutReminderHour, settings.workoutReminderMinute)
-                }
+                handleWorkoutReminder(context)
             }
             "daily_summary" -> {
                 showSummary(context)
                 notificationScheduler.scheduleDailySummaryNotification()
+            }
+        }
+    }
+
+    private fun handleWorkoutReminder(context: Context) {
+        runBlocking {
+            val settings = userSettingsDataStore.userData.first()
+            if (settings.workoutReminderEnabled) {
+                val today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
+                // En Calendar, Sunday es 1, Monday es 2, etc.
+                // Si la lista de días está vacía, lo mostramos siempre (o según tu lógica)
+                // Aquí asumimos que si hay días seleccionados, verificamos.
+                if (settings.workoutReminderDays.isEmpty() || settings.workoutReminderDays.contains(today)) {
+                    showWorkoutReminder(context)
+                }
+                // Programar para el día siguiente
+                notificationScheduler.scheduleWorkoutReminder(
+                    settings.workoutReminderHour,
+                    settings.workoutReminderMinute,
+                    true
+                )
             }
         }
     }

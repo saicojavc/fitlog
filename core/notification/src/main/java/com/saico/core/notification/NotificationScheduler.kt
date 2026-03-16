@@ -20,20 +20,30 @@ class NotificationScheduler @Inject constructor(
 ) {
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
+    companion object {
+        private const val WORKOUT_REMINDER_REQUEST_CODE = 2003
+        private const val DAILY_MOTIVATIONAL_REQUEST_CODE = 2001
+        private const val DAILY_SUMMARY_REQUEST_CODE = 2002
+    }
+
     fun scheduleDailyMotivationalNotification() {
-        val intent = createIntent("daily_motivational", 2001)
+        val intent = createIntent("daily_motivational", DAILY_MOTIVATIONAL_REQUEST_CODE)
         val calendar = getCalendarTime(8, 30)
         scheduleAlarm(calendar.timeInMillis, intent)
     }
 
-    fun scheduleWorkoutReminder(hour: Int, minute: Int) {
-        val intent = createIntent("workout_reminder", 2003)
-        val calendar = getCalendarTime(hour, minute)
-        scheduleAlarm(calendar.timeInMillis, intent)
+    fun scheduleWorkoutReminder(hour: Int, minute: Int, enabled: Boolean = true) {
+        val intent = createIntent("workout_reminder", WORKOUT_REMINDER_REQUEST_CODE)
+        if (enabled) {
+            val calendar = getCalendarTime(hour, minute)
+            scheduleAlarm(calendar.timeInMillis, intent)
+        } else {
+            cancelAlarm(intent)
+        }
     }
 
     fun scheduleDailySummaryNotification(hour: Int = 21, minute: Int = 0) {
-        val intent = createIntent("daily_summary", 2002)
+        val intent = createIntent("daily_summary", DAILY_SUMMARY_REQUEST_CODE)
         val calendar = getCalendarTime(hour, minute)
         scheduleAlarm(calendar.timeInMillis, intent)
     }
@@ -42,7 +52,11 @@ class NotificationScheduler @Inject constructor(
         runBlocking {
             val userData = userDataStore.userData.first()
             scheduleDailyMotivationalNotification()
-            scheduleWorkoutReminder(userData.workoutReminderHour, userData.workoutReminderMinute)
+            scheduleWorkoutReminder(
+                userData.workoutReminderHour,
+                userData.workoutReminderMinute,
+                userData.workoutReminderEnabled
+            )
             scheduleDailySummaryNotification()
         }
     }
@@ -61,20 +75,20 @@ class NotificationScheduler @Inject constructor(
 
     private fun getCalendarTime(hour: Int, minute: Int): Calendar {
         val now = Calendar.getInstance()
-        return Calendar.getInstance().apply {
+        val calendar = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, hour)
             set(Calendar.MINUTE, minute)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
-            if (before(now)) {
-                add(Calendar.DATE, 1)
-            }
         }
+        if (calendar.before(now)) {
+            calendar.add(Calendar.DATE, 1)
+        }
+        return calendar
     }
 
     private fun scheduleAlarm(timeInMillis: Long, pendingIntent: PendingIntent) {
         when {
-            // Android 12+ requiere verificar si podemos programar alarmas exactas
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
                 if (alarmManager.canScheduleExactAlarms()) {
                     alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent)
@@ -89,5 +103,9 @@ class NotificationScheduler @Inject constructor(
                 alarmManager.set(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent)
             }
         }
+    }
+
+    private fun cancelAlarm(pendingIntent: PendingIntent) {
+        alarmManager.cancel(pendingIntent)
     }
 }

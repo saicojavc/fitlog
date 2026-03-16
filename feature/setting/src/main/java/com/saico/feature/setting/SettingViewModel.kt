@@ -11,6 +11,7 @@ import com.saico.feature.setting.state.SettingUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -56,10 +57,29 @@ class SettingViewModel @Inject constructor(
 
     fun updateWorkoutReminderTime(hour: Int, minute: Int) {
         viewModelScope.launch {
-            // 1. Guardamos en persistencia
             userDataStore.setWorkoutReminderTime(hour, minute)
-            // 2. Programamos la nueva alarma inmediatamente
-            notificationScheduler.scheduleWorkoutReminder(hour, minute)
+            val settings = userDataStore.userData.first()
+            notificationScheduler.scheduleWorkoutReminder(hour, minute, settings.workoutReminderEnabled)
+        }
+    }
+
+    fun updateWorkoutReminderEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            userDataStore.setWorkoutReminderEnabled(enabled)
+            val settings = userDataStore.userData.first()
+            notificationScheduler.scheduleWorkoutReminder(
+                settings.workoutReminderHour,
+                settings.workoutReminderMinute,
+                enabled
+            )
+        }
+    }
+
+    fun updateWorkoutReminderDays(days: Set<Int>) {
+        viewModelScope.launch {
+            userDataStore.setWorkoutReminderDays(days)
+            // No es estrictamente necesario reprogramar la alarma aquí porque el Receiver verifica los días,
+            // pero si la alarma estaba apagada y ahora se activan días, o viceversa, la lógica del switch ya lo cubre.
         }
     }
 }

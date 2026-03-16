@@ -56,6 +56,10 @@ class StepCounterService : Service() {
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var isObserving = false
 
+    companion object {
+        private const val TECH_BLUE = 0xFF3FB9F6.toInt()
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         startForegroundService()
         if (!isObserving) {
@@ -89,8 +93,9 @@ class StepCounterService : Service() {
         val notification: Notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle(getString(R.string.service_active_title).uppercase())
             .setContentText(getString(R.string.service_active_msg))
+            .setSubText("FITLOG • ACTIVE SERVICE")
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
-            .setColor(0xFF3FB9F6.toInt())
+            .setColor(TECH_BLUE)
             .setColorized(true)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
