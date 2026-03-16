@@ -97,7 +97,7 @@ class NotificationHelper @Inject constructor(
             .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
             .setContentTitle(title.uppercase())
             .setContentText(message)
-            .setSubText("FITLOG • RECOR")
+            .setSubText(context.getString(com.saico.core.ui.R.string.alarm_subtext))
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setSound(alarmSound)
@@ -109,7 +109,11 @@ class NotificationHelper @Inject constructor(
             .setColor(TECH_BLUE)
             .setColorized(true)
             .setContentIntent(pendingIntent)
-            .addAction(android.R.drawable.ic_menu_close_clear_cancel, "DESCARTAR", dismissPendingIntent)
+            .addAction(
+                android.R.drawable.ic_menu_close_clear_cancel, 
+                context.getString(com.saico.core.ui.R.string.dismiss), 
+                dismissPendingIntent
+            )
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
 
         val notification = builder.build()

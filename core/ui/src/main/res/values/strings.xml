@@ -271,4 +271,8 @@
     <string name="pdf_gym_label">GYM - %1$s</string>
     <string name="pdf_cardio_label">CARDIO - %1$s</string>
     <string name="pdf_outdoor_detail">Dist: %1$s | Time: %2$s | Speed: %3$s</string>
+
+    <!-- New alarm strings -->
+    <string name="alarm_subtext">FITLOG • REMINDER</string>
+    <string name="dismiss">DISMISS</string>
 </resources>

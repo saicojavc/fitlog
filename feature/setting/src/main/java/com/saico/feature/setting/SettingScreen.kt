@@ -207,8 +207,10 @@ fun SettingsContent(
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = Color.White,
                     checkedTrackColor = activeColor,
-                    uncheckedThumbColor = Color.Gray,
-                    uncheckedTrackColor = Color.DarkGray
+                    checkedBorderColor = activeColor,
+                    uncheckedThumbColor = Color.White.copy(alpha = 0.4f),
+                    uncheckedTrackColor = Color.White.copy(alpha = 0.1f),
+                    uncheckedBorderColor = Color.White.copy(alpha = 0.2f)
                 )
             )
         }
@@ -225,19 +227,19 @@ fun SettingsContent(
             Column {
                 FitlogText(
                     text = String.format("%02d:%02d", settings.workoutReminderHour, settings.workoutReminderMinute),
-                    color = if (settings.workoutReminderEnabled) Color.White else Color.Gray
+                    color = if (settings.workoutReminderEnabled) Color.White else Color.White.copy(alpha = 0.3f)
                 )
                 FitlogText(
                     text = if (settings.workoutReminderDays.isEmpty()) "TODOS LOS DÍAS" 
                            else getFormattedDays(settings.workoutReminderDays),
-                    color = if (settings.workoutReminderEnabled) activeColor else Color.Gray.copy(alpha = 0.5f),
+                    color = if (settings.workoutReminderEnabled) activeColor else activeColor.copy(alpha = 0.2f),
                     style = MaterialTheme.typography.bodySmall
                 )
             }
             Icon(
                 imageVector = FitlogIcons.Clock, 
                 contentDescription = null, 
-                tint = if (settings.workoutReminderEnabled) activeColor else Color.Gray
+                tint = if (settings.workoutReminderEnabled) activeColor else Color.White.copy(alpha = 0.2f)
             )
         }
     }
