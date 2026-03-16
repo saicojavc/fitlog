@@ -29,7 +29,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
@@ -73,7 +72,6 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.saico.core.common.util.UnitsConverter
 import com.saico.core.model.UnitsConfig
 import com.saico.core.ui.MapStyle
 import com.saico.core.ui.R
@@ -137,7 +135,14 @@ fun OutdoorRunScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp)
-                            .background(Brush.horizontalGradient(listOf(techBlue, Color(0xFF216EE0)))),
+                            .background(
+                                Brush.horizontalGradient(
+                                    listOf(
+                                        techBlue,
+                                        Color(0xFF216EE0)
+                                    )
+                                )
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -207,7 +212,10 @@ fun Content(
     }
 
     val hasLocationPermission = remember {
-        ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
     val cameraPositionState = rememberCameraPositionState {
@@ -219,7 +227,14 @@ fun Content(
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 location?.let {
                     scope.launch {
-                        cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(LatLng(it.latitude, it.longitude), 17f))
+                        cameraPositionState.animate(
+                            CameraUpdateFactory.newLatLngZoom(
+                                LatLng(
+                                    it.latitude,
+                                    it.longitude
+                                ), 17f
+                            )
+                        )
                     }
                 }
             }
@@ -231,9 +246,11 @@ fun Content(
             val target = LatLng(lastPoint.latitude, lastPoint.longitude)
             if (cameraPositionState.position.target.latitude == 0.0) {
                 cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(target, 17f))
-            } 
-            else if (uiState.isRunning) {
-                cameraPositionState.animate(update = CameraUpdateFactory.newLatLng(target), durationMs = 1000)
+            } else if (uiState.isRunning) {
+                cameraPositionState.animate(
+                    update = CameraUpdateFactory.newLatLng(target),
+                    durationMs = 1000
+                )
             }
         }
     }
@@ -250,7 +267,8 @@ fun Content(
             isMyLocationEnabled = hasLocationPermission
         )
     }
-    val uiSettings = remember { MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false) }
+    val uiSettings =
+        remember { MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         GoogleMap(
@@ -260,14 +278,22 @@ fun Content(
             uiSettings = uiSettings
         ) {
             if (polylinePoints.isNotEmpty()) {
-                Polyline(points = polylinePoints, color = techBlue, width = 12f, startCap = RoundCap(), endCap = RoundCap())
+                Polyline(
+                    points = polylinePoints,
+                    color = techBlue,
+                    width = 12f,
+                    startCap = RoundCap(),
+                    endCap = RoundCap()
+                )
             }
         }
 
         // Header (Solo visible si no está corriendo para poder salir al inicio)
         if (serviceStatus == TrackingState.STOPPED) {
             Row(
-                modifier = Modifier.align(Alignment.TopStart).padding(top = 30.dp, start = 20.dp),
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(top = 30.dp, start = 20.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
@@ -279,7 +305,12 @@ fun Content(
                     modifier = Modifier.size(48.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White, modifier = Modifier.size(24.dp))
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
                     }
                 }
 
@@ -288,9 +319,24 @@ fun Content(
                     shape = RoundedCornerShape(24.dp),
                     border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
                 ) {
-                    Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Icon(imageVector = mainIcon, contentDescription = null, tint = if (uiState.activityType == "cycling") Color(0xFFD4FF00) else fireOrange, modifier = Modifier.size(20.dp))
-                        Text(text = activityTitle.uppercase(), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Black, color = Color.White, letterSpacing = 1.sp)
+                    Row(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = mainIcon,
+                            contentDescription = null,
+                            tint = if (uiState.activityType == "cycling") Color(0xFFD4FF00) else fireOrange,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Text(
+                            text = activityTitle.uppercase(),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Black,
+                            color = Color.White,
+                            letterSpacing = 1.sp
+                        )
                     }
                 }
             }
@@ -298,22 +344,54 @@ fun Content(
 
         // Metrics
         Column(
-            modifier = Modifier.fillMaxWidth().padding(top = 90.dp, start = 10.dp, end = 10.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 90.dp, start = 10.dp, end = 10.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                MetricBubble(label = "Time", value = formatMillis(uiState.timeMillis), icon = FitlogIcons.History, accentColor = Color.White, modifier = Modifier.weight(1f))
-                val distanceValue = if (uiState.unitsConfig == UnitsConfig.IMPERIAL) (uiState.distanceMeters / 1000f) * 0.621371f else uiState.distanceMeters / 1000f
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                MetricBubble(
+                    label = "Time",
+                    value = formatMillis(uiState.timeMillis),
+                    icon = FitlogIcons.History,
+                    accentColor = Color.White,
+                    modifier = Modifier.weight(1f)
+                )
+                val distanceValue =
+                    if (uiState.unitsConfig == UnitsConfig.IMPERIAL) (uiState.distanceMeters / 1000f) * 0.621371f else uiState.distanceMeters / 1000f
                 val distanceUnit = if (uiState.unitsConfig == UnitsConfig.IMPERIAL) "mi" else "km"
-                MetricBubble(label = "Distance", value = String.format(Locale.getDefault(), "%.2f $distanceUnit", distanceValue), icon = FitlogIcons.Height, accentColor = techBlue, modifier = Modifier.weight(1f))
+                MetricBubble(
+                    label = "Distance",
+                    value = String.format(Locale.getDefault(), "%.2f $distanceUnit", distanceValue),
+                    icon = FitlogIcons.Height,
+                    accentColor = techBlue,
+                    modifier = Modifier.weight(1f)
+                )
             }
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                val speedValue = if (uiState.unitsConfig == UnitsConfig.IMPERIAL) uiState.averageSpeed * 0.621371f else uiState.averageSpeed
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                val speedValue =
+                    if (uiState.unitsConfig == UnitsConfig.IMPERIAL) uiState.averageSpeed * 0.621371f else uiState.averageSpeed
                 val speedUnit = if (uiState.unitsConfig == UnitsConfig.IMPERIAL) "mph" else "km/h"
-                MetricBubble(label = "Avg Speed", value = String.format(Locale.getDefault(), "%.1f $speedUnit", speedValue), icon = FitlogIcons.Speed, accentColor = fireOrange, modifier = Modifier.weight(1f))
-                val elevValue = if (uiState.unitsConfig == UnitsConfig.IMPERIAL) uiState.elevationGain * 3.28084f else uiState.elevationGain
-                val elevUnit = if (uiState.unitsConfig == UnitsConfig.IMPERIAL) "ft" else "m"
-                MetricBubble(label = "Elevation", value = String.format(Locale.getDefault(), "+%.0f$elevUnit", elevValue), icon = Icons.Default.KeyboardArrowUp, accentColor = Color(0xFFA855F7), modifier = Modifier.weight(1f))
+                MetricBubble(
+                    label = "Avg Speed",
+                    value = String.format(Locale.getDefault(), "%.1f $speedUnit", speedValue),
+                    icon = FitlogIcons.Speed,
+                    accentColor = fireOrange,
+                    modifier = Modifier.weight(1f)
+                )
+                MetricBubble(
+                    label = stringResource(R.string.calories),
+                    value = String.format(Locale.getDefault(), "%d kcal", uiState.calories),
+                    icon = FitlogIcons.Fire,
+                    accentColor = Color(0xFFA855F7),
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
 
@@ -323,10 +401,18 @@ fun Content(
             color = Color(0xFF0D1424).copy(alpha = 0.75f),
             shape = CircleShape,
             border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f)),
-            modifier = Modifier.align(Alignment.BottomEnd).padding(bottom = 135.dp, end = 25.dp).size(56.dp)
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(bottom = 135.dp, end = 25.dp)
+                .size(56.dp)
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Icon(imageVector = Icons.Default.LocationOn, contentDescription = "My Location", tint = techBlue, modifier = Modifier.size(28.dp))
+                Icon(
+                    imageVector = Icons.Default.LocationOn,
+                    contentDescription = "My Location",
+                    tint = techBlue,
+                    modifier = Modifier.size(28.dp)
+                )
             }
         }
 
@@ -337,44 +423,78 @@ fun Content(
             TrackingState.PAUSED -> techBlue
         }
 
-        Box(modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 50.dp, start = 30.dp, end = 30.dp)) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 50.dp, start = 30.dp, end = 30.dp)
+        ) {
             Button(
-                onClick = { 
-                    when(serviceStatus) {
+                onClick = {
+                    when (serviceStatus) {
                         TrackingState.STOPPED -> onStartClick()
                         TrackingState.RUNNING -> onPauseClick()
                         TrackingState.PAUSED -> onResumeClick()
                     }
                 },
-                modifier = Modifier.fillMaxWidth().height(64.dp).shadow(20.dp, CircleShape, spotColor = buttonColor),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(64.dp)
+                    .shadow(20.dp, CircleShape, spotColor = buttonColor),
                 shape = CircleShape,
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                 contentPadding = PaddingValues()
             ) {
-                Box(modifier = Modifier.fillMaxSize().background(Brush.horizontalGradient(listOf(buttonColor, buttonColor.copy(alpha = 0.7f)))).border(1.dp, Color.White.copy(alpha = 0.2f), CircleShape), contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.horizontalGradient(
+                                listOf(
+                                    buttonColor,
+                                    buttonColor.copy(alpha = 0.7f)
+                                )
+                            )
+                        )
+                        .border(1.dp, Color.White.copy(alpha = 0.2f), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(imageVector = if (serviceStatus == TrackingState.RUNNING) FitlogIcons.Pause else Icons.Default.PlayArrow, contentDescription = null, tint = Color.White)
+                        Icon(
+                            imageVector = if (serviceStatus == TrackingState.RUNNING) FitlogIcons.Pause else Icons.Default.PlayArrow,
+                            contentDescription = null,
+                            tint = Color.White
+                        )
                         Spacer(Modifier.width(12.dp))
-                        Text(text = when(serviceStatus) {
-                            TrackingState.STOPPED -> "EMPEZAR"
-                            TrackingState.RUNNING -> "PAUSAR"
-                            TrackingState.PAUSED -> "REANUDAR"
-                        }.uppercase(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black, letterSpacing = 1.5.sp, color = Color.White)
+                        Text(
+                            text = when (serviceStatus) {
+                                TrackingState.STOPPED -> "EMPEZAR"
+                                TrackingState.RUNNING -> "PAUSAR"
+                                TrackingState.PAUSED -> "REANUDAR"
+                            }.uppercase(),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = 1.5.sp,
+                            color = Color.White
+                        )
                     }
                 }
             }
         }
-        
+
         if (serviceStatus != TrackingState.STOPPED) {
-            Box(modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 125.dp)) {
-                 TextButton(onClick = onStopClick) {
-                     Text("DETENER", color = Color.Red, fontWeight = FontWeight.Bold)
-                 }
+            Box(modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 125.dp)) {
+                TextButton(onClick = onStopClick) {
+                    Text("DETENER", color = Color.Red, fontWeight = FontWeight.Bold)
+                }
             }
         }
 
         if (serviceStatus == TrackingState.STOPPED && uiState.timeMillis > 0) {
-            Box(modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 125.dp)) {
+            Box(modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 125.dp)) {
                 TextButton(onClick = onSaveClick) {
                     Text("FINALIZAR Y GUARDAR", color = techBlue, fontWeight = FontWeight.Bold)
                 }

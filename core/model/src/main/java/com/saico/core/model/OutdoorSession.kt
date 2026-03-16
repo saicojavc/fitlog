@@ -10,7 +10,7 @@ data class OutdoorSession(
     val steps: Int? = null,
     val averageSpeed: Float = 0f,
     val distance: Float = 0f,
-    val elevation: Float = 0f,
+    val calories: Int = 0,
     val time: Long = 0L,
     val date: Long = 0L,
     val routePath: List<LocationPoint> = emptyList()

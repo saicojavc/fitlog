@@ -218,7 +218,7 @@ class SyncRepositoryImpl @Inject constructor(
                     val steps = child.child("steps").value?.let { (it as? Long)?.toInt() ?: (it as? Int) }
                     val averageSpeed = child.child("averageSpeed").value?.let { (it as? Double)?.toFloat() ?: (it as? Float) } ?: 0f
                     val distance = child.child("distance").value?.let { (it as? Double)?.toFloat() ?: (it as? Float) } ?: 0f
-                    val elevation = child.child("elevation").value?.let { (it as? Double)?.toFloat() ?: (it as? Float) } ?: 0f
+                    val calories = child.child("calories").value?.let { (it as? Long)?.toInt() ?: (it as? Int) } ?: 0
                     val time = child.child("time").getValue(Long::class.java) ?: 0L
                     val date = child.child("date").getValue(Long::class.java) ?: child.key?.toLong() ?: 0L
 
@@ -231,7 +231,7 @@ class SyncRepositoryImpl @Inject constructor(
                         steps = steps,
                         averageSpeed = averageSpeed,
                         distance = distance,
-                        elevation = elevation,
+                        calories = calories,
                         time = time,
                         date = date,
                         routePath = routePath

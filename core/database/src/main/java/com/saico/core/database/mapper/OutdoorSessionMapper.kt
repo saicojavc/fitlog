@@ -10,7 +10,7 @@ fun OutdoorSessionEntity.toDomain(): OutdoorSession {
         steps = steps,
         averageSpeed = averageSpeed,
         distance = distance,
-        elevation = elevation,
+        calories = calories,
         time = time,
         date = date,
         routePath = routePath
@@ -24,7 +24,7 @@ fun OutdoorSession.toEntity(): OutdoorSessionEntity {
         steps = steps,
         averageSpeed = averageSpeed,
         distance = distance,
-        elevation = elevation,
+        calories = calories,
         time = time,
         date = date,
         routePath = routePath

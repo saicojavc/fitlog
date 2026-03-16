@@ -12,6 +12,7 @@ data class OutdoorUiState(
     val currentSpeed: Float = 0f,
     val averageSpeed: Float = 0f,
     val elevationGain: Float = 0f,
+    val calories: Int = 0,
     val routePath: List<LocationPoint> = emptyList(),
     val activityType: String = "outdoor_run",
     val unitsConfig: UnitsConfig = UnitsConfig.METRIC

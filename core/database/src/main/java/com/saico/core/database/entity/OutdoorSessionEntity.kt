@@ -16,7 +16,7 @@ data class OutdoorSessionEntity(
     val steps: Int?,
     val averageSpeed: Float,
     val distance: Float,
-    val elevation: Float,
+    val calories: Int,
     val time: Long,
     val date: Long,
     val routePath: List<LocationPoint>

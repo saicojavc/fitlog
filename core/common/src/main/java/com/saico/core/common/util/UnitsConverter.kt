@@ -89,6 +89,21 @@ object UnitsConverter {
     }
 
     /**
+     * Convierte y formatea la velocidad.
+     * @param kmh Velocidad en km/h.
+     * @param units Sistema de unidades actual.
+     * @return String formateado (ej: "10.5 km/h" o "6.5 mph").
+     */
+    fun formatSpeed(kmh: Double, units: UnitsConfig): String {
+        return if (units == UnitsConfig.METRIC) {
+            String.format(Locale.getDefault(), "%.1f km/h", kmh)
+        } else {
+            val mph = kmh * KM_TO_MI
+            String.format(Locale.getDefault(), "%.1f mph", mph)
+        }
+    }
+
+    /**
      * Convierte y formatea el ritmo (pace).
      * @param minPerKm Ritmo en minutos por kilómetro.
      * @param units Sistema de unidades actual.

@@ -47,7 +47,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
@@ -165,24 +164,27 @@ fun HistoryContent(
         filterData(uiState.outdoorSessions, uiState.selectedFilter) { it.date }
     }
 
-    val totalCalories = remember(filteredGymExercises, filteredWorkoutSessions, filteredOutdoorSessions) {
-        filteredGymExercises.sumOf { it.totalCalories } + 
-        filteredWorkoutSessions.sumOf { it.calories } +
-        filteredOutdoorSessions.sumOf { 0 } 
-    }
+    val totalCalories =
+        remember(filteredGymExercises, filteredWorkoutSessions, filteredOutdoorSessions) {
+            filteredGymExercises.sumOf { it.totalCalories } +
+                    filteredWorkoutSessions.sumOf { it.calories } +
+                    filteredOutdoorSessions.sumOf { it.calories }
+        }
 
-    val totalTimeSeconds = remember(filteredGymExercises, filteredWorkoutSessions, filteredOutdoorSessions) {
-        filteredGymExercises.sumOf { it.elapsedTime } + 
-        filteredWorkoutSessions.sumOf { it.time.time / 1000 } +
-        filteredOutdoorSessions.sumOf { it.time / 1000 }
-    }
+    val totalTimeSeconds =
+        remember(filteredGymExercises, filteredWorkoutSessions, filteredOutdoorSessions) {
+            filteredGymExercises.sumOf { it.elapsedTime } +
+                    filteredWorkoutSessions.sumOf { it.time.time / 1000 } +
+                    filteredOutdoorSessions.sumOf { it.time / 1000 }
+        }
 
-    val combinedHistory = remember(filteredGymExercises, filteredWorkoutSessions, filteredOutdoorSessions) {
-        (filteredGymExercises.map { HistoryItem.Gym(it) } +
-                filteredWorkoutSessions.map { HistoryItem.Session(it) } +
-                filteredOutdoorSessions.map { HistoryItem.Outdoor(it) })
-            .sortedByDescending { it.date }
-    }
+    val combinedHistory =
+        remember(filteredGymExercises, filteredWorkoutSessions, filteredOutdoorSessions) {
+            (filteredGymExercises.map { HistoryItem.Gym(it) } +
+                    filteredWorkoutSessions.map { HistoryItem.Session(it) } +
+                    filteredOutdoorSessions.map { HistoryItem.Outdoor(it) })
+                .sortedByDescending { it.date }
+        }
 
     val groupedHistory = remember(combinedHistory, uiState.selectedFilter) {
         val locale = Locale.getDefault()
@@ -236,7 +238,7 @@ fun HistoryContent(
                                 session = item.session,
                                 units = units
                             )
-                            
+
                             is HistoryItem.Outdoor -> OutdoorSessionCard(
                                 session = item.session,
                                 units = units
@@ -559,7 +561,7 @@ fun WorkoutSessionCard(session: WorkoutSession, units: UnitsConfig) {
             Spacer(modifier = Modifier.height(PaddingDim.SMALL))
             Row(modifier = Modifier.fillMaxWidth()) {
                 StatItem(
-                    label = stringResource(id = R.string.daily_steps),
+                    label = stringResource(id = R.string.steps),
                     value = session.steps.toString()
                 )
                 Spacer(modifier = Modifier.width(PaddingDim.MEDIUM))
@@ -582,10 +584,15 @@ fun OutdoorSessionCard(session: OutdoorSession, units: UnitsConfig) {
     var expanded by remember { mutableStateOf(false) }
     val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
     val calendar = remember { Calendar.getInstance().apply { timeInMillis = session.date } }
-    val dayOfWeek = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()) ?: ""
-    
-    val activityTitle = if (session.activityType == "cycling") stringResource(R.string.cycling) else stringResource(R.string.outdoor_run)
-    val activityIcon = if (session.activityType == "cycling") FitlogIcons.DirectionsBike else FitlogIcons.DirectionsRun
+    val dayOfWeek =
+        calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()) ?: ""
+
+    val activityTitle =
+        if (session.activityType == "cycling") stringResource(R.string.cycling) else stringResource(
+            R.string.outdoor_run
+        )
+    val activityIcon =
+        if (session.activityType == "cycling") FitlogIcons.DirectionsBike else FitlogIcons.DirectionsRun
     val accentColor = if (session.activityType == "cycling") Color(0xFFD4FF00) else fireOrange
 
     FitlogCard(
@@ -626,18 +633,21 @@ fun OutdoorSessionCard(session: OutdoorSession, units: UnitsConfig) {
                 style = MaterialTheme.typography.bodySmall
             )
             Spacer(modifier = Modifier.height(PaddingDim.SMALL))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 StatItem(
                     label = stringResource(id = R.string.distance),
                     value = UnitsConverter.formatDistance(session.distance.toDouble(), units)
                 )
                 StatItem(
                     label = stringResource(id = R.string.average_pace),
-                    value = String.format(Locale.getDefault(), "%.1f km/h", session.averageSpeed)
+                    value = UnitsConverter.formatSpeed(session.averageSpeed.toDouble(), units)
                 )
                 StatItem(
-                    label = "Elev.",
-                    value = "+${session.elevation.toInt()}m"
+                    label = stringResource(id = R.string.calories),
+                    value = "${session.calories} kcal"
                 )
                 StatItem(
                     label = stringResource(id = R.string.time),
@@ -648,19 +658,23 @@ fun OutdoorSessionCard(session: OutdoorSession, units: UnitsConfig) {
             AnimatedVisibility(visible = expanded) {
                 Column(modifier = Modifier.padding(top = PaddingDim.MEDIUM)) {
                     HorizontalDivider(modifier = Modifier.padding(vertical = PaddingDim.SMALL))
-                    
+
                     if (session.routePath.isNotEmpty()) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(200.dp)
                                 .clip(RoundedCornerShape(16.dp))
-                                .border(1.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(16.dp))
+                                .border(
+                                    1.dp,
+                                    Color.White.copy(alpha = 0.1f),
+                                    RoundedCornerShape(16.dp)
+                                )
                         ) {
                             val routeLatLng = remember(session.routePath) {
                                 session.routePath.map { LatLng(it.latitude, it.longitude) }
                             }
-                            
+
                             val cameraPositionState = rememberCameraPositionState {
                                 val firstPoint = routeLatLng.first()
                                 position = CameraPosition.fromLatLngZoom(firstPoint, 15f)

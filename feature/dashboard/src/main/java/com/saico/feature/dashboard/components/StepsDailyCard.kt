@@ -164,7 +164,7 @@ fun StepsDailyCard(uiState: DashboardUiState, navController: NavHostController) 
                     StatInfo(
                         icon = FitlogIcons.Fire,
                         value = calories.toString(),
-                        unit = "cal",
+                        unit = "kcal",
                         tint = Color(0xFFFF6F00)
                     )
 

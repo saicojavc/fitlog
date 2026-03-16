@@ -69,5 +69,40 @@ abstract class FitlogDatabase : RoomDatabase() {
                 )
             }
         }
+
+        val MIGRATION_8_9 = object : Migration(8, 9) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // 1. Crear nueva tabla temporal sin 'elevation' y con 'calories'
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS ${OUTDOOR_SESSION_TABLE}_new (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        activityType TEXT NOT NULL,
+                        steps INTEGER,
+                        averageSpeed REAL NOT NULL,
+                        distance REAL NOT NULL,
+                        calories INTEGER NOT NULL,
+                        time INTEGER NOT NULL,
+                        date INTEGER NOT NULL,
+                        routePath TEXT NOT NULL
+                    )
+                    """.trimIndent()
+                )
+
+                // 2. Copiar los datos de la tabla vieja a la nueva (poniendo calorías en 0 por defecto)
+                db.execSQL(
+                    """
+                    INSERT INTO ${OUTDOOR_SESSION_TABLE}_new (id, activityType, steps, averageSpeed, distance, calories, time, date, routePath)
+                    SELECT id, activityType, steps, averageSpeed, distance, 0, time, date, routePath FROM $OUTDOOR_SESSION_TABLE
+                    """.trimIndent()
+                )
+
+                // 3. Eliminar la tabla vieja
+                db.execSQL("DROP TABLE $OUTDOOR_SESSION_TABLE")
+
+                // 4. Renombrar la tabla nueva
+                db.execSQL("ALTER TABLE ${OUTDOOR_SESSION_TABLE}_new RENAME TO $OUTDOOR_SESSION_TABLE")
+            }
+        }
     }
 }

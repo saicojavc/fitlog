@@ -26,7 +26,8 @@ object DatabaseModule {
         .addMigrations(
             FitlogDatabase.MIGRATION_5_6,
             FitlogDatabase.MIGRATION_6_7,
-            FitlogDatabase.MIGRATION_7_8
+            FitlogDatabase.MIGRATION_7_8,
+            FitlogDatabase.MIGRATION_8_9
         )
         .fallbackToDestructiveMigration()
         .build()
