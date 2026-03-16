@@ -28,6 +28,12 @@ class NotificationReceiver : BroadcastReceiver() {
     lateinit var userSettingsDataStore: UserSettingsDataStore
 
     override fun onReceive(context: Context, intent: Intent) {
+        // Manejar el descarte de la alarma
+        if (intent.action == NotificationHelper.ACTION_DISMISS_ALARM) {
+            notificationHelper.cancelNotification(NotificationHelper.ALARM_NOTIFICATION_ID)
+            return
+        }
+
         if (intent.action == Intent.ACTION_BOOT_COMPLETED || intent.action == Intent.ACTION_MY_PACKAGE_REPLACED) {
             notificationScheduler.rescheduleAll()
             return
@@ -55,11 +61,12 @@ class NotificationReceiver : BroadcastReceiver() {
             val settings = userSettingsDataStore.userData.first()
             if (settings.workoutReminderEnabled) {
                 val today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
-                // En Calendar, Sunday es 1, Monday es 2, etc.
-                // Si la lista de días está vacía, lo mostramos siempre (o según tu lógica)
-                // Aquí asumimos que si hay días seleccionados, verificamos.
                 if (settings.workoutReminderDays.isEmpty() || settings.workoutReminderDays.contains(today)) {
-                    showWorkoutReminder(context)
+                    // Lanza la alarma persistente
+                    notificationHelper.showAlarmNotification(
+                        context.getString(R.string.workout_reminder_title),
+                        context.getString(R.string.workout_reminder_msg)
+                    )
                 }
                 // Programar para el día siguiente
                 notificationScheduler.scheduleWorkoutReminder(
@@ -84,15 +91,6 @@ class NotificationReceiver : BroadcastReceiver() {
             messages.random(),
             NotificationHelper.DAILY_CHANNEL_ID,
             1001
-        )
-    }
-
-    private fun showWorkoutReminder(context: Context) {
-        notificationHelper.showNotification(
-            context.getString(R.string.workout_reminder_title),
-            context.getString(R.string.workout_reminder_msg),
-            NotificationHelper.DAILY_CHANNEL_ID,
-            1003
         )
     }
 
