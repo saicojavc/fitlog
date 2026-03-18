@@ -60,6 +60,9 @@ class DashboardViewModel @Inject constructor(
     private val database =
         FirebaseDatabase.getInstance("https://fitlog-cb7c8-default-rtdb.firebaseio.com/")
 
+    // Bandera para evitar múltiples procesamientos de racha simultáneos
+    private var isUpdatingStreak = false
+
     init {
         getUpdateUri()
         getUserProfile()
@@ -69,7 +72,6 @@ class DashboardViewModel @Inject constructor(
         getUserData()
         checkAppVersion()
         observeAuthState()
-
     }
 
     private fun observeAuthState() {
@@ -84,11 +86,9 @@ class DashboardViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoadingLogin = true) }
             authRepository.loginWithGoogle(idToken).onSuccess { user ->
-                // Sincronización BIDIRECCIONAL inteligente: Sube local -> Descarga remoto -> Mezcla
                 syncUserDataUseCase.syncAll(user.id).onSuccess {
                     _uiState.update { it.copy(isLoadingLogin = false) }
                 }.onFailure {
-                    // Si falla el merge completo, al menos intentamos restaurar
                     syncUserDataUseCase.restoreAllData(user.id)
                     _uiState.update { it.copy(isLoadingLogin = false) }
                 }
@@ -106,21 +106,15 @@ class DashboardViewModel @Inject constructor(
 
 
     private fun getUpdateUri() {
-        // 1. Usamos addListenerForSingleValueEvent para que solo se ejecute UNA VEZ
-        // Esto ahorra batería y cuota de Firebase
         database.getReference("updateurl")
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    // 2. Extraemos el valor con un valor por defecto por seguridad
                     val updateUrl = snapshot.getValue(String::class.java) ?: ""
-
                     if (updateUrl.isNotEmpty()) {
                         _uiState.update { it.copy(updateUrl = updateUrl) }
                     }
                 }
-
                 override fun onCancelled(error: DatabaseError) {
-                    // Es buena práctica registrar el error aunque no hagas nada visual
                     Log.e("FirebaseUpdate", "Error al obtener URL: ${error.message}")
                 }
             })
@@ -130,15 +124,8 @@ class DashboardViewModel @Inject constructor(
         database.getReference("version").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val remoteVersion = snapshot.getValue(String::class.java)
-
-                _uiState.update {
-                    it.copy(
-                        remoteVersion = remoteVersion,
-
-                        )
-                }
+                _uiState.update { it.copy(remoteVersion = remoteVersion) }
             }
-
             override fun onCancelled(error: DatabaseError) {}
         })
     }
@@ -153,34 +140,67 @@ class DashboardViewModel @Inject constructor(
 
     private fun getUserProfile() {
         viewModelScope.launch {
-            userProfileUseCase.getUserProfileUseCase().collectLatest {
+            userProfileUseCase.getUserProfileUseCase().collectLatest { profile ->
+                profile?.let {
+                    checkAndResetStreak(it)
+                    
+                    // Caso: Se abre la app y ya se cumplió la meta (con app cerrada)
+                    if (it.currentStreak > it.lastStreakShown && it.currentStreak > 0 && !isUpdatingStreak) {
+                        _uiState.update { state -> 
+                            state.copy(
+                                showLevelUp = true,
+                                streakLevel = it.currentStreak
+                            )
+                        }
+                        userProfileUseCase.updateUserProfileUseCase(it.copy(lastStreakShown = it.currentStreak))
+                    }
+                }
                 _uiState.update { state ->
-                    state.copy(userProfile = it)
+                    state.copy(userProfile = profile)
                 }
             }
         }
     }
 
+    private fun checkAndResetStreak(profile: UserProfile) {
+        val today = Calendar.getInstance()
+        val lastStreakDate = Calendar.getInstance().apply { timeInMillis = profile.lastStreakDate }
+        
+        if (profile.lastStreakDate != 0L && !isSameDay(today, lastStreakDate) && !isYesterday(today, lastStreakDate)) {
+            viewModelScope.launch {
+                userProfileUseCase.updateUserProfileUseCase(profile.copy(currentStreak = 0))
+            }
+        }
+    }
+
+    private fun isSameDay(cal1: Calendar, cal2: Calendar): Boolean {
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+                cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)
+    }
+
+    private fun isYesterday(today: Calendar, other: Calendar): Boolean {
+        val yesterday = (today.clone() as Calendar).apply { add(Calendar.DAY_OF_YEAR, -1) }
+        return isSameDay(yesterday, other)
+    }
+
+    fun dismissLevelUp() {
+        _uiState.update { it.copy(showLevelUp = false) }
+    }
+
     fun updateUserProfile(updatedProfile: UserProfile) {
         viewModelScope.launch {
             val currentProfile = _uiState.value.userProfile
-
             val finalProfile =
                 if (currentProfile != null && currentProfile.weightKg != updatedProfile.weightKg) {
                     val newWeightEntry = WeightEntry(
                         weight = updatedProfile.weightKg,
                         date = System.currentTimeMillis()
                     )
-                    updatedProfile.copy(
-                        weightHistory = updatedProfile.weightHistory + newWeightEntry
-                    )
+                    updatedProfile.copy(weightHistory = updatedProfile.weightHistory + newWeightEntry)
                 } else {
                     updatedProfile
                 }
-
             userProfileUseCase.updateUserProfileUseCase(finalProfile)
-
-            // Sincronizar cambio con la nube si está logueado
             _uiState.value.authUser?.let { user ->
                 syncUserDataUseCase.syncProfile(user.id, finalProfile)
             }
@@ -224,33 +244,19 @@ class DashboardViewModel @Inject constructor(
     fun exportHistoryToPdf(context: Context) {
         val state = _uiState.value
         val filter = state.selectedFilter
-
         val filteredGym = filterData(state.gymExercises, filter) { it.date }
         val filteredSessions = filterData(state.workoutSessions, filter) { it.date }
         val filteredOutdoor = filterData(state.outdoorSessions, filter) { it.date }
 
         if (filteredGym.isEmpty() && filteredSessions.isEmpty() && filteredOutdoor.isEmpty()) {
-            android.widget.Toast.makeText(
-                context,
-                "No hay datos para exportar",
-                android.widget.Toast.LENGTH_SHORT
-            ).show()
+            android.widget.Toast.makeText(context, "No hay datos para exportar", android.widget.Toast.LENGTH_SHORT).show()
             return
         }
 
-        // Para el PDF, sumamos las calorías de outdoor si las tienes implementadas, 
-        // de lo contrario solo sumamos gym y cardio sessions
-        val totalCalories =
-            filteredGym.sumOf { it.totalCalories } + 
-            filteredSessions.sumOf { it.calories } +
-            filteredOutdoor.sumOf { 0 } // Ajustar si calculas calorías en outdoor
-
+        val totalCalories = filteredGym.sumOf { it.totalCalories } + filteredSessions.sumOf { it.calories } + filteredOutdoor.sumOf { it.calories }
         val totalSteps = filteredSessions.sumOf { it.steps } + filteredOutdoor.sumOf { it.steps ?: 0 }
         val totalDistance = filteredSessions.sumOf { it.distance.toDouble() } + filteredOutdoor.sumOf { it.distance.toDouble() }
-        val totalTimeSeconds =
-            filteredGym.sumOf { it.elapsedTime } + 
-            filteredSessions.sumOf { it.time.time / 1000 } +
-            filteredOutdoor.sumOf { it.time / 1000 }
+        val totalTimeSeconds = filteredGym.sumOf { it.elapsedTime } + filteredSessions.sumOf { it.time.time / 1000 } + filteredOutdoor.sumOf { it.time / 1000 }
 
         val filterName = when (filter) {
             HistoryFilter.TODAY -> "Hoy"
@@ -275,42 +281,30 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
-    private fun <T> filterData(
-        data: List<T>,
-        filter: HistoryFilter,
-        dateSelector: (T) -> Long
-    ): List<T> {
-        val cal = Calendar.getInstance()
-        cal.set(Calendar.HOUR_OF_DAY, 0)
-        cal.set(Calendar.MINUTE, 0)
-        cal.set(Calendar.SECOND, 0)
-        cal.set(Calendar.MILLISECOND, 0)
-
+    private fun <T> filterData(data: List<T>, filter: HistoryFilter, dateSelector: (T) -> Long): List<T> {
+        val cal = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
         return when (filter) {
-            HistoryFilter.TODAY -> {
-                data.filter { dateSelector(it) >= cal.timeInMillis }
-            }
-
+            HistoryFilter.TODAY -> data.filter { dateSelector(it) >= cal.timeInMillis }
             HistoryFilter.LAST_WEEK -> {
                 cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
-                if (Calendar.getInstance().get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
-                    cal.add(Calendar.DAY_OF_YEAR, -7)
-                }
+                if (Calendar.getInstance().get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) cal.add(Calendar.DAY_OF_YEAR, -7)
                 data.filter { dateSelector(it) >= cal.timeInMillis }
             }
-
             HistoryFilter.LAST_MONTH -> {
                 cal.set(Calendar.DAY_OF_MONTH, 1)
                 data.filter { dateSelector(it) >= cal.timeInMillis }
             }
-
             HistoryFilter.ALL -> data
         }
     }
 
     private fun initStepCounter() {
         if (!stepCounterSensor.isSensorAvailable()) return
-
         viewModelScope.launch {
             combine(
                 stepCounterSensor.steps,
@@ -319,6 +313,56 @@ class DashboardViewModel @Inject constructor(
                 (totalStepsSinceReboot - offset).coerceAtLeast(0)
             }.collect { dailySteps ->
                 _uiState.update { it.copy(dailySteps = dailySteps) }
+                checkStreak(dailySteps)
+            }
+        }
+    }
+
+    private fun checkStreak(dailySteps: Int) {
+        val profile = _uiState.value.userProfile ?: return
+        if (isUpdatingStreak) return // Evitar ejecuciones simultáneas
+        
+        val goal = profile.dailyStepsGoal
+        if (dailySteps >= goal && goal > 0) {
+            val today = Calendar.getInstance()
+            val lastDate = Calendar.getInstance().apply { timeInMillis = profile.lastStreakDate }
+            
+            // Si es un día nuevo para la racha
+            if (profile.lastStreakDate == 0L || !isSameDay(today, lastDate)) {
+                isUpdatingStreak = true
+                
+                val newStreak = if (isYesterday(today, lastDate)) {
+                    profile.currentStreak + 1
+                } else {
+                    1
+                }
+                
+                // Actualizamos TODO de una vez: racha, fecha y marca de "mostrado"
+                // Al marcar 'lastStreakShown = newStreak' aquí mismo, evitamos que el Flow
+                // de getUserProfile intente disparar la animación otra vez.
+                val updatedProfile = profile.copy(
+                    currentStreak = newStreak,
+                    lastStreakDate = System.currentTimeMillis(),
+                    lastStreakShown = newStreak 
+                )
+                
+                viewModelScope.launch {
+                    // 1. Persistencia local
+                    userProfileUseCase.updateUserProfileUseCase(updatedProfile)
+                    
+                    // 2. Disparo manual de la animación (solo una vez)
+                    _uiState.update { it.copy(
+                        showLevelUp = true,
+                        streakLevel = newStreak
+                    )}
+                    
+                    // 3. Sincronización remota
+                    _uiState.value.authUser?.let { user ->
+                        syncUserDataUseCase.syncProfile(user.id, updatedProfile)
+                    }
+                    
+                    isUpdatingStreak = false
+                }
             }
         }
     }

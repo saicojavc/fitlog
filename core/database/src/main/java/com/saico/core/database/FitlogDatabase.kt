@@ -104,5 +104,13 @@ abstract class FitlogDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE ${OUTDOOR_SESSION_TABLE}_new RENAME TO $OUTDOOR_SESSION_TABLE")
             }
         }
+
+        val MIGRATION_9_10 = object : Migration(9, 10) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE $USER_PROFILE_TABLE ADD COLUMN currentStreak INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE $USER_PROFILE_TABLE ADD COLUMN lastStreakDate INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE $USER_PROFILE_TABLE ADD COLUMN lastStreakShown INTEGER NOT NULL DEFAULT 0")
+            }
+        }
     }
 }

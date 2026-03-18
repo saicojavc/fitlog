@@ -4,6 +4,9 @@ import android.Manifest
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,11 +15,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -31,8 +37,10 @@ import com.saico.feature.dashboard.model.BottomAppBarItems
 import com.saico.feature.dashboard.screen.HistoryWorkScreen
 import com.saico.feature.dashboard.screen.HomeScreen
 import com.saico.feature.dashboard.screen.ProfileScreen
+import com.saico.feature.dashboard.screen.SyncLevelUpScreen
 import com.saico.feature.dashboard.state.DashboardUiState
 import com.saico.feature.dashboard.state.HistoryFilter
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -60,15 +68,61 @@ fun DashboardScreen(
         }
     }
 
-    Content(
-        uiState = uiState,
-        navController = navController,
-        onFilterSelected = viewModel::onFilterSelected,
-        onExportPdf = { viewModel.exportHistoryToPdf(context) },
-        onLoginWithGoogle = viewModel::loginWithGoogle,
-        onLogout = viewModel::logout,
-        onUpdateProfile = viewModel::updateUserProfile
-    )
+    Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.fillMaxSize().zIndex(0f)) {
+            Content(
+                uiState = uiState,
+                navController = navController,
+                onFilterSelected = viewModel::onFilterSelected,
+                onExportPdf = { viewModel.exportHistoryToPdf(context) },
+                onLoginWithGoogle = viewModel::loginWithGoogle,
+                onLogout = viewModel::logout,
+                onUpdateProfile = viewModel::updateUserProfile
+            )
+        }
+
+        AnimatedVisibility(
+            visible = uiState.showLevelUp,
+            enter = fadeIn(),
+            exit = fadeOut(),
+            modifier = Modifier.fillMaxSize().zIndex(1f)
+        ) {
+            var progress by remember { mutableFloatStateOf(0f) }
+            // Congelamos el valor objetivo al inicio de la animación
+            val targetStreak = uiState.streakLevel
+            var displayStreak by remember { mutableIntStateOf(if (targetStreak > 0) targetStreak - 1 else 0) }
+            
+            LaunchedEffect(uiState.showLevelUp) {
+                if (uiState.showLevelUp) {
+                    progress = 0f
+                    // Reiniciamos al valor anterior al empezar
+                    displayStreak = if (targetStreak > 0) targetStreak - 1 else 0
+                    
+                    // 1. Animación de carga (aprox 3 segundos)
+                    while (progress < 1f) {
+                        progress += 0.01f
+                        delay(30)
+                    }
+                    
+                    // 2. Breve pausa dramática
+                    delay(300)
+                    
+                    // 3. ¡LEVEL UP! Mostramos el nuevo valor
+                    displayStreak = targetStreak
+                    
+                    // 4. Tiempo para disfrutar el logro
+                    delay(4500) 
+
+                    viewModel.dismissLevelUp()
+                }
+            }
+
+            SyncLevelUpScreen(
+                streakDays = displayStreak,
+                progress = progress
+            )
+        }
+    }
 }
 
 @Composable
@@ -100,8 +154,6 @@ fun Content(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            // 2. Capa de Fondo: Partículas con Acelerómetro
-            // Reemplaza el .background(Brush.verticalGradient(GradientColors)) anterior
             GravityParticlesBackground(modifier = Modifier.fillMaxSize())
             Column(
                 modifier = Modifier

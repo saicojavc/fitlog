@@ -22,7 +22,9 @@ data class DashboardUiState(
     val remoteVersion: String? = null,
     val updateUrl: String? = null,
     val isLoadingLogin: Boolean = false,
-    val authUser: AuthUser? = null
+    val authUser: AuthUser? = null,
+    val showLevelUp: Boolean = false,
+    val streakLevel: Int = 0
 )
 
 enum class HistoryFilter {

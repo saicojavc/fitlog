@@ -19,5 +19,8 @@ class UserProfileEntity(
     val dailyStepsGoal: Int = 10000,
     val dailyCaloriesGoal: Int = 500,
     val level: String = "Beginner",
+    val currentStreak: Int = 0,
+    val lastStreakDate: Long = 0L,
+    val lastStreakShown: Int = 0,
     val weightHistory: List<WeightEntry> = emptyList()
 ) : Parcelable

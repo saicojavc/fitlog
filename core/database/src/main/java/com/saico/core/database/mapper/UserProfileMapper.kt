@@ -11,6 +11,9 @@ fun UserProfileEntity.toDomain() = UserProfile(
     dailyStepsGoal = dailyStepsGoal,
     dailyCaloriesGoal = dailyCaloriesGoal,
     level = level,
+    currentStreak = currentStreak,
+    lastStreakDate = lastStreakDate,
+    lastStreakShown = lastStreakShown,
     weightHistory = weightHistory
 )
 
@@ -23,5 +26,8 @@ fun UserProfile.toEntity() = UserProfileEntity(
     dailyStepsGoal = dailyStepsGoal,
     dailyCaloriesGoal = dailyCaloriesGoal,
     level = level,
+    currentStreak = currentStreak,
+    lastStreakDate = lastStreakDate,
+    lastStreakShown = lastStreakShown,
     weightHistory = weightHistory
 )

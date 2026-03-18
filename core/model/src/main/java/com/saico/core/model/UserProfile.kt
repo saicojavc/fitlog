@@ -12,5 +12,8 @@ data class UserProfile(
     val dailyStepsGoal: Int = 0,
     val dailyCaloriesGoal: Int = 0,
     val level: String = "Beginner",
+    val currentStreak: Int = 0,
+    val lastStreakDate: Long = 0L,
+    val lastStreakShown: Int = 0,
     val weightHistory: List<WeightEntry> = emptyList()
 ) : Parcelable
