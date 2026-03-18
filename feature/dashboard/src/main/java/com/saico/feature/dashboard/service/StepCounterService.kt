@@ -127,16 +127,15 @@ class StepCounterService : Service() {
                 }.timeInMillis
 
                 if (stepCounterDataStore.isNewDay(lastResetDate)) {
-                    // 1. Guardar resumen final de ayer
                     saveWorkoutToDatabase(offset, totalStepsSinceReboot, lastResetDate)
-                    // 2. Resetear para hoy
                     stepCounterDataStore.saveStepCounterData(totalStepsSinceReboot)
                     0
                 } else {
                     val dailySteps = (totalStepsSinceReboot - offset).coerceAtLeast(0)
-                    // 3. Sincronización en VIVO: Actualizamos el progreso de HOY en la DB y Nube
                     if (dailySteps > 0) {
                         saveWorkoutToDatabase(offset, totalStepsSinceReboot, todayStart)
+                        // Lógica de racha en segundo plano
+                        updateStreakLogic(dailySteps)
                     }
                     dailySteps
                 }
@@ -145,6 +144,41 @@ class StepCounterService : Service() {
                 checkProgressNotifications(dailySteps)
             }
         }
+    }
+
+    private suspend fun updateStreakLogic(dailySteps: Int) {
+        val profile = userProfileUseCase.getUserProfileUseCase().first() ?: return
+        val goal = profile.dailyStepsGoal
+        if (goal <= 0 || dailySteps < goal) return
+
+        val today = Calendar.getInstance()
+        val lastStreakDate = Calendar.getInstance().apply { timeInMillis = profile.lastStreakDate }
+
+        // Si es un día nuevo para la racha
+        if (profile.lastStreakDate == 0L || !isSameDay(today, lastStreakDate)) {
+            val newStreak = if (isYesterday(today, lastStreakDate)) {
+                profile.currentStreak + 1
+            } else {
+                1
+            }
+
+            // Actualizamos la racha pero NO el 'lastStreakShown'
+            // Esto permite que el Dashboard detecte que hay algo que mostrar al abrirse
+            userProfileUseCase.updateUserProfileUseCase(profile.copy(
+                currentStreak = newStreak,
+                lastStreakDate = System.currentTimeMillis()
+            ))
+        }
+    }
+
+    private fun isSameDay(cal1: Calendar, cal2: Calendar): Boolean {
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+                cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)
+    }
+
+    private fun isYesterday(today: Calendar, other: Calendar): Boolean {
+        val yesterday = (today.clone() as Calendar).apply { add(Calendar.DAY_OF_YEAR, -1) }
+        return isSameDay(yesterday, other)
     }
 
     private suspend fun checkProgressNotifications(dailySteps: Int) {
@@ -184,10 +218,6 @@ class StepCounterService : Service() {
         }
     }
 
-    /**
-     * Guarda el progreso en la base de datos local (Room).
-     * Como InsertWorkoutUseCase tiene lógica de Firebase, esto también sincroniza con la nube en vivo.
-     */
     private suspend fun saveWorkoutToDatabase(offset: Int, currentSensorValue: Int, date: Long) {
         val stepsTaken = (currentSensorValue - offset).coerceAtLeast(0)
         if (stepsTaken < 0) return
@@ -210,7 +240,6 @@ class StepCounterService : Service() {
             dayOfWeek = dayOfWeek
         )
 
-        // Esto dispara Room + Firebase gracias al UseCase sincronizado
         workoutUseCase.insertWorkoutUseCase(workout)
     }
 

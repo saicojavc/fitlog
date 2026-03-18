@@ -69,7 +69,9 @@ fun DashboardScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Box(modifier = Modifier.fillMaxSize().zIndex(0f)) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .zIndex(0f)) {
             Content(
                 uiState = uiState,
                 navController = navController,
@@ -85,33 +87,35 @@ fun DashboardScreen(
             visible = uiState.showLevelUp,
             enter = fadeIn(),
             exit = fadeOut(),
-            modifier = Modifier.fillMaxSize().zIndex(1f)
+            modifier = Modifier
+                .fillMaxSize()
+                .zIndex(1f)
         ) {
             var progress by remember { mutableFloatStateOf(0f) }
             // Congelamos el valor objetivo al inicio de la animación
             val targetStreak = uiState.streakLevel
             var displayStreak by remember { mutableIntStateOf(if (targetStreak > 0) targetStreak - 1 else 0) }
-            
+
             LaunchedEffect(uiState.showLevelUp) {
                 if (uiState.showLevelUp) {
                     progress = 0f
                     // Reiniciamos al valor anterior al empezar
                     displayStreak = if (targetStreak > 0) targetStreak - 1 else 0
-                    
+
                     // 1. Animación de carga (aprox 3 segundos)
                     while (progress < 1f) {
                         progress += 0.01f
                         delay(30)
                     }
-                    
+
                     // 2. Breve pausa dramática
                     delay(300)
-                    
+
                     // 3. ¡LEVEL UP! Mostramos el nuevo valor
                     displayStreak = targetStreak
-                    
+
                     // 4. Tiempo para disfrutar el logro
-                    delay(4500) 
+                    delay(4000)
 
                     viewModel.dismissLevelUp()
                 }
@@ -140,7 +144,10 @@ fun Content(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            TopAppBar(navController = navController)
+            TopAppBar(
+                navController = navController,
+                uiState = uiState
+            )
         },
         bottomBar = {
             NavigationBar(
