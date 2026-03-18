@@ -83,9 +83,11 @@ fun GravityParticlesBackground(modifier: Modifier = Modifier) {
         )
     }
 
-    Canvas(modifier = modifier
-        .fillMaxSize()
-        .background(nightBlueGradient)) {
+    Canvas(
+        modifier = modifier
+            .fillMaxSize()
+            .background(nightBlueGradient)
+    ) {
         val f = frame // trigger recomposition
 
         particles.forEach { p ->
