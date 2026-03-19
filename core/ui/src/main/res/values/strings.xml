@@ -275,4 +275,13 @@
     <!-- New alarm strings -->
     <string name="alarm_subtext">FITLOG • REMINDER</string>
     <string name="dismiss">DISMISS</string>
+
+<!--  Streaks  -->
+    <string name="day">Day</string>
+    <string name="increasing">Increasing</string>
+    <string name="overdrive">Overdrive</string>
+    <string name="synced">Synced</string>
+    <string name="expantion_progress"> >> CORE_EXPANSION_IN_PROGRESS >></string>
+    <string name="reconstructing_data">>> RECONSTRUCTING_DATA...</string>
+    <string name="stability_levels">>> STABILITY_LEVEL: OPTIMAL // CORE_SYNC_ACTIVE</string>
 </resources>

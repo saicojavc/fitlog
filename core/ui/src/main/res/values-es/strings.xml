@@ -264,4 +264,13 @@
     <!-- New alarm strings -->
     <string name="alarm_subtext">FITLOG • RECORDATORIO</string>
     <string name="dismiss">DESCARTAR</string>
+
+    <!--  Streaks  -->
+    <string name="day">Día</string>
+    <string name="increasing">Aumentando</string>
+    <string name="overdrive">Sobrecarga</string>
+    <string name="synced">Sincronizado</string>
+    <string name="expantion_progress">>> EXPANSIÓN_CENTRAL_EN_CURSO >></string>
+    <string name="reconstructing_data">>> RECONSTRUYENDO_DATOS…</string>
+    <string name="stability_levels">>>NIVEL_DE_ESTABILIDAD: ÓPTIMO // CORE_SYNC_ACTIVO </string>
 </resources>

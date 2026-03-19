@@ -68,10 +68,62 @@ fun DashboardScreen(
         }
     }
 
+//    var rachaPrueba by remember { mutableIntStateOf(31) }
+//    var progresoPrueba by remember { mutableFloatStateOf(0.1f) }
+//    Column(
+//        modifier = Modifier.fillMaxSize().background(Color.Black),
+//        horizontalAlignment = Alignment.CenterHorizontally
+//    ) {
+//        // Panel de Control Temporal
+//        Row(
+//            modifier = Modifier.padding(top = 40.dp),
+//            horizontalArrangement = Arrangement.spacedBy(10.dp)
+//        ) {
+//            Button(onClick = {
+//                if (progresoPrueba < 1f) {
+//                    // Aumentamos el progreso de 10% en 10%
+//                    progresoPrueba = (progresoPrueba + 0.1f).coerceAtMost(1f)
+//                } else {
+//                    // Si llegó al 100%, subimos racha y reiniciamos barra
+//                    rachaPrueba++
+//                    progresoPrueba = 0.1f
+//                }
+//            }) {
+//                Text("Cargar Datos / Subir Nivel")
+//            }
+//
+//            Button(onClick = {
+//                // Reset total para probar desde cero
+//                rachaPrueba = 9
+//                progresoPrueba = 0.1f
+//            }) {
+//                Text("Reset")
+//            }
+//        }
+//
+//        // Información de depuración visual
+//        Text(
+//            text = "DEBUG: Racha $rachaPrueba | Progreso ${(progresoPrueba * 100).toInt()}%",
+//            color = Color.White.copy(alpha = 0.5f),
+//            fontSize = 10.sp,
+//            fontFamily = FontFamily.Monospace
+//        )
+//
+//        // El componente principal con los estados vinculados
+//        Box(modifier = Modifier.weight(1f)) {
+//            SyncLevelUpScreen(
+//                streakDays = rachaPrueba,
+//                progress = progresoPrueba
+//            )
+//        }
+//    }
+
     Box(modifier = Modifier.fillMaxSize()) {
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .zIndex(0f)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .zIndex(0f)
+        ) {
             Content(
                 uiState = uiState,
                 navController = navController,
@@ -152,7 +204,7 @@ fun Content(
         bottomBar = {
             NavigationBar(
                 selectedBottomAppBarItem = selectedBottomAppBarItem,
-                onItemSelected = { selectedBottomAppBarItem = it }
+                onItemSelected = { selectedBottomAppBarItem = it },
             )
         }
     ) { paddingValues ->
