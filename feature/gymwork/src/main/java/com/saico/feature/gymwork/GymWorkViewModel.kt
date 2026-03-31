@@ -1,13 +1,18 @@
 package com.saico.feature.gymwork
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.saico.core.domain.usecase.gym_exercise.InsertGymExerciseUseCase
 import com.saico.core.model.GymExercise
 import com.saico.core.model.GymExerciseItem as DomainGymExerciseItem
+import com.saico.feature.gymwork.state.GuidedSessionState
 import com.saico.feature.gymwork.state.GymExerciseItem
 import com.saico.feature.gymwork.state.GymWorkUiState
+import com.saico.feature.gymwork.state.GymWorkoutMode
+import com.saico.feature.gymwork.util.GuidedWorkoutProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,19 +28,25 @@ import kotlin.math.roundToInt
 
 @HiltViewModel
 class GymWorkViewModel @Inject constructor(
-    private val insertGymExerciseUseCase: InsertGymExerciseUseCase
+    private val insertGymExerciseUseCase: InsertGymExerciseUseCase,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(GymWorkUiState())
     val uiState: StateFlow<GymWorkUiState> = _uiState.asStateFlow()
 
     private var timerJob: Job? = null
+    private var restTimerJob: Job? = null
 
     private val LB_TO_KG = 0.453592
     
     private val CALORIES_PER_KG_VOL = 0.005 
     private val CALORIES_BASE_PER_REP = 0.1 
     private val CALORIES_BASE_PER_SET = 2.0 
+
+    init {
+        _uiState.update { it.copy(guidedExercises = GuidedWorkoutProvider.getRoutineForToday()) }
+    }
 
     private fun calculateExerciseCalories(sets: Int, reps: Int, weightLb: Double): Int {
         if (sets <= 0 || reps <= 0) return 0
@@ -55,12 +66,79 @@ class GymWorkViewModel @Inject constructor(
         return exercises.sumOf { calculateExerciseCalories(it.sets, it.reps, it.weightLb) }
     }
 
+    fun setWorkoutMode(mode: GymWorkoutMode) {
+        if (_uiState.value.hasStarted) return 
+        _uiState.update { it.copy(workoutMode = mode) }
+    }
+
     fun startSession() {
         if (_uiState.value.hasStarted) return
         
-        _uiState.update { it.copy(hasStarted = true, isTimerRunning = true) }
+        _uiState.update { 
+            it.copy(
+                hasStarted = true, 
+                isTimerRunning = true,
+                guidedSessionState = if (it.workoutMode == GymWorkoutMode.GUIDED) GuidedSessionState.EXERCISING else GuidedSessionState.READY
+            ) 
+        }
         startTimer()
     }
+
+    // --- Guided Session Logic ---
+
+    fun nextGuidedSet() {
+        val state = _uiState.value
+        val currentExercise = state.guidedExercises.getOrNull(state.currentGuidedExerciseIndex) ?: return
+        val totalSets = currentExercise.sets.toIntOrNull() ?: 1
+
+        if (state.currentSet < totalSets) {
+            startRestTimer(60) 
+        } else {
+            if (state.currentGuidedExerciseIndex < state.guidedExercises.size - 1) {
+                _uiState.update { 
+                    it.copy(
+                        currentGuidedExerciseIndex = it.currentGuidedExerciseIndex + 1,
+                        currentSet = 1,
+                        guidedSessionState = GuidedSessionState.EXERCISING 
+                    )
+                }
+            } else {
+                _uiState.update { it.copy(guidedSessionState = GuidedSessionState.FINISHED) }
+            }
+        }
+    }
+
+    private fun startRestTimer(seconds: Int) {
+        restTimerJob?.cancel()
+        _uiState.update { it.copy(guidedSessionState = GuidedSessionState.RESTING, restTimeRemaining = seconds) }
+        
+        restTimerJob = viewModelScope.launch {
+            while (_uiState.value.restTimeRemaining > 0) {
+                delay(1000)
+                _uiState.update { it.copy(restTimeRemaining = it.restTimeRemaining - 1) }
+            }
+            if (_uiState.value.guidedSessionState == GuidedSessionState.RESTING) {
+                _uiState.update { it.copy(guidedSessionState = GuidedSessionState.EXERCISING, currentSet = it.currentSet + 1) }
+            }
+        }
+    }
+
+    fun addRestTime(seconds: Int) {
+        _uiState.update { it.copy(restTimeRemaining = it.restTimeRemaining + seconds) }
+    }
+
+    fun skipRest() {
+        restTimerJob?.cancel()
+        _uiState.update { 
+            it.copy(
+                guidedSessionState = GuidedSessionState.EXERCISING, 
+                currentSet = it.currentSet + 1,
+                restTimeRemaining = 0 
+            ) 
+        }
+    }
+
+    // --- Common Logic ---
 
     fun toggleTimer() {
         if (_uiState.value.isTimerRunning) {
@@ -157,32 +235,51 @@ class GymWorkViewModel @Inject constructor(
             val calendar = Calendar.getInstance()
             val dayOfWeek = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()) ?: ""
             
+            val finalCalories = if (currentState.workoutMode == GymWorkoutMode.GUIDED) {
+                (currentState.elapsedTime / 60 * 5).toInt() 
+            } else {
+                currentState.totalCalories
+            }
+
             val gymExercise = GymExercise(
                 id = 0,
-                exercises = currentState.exercises.map { item ->
-                    DomainGymExerciseItem(
-                        id = item.id,
-                        name = item.name,
-                        sets = item.sets,
-                        reps = item.reps,
-                        weightKg = item.weightLb * LB_TO_KG
-                    )
+                exercises = if (currentState.workoutMode == GymWorkoutMode.NON_GUIDED) {
+                    currentState.exercises.map { item ->
+                        DomainGymExerciseItem(
+                            id = item.id,
+                            name = item.name,
+                            sets = item.sets,
+                            reps = item.reps,
+                            weightKg = item.weightLb * LB_TO_KG
+                        )
+                    }
+                } else {
+                    currentState.guidedExercises.map { item ->
+                        DomainGymExerciseItem(
+                            id = java.util.UUID.randomUUID().toString(),
+                            name = context.getString(item.nameRes),
+                            sets = item.sets.toIntOrNull() ?: 1,
+                            reps = item.reps.split("-").first().toIntOrNull() ?: 12,
+                            weightKg = 0.0 
+                        )
+                    }
                 },
                 elapsedTime = currentState.elapsedTime,
-                totalCalories = currentState.totalCalories,
+                totalCalories = finalCalories,
                 date = Date().time,
                 dayOfWeek = dayOfWeek
             )
             
             insertGymExerciseUseCase(gymExercise)
-            
             _uiState.update { it.copy(showSessionSavedDialog = true, isTimerRunning = false) }
             timerJob?.cancel()
+            restTimerJob?.cancel()
         }
     }
 
     fun onDialogDismissed() {
         timerJob?.cancel()
+        restTimerJob?.cancel()
         _uiState.value = GymWorkUiState()
     }
 }

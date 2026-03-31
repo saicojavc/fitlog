@@ -181,6 +181,7 @@
     <string name="delete">Eliminar</string>
     <string name="edit">Editar</string>
     <string name="save_session">Guardar sesión</string>
+    <string name="start_session">Iniciar Sesión</string>
     <string name="total_time">Tiempo total</string>
     <string name="expand">Expandir</string>
     <string name="collapse">Contraer</string>
@@ -289,4 +290,105 @@
 
     <string name="streak_lost_title">COLAPSO CENTRAL</string>
     <string name="streak_lost_msg">Racha perdida. Protocolo reiniciado a cero. Comienza la reconstrucción hoy.</string>
+
+    <!-- Intelligence Notifications -->
+    <string name="intel_milestone_50_title">[SYNC] NÚCLEO AL 50% DE CAPACIDAD</string>
+    <string name="intel_milestone_50_msg">Núcleo de energía estable. Meta a mitad de camino. Iniciando protocolos secundarios.</string>
+
+    <string name="intel_milestone_90_title">[SYNC] ETAPA FINAL INICIADA</string>
+    <string name="intel_milestone_90_msg">90% de sincronización alcanzada. Niveles de potencia máximos. ¡Termina la misión!</string>
+
+    <string name="intel_morning_title">[MISIÓN] BRIEFING DIARIO</string>
+    <string name="intel_morning_msg">Estado: Óptimo. Objetivo diario: %1$d pasos. Comenzando mantenimiento del núcleo.</string>
+
+    <string name="intel_anomaly_title">[ANOMALÍA] CAÍDA DE ACTIVIDAD DETECTADA</string>
+    <string name="intel_anomaly_msg">Eficiencia metabólica disminuyendo. Inicia el movimiento para restaurar la estabilidad.</string>
+
+    <!-- Gym Modes -->
+    <string name="mode_solo">SÉ LO QUE ME HAGO</string>
+    <string name="mode_protocol">GUÍAME, SENSEI</string>
+
+    <!-- Guided Workout -->
+    <string name="set">SERIE</string>
+    <string name="rest">DESCANSO</string>
+    <string name="finish_set">FINALIZAR SERIE</string>
+    <string name="skip_rest">SALTAR DESCANSO</string>
+    <string name="workout_complete">ENTRENAMIENTO COMPLETADO</string>
+
+    <!-- Day Titles -->
+    <string name="monday_title">Lunes: Empuje (Push)</string>
+    <string name="tuesday_title">Martes: Tren Inferior</string>
+    <string name="wednesday_title">Miércoles: Tracción (Pull)</string>
+    <string name="thursday_title">Jueves: Tren Superior Híbrido</string>
+    <string name="friday_title">Viernes: Pierna y Core</string>
+    <string name="rest_day_title">Protocolo de Descanso</string>
+
+    <!-- Categories -->
+    <string name="cat_chest">Pecho</string>
+    <string name="cat_shoulders">Hombros</string>
+    <string name="cat_triceps">Tríceps</string>
+    <string name="cat_cardio">Cardio</string>
+    <string name="cat_legs">Piernas</string>
+    <string name="cat_back">Espalda</string>
+    <string name="cat_biceps">Bíceps</string>
+    <string name="cat_core">Core</string>
+
+    <!-- Exercise Names -->
+    <string name="ex_flat_bench">Pecho Recto (Nautilus)</string>
+    <string name="ex_incline_bench">Pecho Inclinado (Nautilus)</string>
+    <string name="ex_shoulder_press">Shoulder Press</string>
+    <string name="ex_lateral_raises">Elevaciones Laterales</string>
+    <string name="ex_bench_dips">Tríceps en Banco (Dips)</string>
+    <string name="ex_treadmill">Cardio: Caminadora</string>
+    <string name="ex_leg_extension">Extensión de Piernas</string>
+    <string name="ex_leg_curl">Curl de Pierna</string>
+    <string name="ex_goblet_squat">Goblet Squat</string>
+    <string name="ex_lunges">Desplantes (Lunges)</string>
+    <string name="ex_calf_raises">Elevación de Talones</string>
+    <string name="ex_lat_pulldown">Jalón al Pecho (Nautilus)</string>
+    <string name="ex_seated_row">Remo Sentado</string>
+    <string name="ex_pulley_biceps">Bíceps con Polea/Mancuerna</string>
+    <string name="ex_hammer_curl">Bíceps Martillo</string>
+    <string name="ex_concentration_curl">Bíceps Concentrado</string>
+    <string name="ex_decline_bench">Pecho Declinado</string>
+    <string name="ex_one_arm_row">Remo a una mano</string>
+    <string name="ex_db_bench_press">Press de Banca</string>
+    <string name="ex_rope_pushdown">Tríceps Polea/Cuerda</string>
+    <string name="ex_face_pulls">Face Pulls</string>
+    <string name="ex_rdl">Peso Muerto Rumano</string>
+    <string name="ex_side_lunges">Zancadas Laterales</string>
+    <string name="ex_plank">Plancha (Plank)</string>
+    <string name="ex_leg_raises">Elevación de Piernas</string>
+
+    <!-- Descriptions -->
+    <string name="desc_flat_bench">Gym: Máquina de pecho. Casa: Flexiones de pecho clásicas.</string>
+    <string name="desc_incline_bench">Gym: Máquina inclinada. Casa: Flexiones con pies elevados en un sofá.</string>
+    <string name="desc_shoulder_press">Usa mancuernas de 20 lb o botellas de agua pesadas.</string>
+    <string name="desc_lateral_raises">Movimiento controlado. En casa usa bandas o botellas.</string>
+    <string name="desc_bench_dips">Usa un banco de gimnasio o una silla estable en casa.</string>
+    <string name="desc_treadmill_const">Gym: Caminadora. Casa: Trotar en el sitio o saltar la cuerda.</string>
+    <string name="desc_leg_extension">Gym: Máquina Nautilus. Casa: Sentadilla búlgara (un pie atrás).</string>
+    <string name="desc_leg_curl">Gym: Máquina Nautilus. Casa: Puente de glúteo a una pierna.</string>
+    <string name="desc_goblet_squat">Mantén el peso pegado al pecho (mancuerna o mochila con libros).</string>
+    <string name="desc_lunges">Zancadas largas. No necesitas peso si eres principiante.</string>
+    <string name="desc_calf_raises">De pie. Puedes usar el borde de un escalón.</string>
+    <string name="desc_treadmill_hiit">Gym: Inclinación 10%. Casa: Subir y bajar escaleras rápido.</string>
+    <string name="desc_lat_pulldown">Gym: Polea alta. Casa: Dominadas en barra o "Remo" usando una toalla contra una puerta.</string>
+    <string name="desc_seated_row">Gym: Polea baja. Casa: Remo con mochila pesada a una mano.</string>
+    <string name="desc_pulley_biceps">Gym: Polea. Casa: Curl con cualquier objeto pesado.</string>
+    <string name="desc_hammer_curl">Mancuernas de 20 lb. Mantén los codos pegados al cuerpo.</string>
+    <string name="desc_concentration_curl">Sentado, apoya el codo en el muslo.</string>
+    <string name="desc_treadmill_fast">Gym: Caminadora. Casa: Salir a caminar rápido por el barrio.</string>
+    <string name="desc_decline_bench">Gym: Máquina. Casa: Flexiones con manos elevadas (sobre una mesa).</string>
+    <string name="desc_one_arm_row">Apóyate en un banco o silla. Usa una mancuerna o garrafa.</string>
+    <string name="desc_db_bench_press">Gym: Mancuernas. Casa: Flexiones tipo diamante hasta cansar.</string>
+    <string name="desc_rope_pushdown">Gym: Polea. Casa: Extensión de tríceps tras nuca con peso.</string>
+    <string name="desc_face_pulls">Gym: Polea alta. Casa: "W-Flyes" tumbado boca abajo en el suelo.</string>
+    <string name="desc_treadmill_burn">Cualquier actividad que te mantenga agitado.</string>
+    <string name="desc_rdl">Baja con la espalda recta hasta media espinilla.</string>
+    <string name="desc_leg_extension_pump">Poco peso. En casa: Sentadilla estática contra la pared.</string>
+    <string name="desc_side_lunges">Enfócate en sentir el glúteo medio.</string>
+    <string name="desc_plank">Aprieta el abdomen y no bajes la cadera.</string>
+    <string name="desc_leg_raises">Tumbado boca arriba, sube piernas sin tocar el suelo.</string>
+    <string name="desc_treadmill_final">El último esfuerzo de la semana. ¡Tú puedes!</string>
 </resources>

@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">Fitlog</string>
     <string name="login">Login</string>
-    <string name="sign_up">Age</string>
+    <string name="sign_up">Sign Up</string>
     <string name="welcome_to_fitlog">Welcome to\nFitLog!</string>
     <string name="login_subtitle">Track your walks, runs,\nand gym sessions easily.</string>
     <string name="get_started">Get Started</string>
@@ -41,7 +41,7 @@
     <string name="intermediate">Intermediate</string>
     <string name="professional">Professional</string>
     <string name="next">Next</string>
-    <string name="save_and_continue">Save and continue</string>'
+    <string name="save_and_continue">Save and continue</string>
 
     <string name="backup_with_google">BACKUP WITH GOOGLE</string>
     <string name="unlink_account">Unlink account</string>
@@ -314,4 +314,92 @@
 
     <string name="intel_anomaly_title">[ANOMALY] ACTIVITY DROP DETECTED</string>
     <string name="intel_anomaly_msg">Metabolic efficiency decreasing. Initialize movement to restore stability.</string>
+
+    <!-- Gym Modes -->
+    <string name="mode_solo">I KNOW WHAT I\'M DOING</string>
+    <string name="mode_protocol">GUIDE ME, SENSEI</string>
+
+    <!-- Guided Workout -->
+    <string name="set">SET</string>
+    <string name="rest">REST</string>
+    <string name="finish_set">FINISH SET</string>
+    <string name="skip_rest">SKIP REST</string>
+    <string name="workout_complete">WORKOUT COMPLETE</string>
+
+    <!-- Day Titles -->
+    <string name="monday_title">Monday: Push</string>
+    <string name="tuesday_title">Tuesday: Lower Body</string>
+    <string name="wednesday_title">Wednesday: Pull</string>
+    <string name="thursday_title">Thursday: Hybrid Upper Body</string>
+    <string name="friday_title">Friday: Legs and Core</string>
+    <string name="rest_day_title">Rest Protocol</string>
+
+    <!-- Categories -->
+    <string name="cat_chest">Chest</string>
+    <string name="cat_shoulders">Shoulders</string>
+    <string name="cat_triceps">Triceps</string>
+    <string name="cat_cardio">Cardio</string>
+    <string name="cat_legs">Legs</string>
+    <string name="cat_back">Back</string>
+    <string name="cat_biceps">Biceps</string>
+    <string name="cat_core">Core</string>
+
+    <!-- Exercise Names -->
+    <string name="ex_flat_bench">Flat Chest Press (Nautilus)</string>
+    <string name="ex_incline_bench">Incline Chest Press (Nautilus)</string>
+    <string name="ex_shoulder_press">Shoulder Press</string>
+    <string name="ex_lateral_raises">Lateral Raises</string>
+    <string name="ex_bench_dips">Bench Dips</string>
+    <string name="ex_treadmill">Cardio: Treadmill</string>
+    <string name="ex_leg_extension">Leg Extension</string>
+    <string name="ex_leg_curl">Leg Curl</string>
+    <string name="ex_goblet_squat">Goblet Squat</string>
+    <string name="ex_lunges">Lunges</string>
+    <string name="ex_calf_raises">Calf Raises</string>
+    <string name="ex_lat_pulldown">Lat Pulldown (Nautilus)</string>
+    <string name="ex_seated_row">Seated Row</string>
+    <string name="ex_pulley_biceps">Pulley/Dumbbell Biceps</string>
+    <string name="ex_hammer_curl">Hammer Curl</string>
+    <string name="ex_concentration_curl">Concentrated Biceps</string>
+    <string name="ex_decline_bench">Decline Chest Press</string>
+    <string name="ex_one_arm_row">One-Arm Row</string>
+    <string name="ex_db_bench_press">Dumbbell Bench Press</string>
+    <string name="ex_rope_pushdown">Rope/Bar Pushdown</string>
+    <string name="ex_face_pulls">Face Pulls</string>
+    <string name="ex_rdl">Romanian Deadlift</string>
+    <string name="ex_side_lunges">Side Lunges</string>
+    <string name="ex_plank">Plank</string>
+    <string name="ex_leg_raises">Leg Raises</string>
+
+    <!-- Descriptions -->
+    <string name="desc_flat_bench">Gym: Chest machine. Home: Classic push-ups.</string>
+    <string name="desc_incline_bench">Gym: Incline machine. Home: Incline push-ups (feet on sofa).</string>
+    <string name="desc_shoulder_press">Use 20 lb dumbbells or heavy water bottles.</string>
+    <string name="desc_lateral_raises">Controlled movement. At home use bands or bottles.</string>
+    <string name="desc_bench_dips">Use a gym bench or a stable chair at home.</string>
+    <string name="desc_treadmill_const">Gym: Treadmill. Home: Jog in place or jump rope.</string>
+    <string name="desc_leg_extension">Gym: Nautilus machine. Home: Bulgarian split squat.</string>
+    <string name="desc_leg_curl">Gym: Nautilus machine. Home: Single-leg glute bridge.</string>
+    <string name="desc_goblet_squat">Keep weight at chest (dumbbell or backpack with books).</string>
+    <string name="desc_lunges">Long strides. No weight needed for beginners.</string>
+    <string name="desc_calf_raises">Standing. You can use the edge of a step.</string>
+    <string name="desc_treadmill_hiit">Gym: Inclinación 10%. Casa: Subir y bajar escaleras rápido.</string>
+    <string name="desc_lat_pulldown">Gym: Polea alta. Casa: Dominadas en barra o Remo usando una toalla contra una puerta.</string>
+    <string name="desc_seated_row">Gym: Polea baja. Casa: Remo con mochila pesada a una mano.</string>
+    <string name="desc_pulley_biceps">Gym: Polea. Casa: Curl con cualquier objeto pesado.</string>
+    <string name="desc_hammer_curl">20 lb dumbbells. Keep elbows close to body.</string>
+    <string name="desc_concentration_curl">Seated, rest elbow on inner thigh.</string>
+    <string name="desc_treadmill_fast">Gym: Treadmill. Home: Power walking around the neighborhood.</string>
+    <string name="desc_decline_bench">Gym: Machine. Home: Decline push-ups (hands on table).</string>
+    <string name="desc_one_arm_row">Lean on a bench or chair. Use a dumbbell or jug.</string>
+    <string name="desc_db_bench_press">Gym: Dumbbells. Home: Diamond push-ups until technical failure.</string>
+    <string name="desc_rope_pushdown">Gym: Polea. Home: Overhead triceps extension with weight.</string>
+    <string name="desc_face_pulls">Gym: Polea alta. Casa: W-Flyes lying face down on the floor.</string>
+    <string name="desc_treadmill_burn">Any activity that keeps your heart rate up.</string>
+    <string name="desc_rdl">Lower with straight back to mid-shin level.</string>
+    <string name="desc_leg_extension_pump">Low weight. Home: Static wall squat.</string>
+    <string name="desc_side_lunges">Focus on feeling the middle glute.</string>
+    <string name="desc_plank">Tighten core and do not drop hips.</string>
+    <string name="desc_leg_raises">Lying face up, raise legs without touching the floor.</string>
+    <string name="desc_treadmill_final">The last effort of the week. You can do it!</string>
 </resources>

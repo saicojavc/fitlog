@@ -1,6 +1,13 @@
 package com.saico.feature.gymwork
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -10,11 +17,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -26,9 +35,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -48,18 +59,24 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.saico.core.ui.R
+import com.saico.core.ui.components.FitlogCard
 import com.saico.core.ui.components.FitlogIcon
 import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.components.FitlogTopAppBar
 import com.saico.core.ui.icon.FitlogIcons
 import com.saico.core.ui.theme.GradientColors
 import com.saico.core.ui.theme.PaddingDim
+import com.saico.core.ui.theme.techBlue
 import com.saico.feature.gymwork.component.AddExerciseDialog
 import com.saico.feature.gymwork.component.ExerciseCard
 import com.saico.feature.gymwork.component.GymBottomBar
 import com.saico.feature.gymwork.component.TimeCard
+import com.saico.feature.gymwork.state.GuidedExerciseItem
+import com.saico.feature.gymwork.state.GuidedSessionState
 import com.saico.feature.gymwork.state.GymExerciseItem
 import com.saico.feature.gymwork.state.GymWorkUiState
+import com.saico.feature.gymwork.state.GymWorkoutMode
+import com.saico.feature.gymwork.util.GuidedWorkoutProvider
 
 @Composable
 fun GymWorkScreen(
@@ -68,14 +85,13 @@ fun GymWorkScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    // BLOQUEO DE BOTÓN ATRÁS: Si hay una sesión activa (tiempo > 0 o hay ejercicios), no permite salir por accidente.
     BackHandler(enabled = uiState.hasStarted || uiState.exercises.isNotEmpty()) {
-        // Bloqueado. Debe guardar o vaciar la lista para salir.
     }
 
     Content(
         uiState = uiState,
         navController = navController,
+        onModeChange = viewModel::setWorkoutMode,
         onStartSession = viewModel::startSession,
         onToggleTimer = viewModel::toggleTimer,
         onShowAddDialog = viewModel::showAddExerciseDialog,
@@ -86,6 +102,9 @@ fun GymWorkScreen(
         onToggleExpansion = viewModel::toggleExerciseExpansion,
         onRemoveExercise = viewModel::removeExercise,
         onSaveSession = viewModel::saveSession,
+        onNextSet = viewModel::nextGuidedSet,
+        onSkipRest = viewModel::skipRest,
+        onAddRestTime = viewModel::addRestTime,
         onDismissSuccessDialog = {
             viewModel.onDialogDismissed()
             navController.popBackStack()
@@ -98,6 +117,7 @@ fun GymWorkScreen(
 fun Content(
     uiState: GymWorkUiState,
     navController: NavHostController,
+    onModeChange: (GymWorkoutMode) -> Unit,
     onStartSession: () -> Unit,
     onToggleTimer: () -> Unit,
     onShowAddDialog: () -> Unit,
@@ -108,6 +128,9 @@ fun Content(
     onToggleExpansion: (String) -> Unit,
     onRemoveExercise: (String) -> Unit,
     onSaveSession: () -> Unit,
+    onNextSet: () -> Unit,
+    onSkipRest: () -> Unit,
+    onAddRestTime: (Int) -> Unit,
     onDismissSuccessDialog: () -> Unit
 ) {
 
@@ -138,21 +161,19 @@ fun Content(
             modifier = Modifier
                 .fillMaxWidth(0.85f)
                 .clip(RoundedCornerShape(32.dp))
-                .background(Color(0xFF1E293B).copy(alpha = 0.95f)) // CardBackground
+                .background(Color(0xFF1E293B).copy(alpha = 0.95f))
                 .border(1.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(32.dp)),
             content = {
                 Column(
                     modifier = Modifier.padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // --- ICONO DE ÉXITO ESTILO "CELEBRACIÓN" ---
                     Box(
                         modifier = Modifier
                             .size(80.dp)
                             .background(Color(0xFF216EE0).copy(alpha = 0.1f), CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
-                        // Círculo interno más brillante
                         Box(
                             modifier = Modifier
                                 .size(56.dp)
@@ -170,7 +191,6 @@ fun Content(
 
                     Spacer(Modifier.height(24.dp))
 
-                    // --- TÍTULO ---
                     FitlogText(
                         text = stringResource(id = R.string.workout_saved_title).uppercase(),
                         style = MaterialTheme.typography.titleLarge,
@@ -182,24 +202,21 @@ fun Content(
 
                     Spacer(Modifier.height(12.dp))
 
-                    // --- TEXTO ---
                     FitlogText(
                         text = stringResource(id = R.string.workout_saved_text),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFF94A3B8), // CoolGray
+                        color = Color(0xFF94A3B8),
                         textAlign = TextAlign.Center,
                         lineHeight = 20.sp
                     )
 
                     Spacer(Modifier.height(32.dp))
 
-                    // --- BOTÓN DE CIERRE (EMERALD) ---
                     Button(
                         onClick = onDismissSuccessDialog,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp)
-                            // Aplicamos el resplandor azul (Glow) para que destaque en el diálogo
                             .shadow(
                                 elevation = 12.dp,
                                 shape = CircleShape,
@@ -208,9 +225,9 @@ fun Content(
                             ),
                         shape = CircleShape,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Transparent // Fondo transparente para usar el Box con degradado
+                            containerColor = Color.Transparent
                         ),
-                        contentPadding = PaddingValues() // Para que el degradado ocupe todo el espacio
+                        contentPadding = PaddingValues()
                     ) {
                         Box(
                             modifier = Modifier
@@ -222,7 +239,7 @@ fun Content(
                                 )
                                 .border(
                                     width = 1.dp,
-                                    color = Color.White.copy(alpha = 0.25f), // Borde de cristal sutil
+                                    color = Color.White.copy(alpha = 0.25f),
                                     shape = CircleShape
                                 ),
                             contentAlignment = Alignment.Center
@@ -231,7 +248,7 @@ fun Content(
                                 text = stringResource(id = android.R.string.ok).uppercase(),
                                 fontWeight = FontWeight.Black,
                                 color = Color.White,
-                                letterSpacing = 1.5.sp // Un toque extra de elegancia para el texto
+                                letterSpacing = 1.5.sp
                             )
                         }
                     }
@@ -249,7 +266,6 @@ fun Content(
                     containerColor = Color.Black.copy(alpha = 0.3f)
                 ),
                 navigationIcon = {
-                    // Solo mostramos el botón de atrás si NO hay sesión activa
                     if (!uiState.hasStarted && uiState.exercises.isEmpty()) {
                         FitlogIcon(
                             modifier = Modifier.clickable { navController.popBackStack() },
@@ -262,44 +278,43 @@ fun Content(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = onShowAddDialog,
-                containerColor = Color.Transparent, // Fondo nativo invisible
-                elevation = FloatingActionButtonDefaults.elevation(0.dp), // Quitamos la sombra gris
-                shape = CircleShape,
-                modifier = Modifier
-                    .size(56.dp)
-                    // Aplicamos el resplandor (Glow) azul tecnológico
-                    .shadow(
-                        elevation = 12.dp,
-                        shape = CircleShape,
-                        ambientColor = Color(0xFF3FB9F6),
-                        spotColor = Color(0xFF3FB9F6)
-                    )
-            ) {
-                // Contenedor con el degradado BottomColor
-                Box(
+            if (uiState.workoutMode == GymWorkoutMode.NON_GUIDED) {
+                FloatingActionButton(
+                    onClick = onShowAddDialog,
+                    containerColor = Color.Transparent,
+                    elevation = FloatingActionButtonDefaults.elevation(0.dp),
+                    shape = CircleShape,
                     modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            brush = Brush.horizontalGradient(
-                                listOf(Color(0xFF3FB9F6), Color(0xFF216EE0))
-                            ),
-                            shape = CircleShape
+                        .size(56.dp)
+                        .shadow(
+                            elevation = 12.dp,
+                            shape = CircleShape,
+                            ambientColor = Color(0xFF3FB9F6),
+                            spotColor = Color(0xFF3FB9F6)
                         )
-                        .border(
-                            width = 1.dp,
-                            color = Color.White.copy(alpha = 0.25f), // Reflejo de cristal
-                            shape = CircleShape
-                        ),
-                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = FitlogIcons.Add,
-                        contentDescription = stringResource(id = R.string.add_exercise),
-                        tint = Color.White,
-                        modifier = Modifier.size(28.dp) // Un poco más grande para que resalte el "Plus"
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.horizontalGradient(
+                                    listOf(Color(0xFF3FB9F6), Color(0xFF216EE0))
+                                )
+                            )
+                            .border(
+                                width = 1.dp,
+                                color = Color.White.copy(alpha = 0.25f),
+                                shape = CircleShape
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = FitlogIcons.Add,
+                            contentDescription = stringResource(id = R.string.add_exercise),
+                            tint = Color.White,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
                 }
             }
         },
@@ -311,42 +326,315 @@ fun Content(
             )
         }
     ) { paddingValues ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Brush.verticalGradient(GradientColors))
                 .padding(paddingValues)
-                .padding(PaddingDim.MEDIUM),
-            verticalArrangement = Arrangement.spacedBy(PaddingDim.MEDIUM)
         ) {
-            item {
-                TimeCard(
+            // Selector de Modo (Chips)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = PaddingDim.SMALL),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ModeChip(
+                    label = stringResource(R.string.mode_solo),
+                    selected = uiState.workoutMode == GymWorkoutMode.NON_GUIDED,
+                    onClick = { onModeChange(GymWorkoutMode.NON_GUIDED) }
+                )
+                Spacer(Modifier.size(12.dp))
+                ModeChip(
+                    label = stringResource(R.string.mode_protocol),
+                    selected = uiState.workoutMode == GymWorkoutMode.GUIDED,
+                    onClick = { onModeChange(GymWorkoutMode.GUIDED) }
+                )
+            }
+
+            if (uiState.workoutMode == GymWorkoutMode.GUIDED && uiState.hasStarted) {
+                // EXPERIENCIA TOTALMENTE GUIADA (FOCUS MODE)
+                GuidedFocusSession(
                     uiState = uiState,
-                    onToggleTimer = onToggleTimer
+                    onNextSet = onNextSet,
+                    onSkipRest = onSkipRest,
+                    onAddRestTime = onAddRestTime
                 )
-            }
+            } else {
+                // VISTA ESTÁNDAR (LISTA)
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = PaddingDim.MEDIUM),
+                    verticalArrangement = Arrangement.spacedBy(PaddingDim.MEDIUM)
+                ) {
+                    // Quitamos la card del contador si es vista guiada
+                    if (uiState.workoutMode == GymWorkoutMode.NON_GUIDED) {
+                        item {
+                            TimeCard(
+                                uiState = uiState,
+                                onToggleTimer = onToggleTimer
+                            )
+                        }
+                    }
 
-            item {
-                Text(
-                    text = stringResource(id = R.string.exercises),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(vertical = PaddingDim.SMALL)
-                )
-            }
+                    item {
+                        Text(
+                            text = if (uiState.workoutMode == GymWorkoutMode.NON_GUIDED)
+                                stringResource(id = R.string.exercises)
+                            else
+                                stringResource(id = GuidedWorkoutProvider.getDayNameRes()).uppercase(),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Black,
+                            color = techBlue,
+                            letterSpacing = 1.sp,
+                            modifier = Modifier.padding(vertical = PaddingDim.SMALL)
+                        )
+                    }
 
-            items(uiState.exercises, key = { it.id }) { exercise ->
-                ExerciseCard(
-                    exercise = exercise,
-                    onToggleExpansion = { onToggleExpansion(exercise.id) },
-                    onRemove = { onRemoveExercise(exercise.id) },
-                    onEdit = { onEditExercise(exercise) }
-                )
+                    if (uiState.workoutMode == GymWorkoutMode.NON_GUIDED) {
+                        items(uiState.exercises, key = { it.id }) { exercise ->
+                            ExerciseCard(
+                                exercise = exercise,
+                                onToggleExpansion = { onToggleExpansion(exercise.id) },
+                                onRemove = { onRemoveExercise(exercise.id) },
+                                onEdit = { onEditExercise(exercise) }
+                            )
+                        }
+                    } else {
+                        items(uiState.guidedExercises) { exercise ->
+                            GuidedExerciseCard(exercise)
+                        }
+                    }
+
+                    item { Spacer(Modifier.height(PaddingDim.MEDIUM)) }
+                }
             }
         }
     }
 }
 
+@Composable
+fun GuidedFocusSession(
+    uiState: GymWorkUiState,
+    onNextSet: () -> Unit,
+    onSkipRest: () -> Unit,
+    onAddRestTime: (Int) -> Unit
+) {
+    val currentExercise = uiState.guidedExercises.getOrNull(uiState.currentGuidedExerciseIndex) ?: return
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(PaddingDim.MEDIUM),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(PaddingDim.LARGE)
+    ) {
+        // INDICADOR DE PROGRESO
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            FitlogText(
+                text = "EXERCISE ${uiState.currentGuidedExerciseIndex + 1} OF ${uiState.guidedExercises.size}",
+                style = MaterialTheme.typography.labelSmall,
+                color = Color.White.copy(alpha = 0.5f)
+            )
+            FitlogText(
+                text = "${uiState.currentSet} OF ${currentExercise.sets} SETS",
+                style = MaterialTheme.typography.labelSmall,
+                color = techBlue
+            )
+        }
+
+        // TARJETA DE EJERCICIO EN FOCO
+        AnimatedContent(
+            targetState = uiState.guidedSessionState,
+            transitionSpec = {
+                (slideInVertically { height -> height } + fadeIn())
+                    .togetherWith(slideOutVertically { height -> -height } + fadeOut())
+            }, label = "GuidedState"
+        ) { state ->
+            when (state) {
+                GuidedSessionState.EXERCISING -> {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        FitlogText(
+                            text = stringResource(currentExercise.nameRes).uppercase(),
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Black,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(Modifier.height(16.dp))
+                        FitlogText(
+                            text = "${currentExercise.reps} REPS",
+                            style = MaterialTheme.typography.displayMedium,
+                            color = techBlue,
+                            fontWeight = FontWeight.Black
+                        )
+                        Spacer(Modifier.height(24.dp))
+                        FitlogCard(modifier = Modifier.fillMaxWidth()) {
+                            Text(
+                                text = stringResource(currentExercise.descriptionRes),
+                                modifier = Modifier.padding(16.dp),
+                                style = MaterialTheme.typography.bodyMedium,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                        Spacer(Modifier.height(40.dp))
+                        Button(
+                            onClick = onNextSet,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(64.dp)
+                                .shadow(12.dp, CircleShape, spotColor = techBlue),
+                            shape = CircleShape,
+                            colors = ButtonDefaults.buttonColors(containerColor = techBlue)
+                        ) {
+                            Text(stringResource(R.string.finish_set).uppercase(), fontWeight = FontWeight.Black)
+                        }
+                    }
+                }
+
+                GuidedSessionState.RESTING -> {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxHeight(0.7f)
+                    ) {
+                        FitlogText(
+                            text = stringResource(R.string.rest).uppercase(),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = techBlue,
+                            letterSpacing = 4.sp
+                        )
+                        Spacer(Modifier.height(16.dp))
+                        
+                        Box(contentAlignment = Alignment.Center) {
+                            FitlogText(
+                                text = String.format("%02d", uiState.restTimeRemaining),
+                                style = MaterialTheme.typography.displayLarge,
+                                fontSize = 100.sp,
+                                fontWeight = FontWeight.Light
+                            )
+                            
+                            // Botón para añadir 15 segundos
+                            IconButton(
+                                onClick = { onAddRestTime(15) },
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .padding(start = 150.dp, bottom = 20.dp)
+                                    .size(48.dp)
+                                    .background(techBlue.copy(alpha = 0.1f), CircleShape)
+                                    .border(1.dp, techBlue.copy(alpha = 0.3f), CircleShape)
+                            ) {
+                                Text(
+                                    text = "+15",
+                                    color = techBlue,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+
+                        Spacer(Modifier.height(40.dp))
+                        TextButton(onClick = onSkipRest) {
+                            Text(stringResource(R.string.skip_rest).uppercase(), color = techBlue, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+
+                GuidedSessionState.FINISHED -> {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Icon(FitlogIcons.Check, null, modifier = Modifier.size(100.dp), tint = techBlue)
+                        Spacer(Modifier.height(24.dp))
+                        FitlogText(
+                            text = stringResource(R.string.workout_complete).uppercase(),
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Black
+                        )
+                    }
+                }
+                else -> {}
+            }
+        }
+    }
+}
+
+@Composable
+fun ModeChip(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(if (selected) techBlue.copy(alpha = 0.2f) else Color.White.copy(alpha = 0.05f))
+            .border(
+                width = 1.dp,
+                color = if (selected) techBlue else Color.White.copy(alpha = 0.1f),
+                shape = RoundedCornerShape(16.dp)
+            )
+            .clickable { onClick() }
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = if (selected) techBlue else Color.White.copy(alpha = 0.6f),
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
+        )
+    }
+}
+
+@Composable
+fun GuidedExerciseCard(exercise: GuidedExerciseItem) {
+    FitlogCard(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(PaddingDim.MEDIUM)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .background(techBlue.copy(alpha = 0.1f), CircleShape)
+                        .border(1.dp, techBlue.copy(alpha = 0.3f), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(exercise.categoryRes).take(1),
+                        color = techBlue,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.sp
+                    )
+                }
+                Spacer(Modifier.width(12.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(exercise.nameRes),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    Text(
+                        text = "${exercise.sets} SERIES x ${exercise.reps}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = techBlue,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = stringResource(exercise.descriptionRes),
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.White.copy(alpha = 0.7f),
+                lineHeight = 16.sp
+            )
+        }
+    }
+}
 
 @Composable
 fun StatItem(label: String, value: String) {
