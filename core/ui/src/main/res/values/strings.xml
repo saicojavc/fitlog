@@ -276,7 +276,7 @@
     <string name="alarm_subtext">FITLOG • REMINDER</string>
     <string name="dismiss">DISMISS</string>
 
-<!--  Streaks  -->
+    <!--  Streaks  -->
     <string name="day">Day</string>
     <string name="increasing">Increasing</string>
     <string name="overdrive">Overdrive</string>
@@ -284,4 +284,20 @@
     <string name="expantion_progress"> >> CORE_EXPANSION_IN_PROGRESS >></string>
     <string name="reconstructing_data">>> RECONSTRUCTING_DATA...</string>
     <string name="stability_levels">>> STABILITY_LEVEL: OPTIMAL // CORE_SYNC_ACTIVE</string>
+
+    <!-- Streak Notifications -->
+    <string name="streak_goal_reached_title">CORE SYNC COMPLETE • STREAK UPDATED</string>
+    <string name="streak_goal_reached_msg">Protocol level %1$d established. Energy levels optimal. Keep moving!</string>
+
+    <string name="streak_inactivity_title">LOW ACTIVITY DETECTED</string>
+    <string name="streak_inactivity_msg">Your core sync is weakening. Move now to maintain protocol integrity.</string>
+
+    <string name="streak_9pm_warning_title">CRITICAL ENERGY LEVELS</string>
+    <string name="streak_9pm_warning_msg">Final steps required to prevent streak collapse. %1$d steps remaining.</string>
+
+    <string name="streak_frozen_title">CORE HIBERNATION ACTIVE</string>
+    <string name="streak_frozen_msg">Streak frozen for 24h. System in survival mode. Don\'t let it collapse!</string>
+
+    <string name="streak_lost_title">CORE COLLAPSE</string>
+    <string name="streak_lost_msg">Streak lost. Protocol reset to zero. Start reconstruction today.</string>
 </resources>

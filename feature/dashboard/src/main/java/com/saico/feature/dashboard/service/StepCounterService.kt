@@ -128,13 +128,14 @@ class StepCounterService : Service() {
 
                 if (stepCounterDataStore.isNewDay(lastResetDate)) {
                     saveWorkoutToDatabase(offset, totalStepsSinceReboot, lastResetDate)
+                    // Al iniciar un nuevo día, verificamos si se perdió la racha
+                    checkStreakLost(lastResetDate)
                     stepCounterDataStore.saveStepCounterData(totalStepsSinceReboot)
                     0
                 } else {
                     val dailySteps = (totalStepsSinceReboot - offset).coerceAtLeast(0)
                     if (dailySteps > 0) {
                         saveWorkoutToDatabase(offset, totalStepsSinceReboot, todayStart)
-                        // Lógica de racha en segundo plano
                         updateStreakLogic(dailySteps)
                     }
                     dailySteps
@@ -146,6 +147,40 @@ class StepCounterService : Service() {
         }
     }
 
+    private suspend fun checkStreakLost(lastActiveDate: Long) {
+        val profile = userProfileUseCase.getUserProfileUseCase().first() ?: return
+        if (profile.currentStreak == 0) return
+
+        val today = Calendar.getInstance()
+        val lastDate = Calendar.getInstance().apply { timeInMillis = lastActiveDate }
+
+        // Si han pasado más de 2 días (el periodo de gracia)
+        val diffDays = ((today.timeInMillis - lastDate.timeInMillis) / (1000 * 60 * 60 * 24)).toInt()
+
+        if (diffDays >= 2) {
+            // COLAPSO TOTAL: Se pierde la racha
+            userProfileUseCase.updateUserProfileUseCase(profile.copy(
+                currentStreak = 0,
+                isFrozen = false,
+                graceDaysUsed = 0
+            ))
+            notificationHelper.showStreakNotification(
+                getString(R.string.streak_lost_title),
+                getString(R.string.streak_lost_msg)
+            )
+        } else if (diffDays == 1) {
+            // HIBERNACIÓN: Primer día fallido
+            userProfileUseCase.updateUserProfileUseCase(profile.copy(
+                isFrozen = true,
+                graceDaysUsed = 1
+            ))
+            notificationHelper.showStreakNotification(
+                getString(R.string.streak_frozen_title),
+                getString(R.string.streak_frozen_msg)
+            )
+        }
+    }
+
     private suspend fun updateStreakLogic(dailySteps: Int) {
         val profile = userProfileUseCase.getUserProfileUseCase().first() ?: return
         val goal = profile.dailyStepsGoal
@@ -154,20 +189,27 @@ class StepCounterService : Service() {
         val today = Calendar.getInstance()
         val lastStreakDate = Calendar.getInstance().apply { timeInMillis = profile.lastStreakDate }
 
-        // Si es un día nuevo para la racha
         if (profile.lastStreakDate == 0L || !isSameDay(today, lastStreakDate)) {
-            val newStreak = if (isYesterday(today, lastStreakDate)) {
+            val newStreak = if (isYesterday(today, lastStreakDate) || profile.isFrozen) {
                 profile.currentStreak + 1
             } else {
                 1
             }
 
-            // Actualizamos la racha pero NO el 'lastStreakShown'
-            // Esto permite que el Dashboard detecte que hay algo que mostrar al abrirse
-            userProfileUseCase.updateUserProfileUseCase(profile.copy(
+            val updatedProfile = profile.copy(
                 currentStreak = newStreak,
-                lastStreakDate = System.currentTimeMillis()
-            ))
+                lastStreakDate = System.currentTimeMillis(),
+                isFrozen = false, // Se descongela al cumplir la meta
+                graceDaysUsed = 0
+            )
+
+            userProfileUseCase.updateUserProfileUseCase(updatedProfile)
+
+            // Notificación de Éxito Estilo Duolingo/Cyberpunk
+            notificationHelper.showStreakNotification(
+                getString(R.string.streak_goal_reached_title),
+                getString(R.string.streak_goal_reached_msg, newStreak)
+            )
         }
     }
 
@@ -194,27 +236,20 @@ class StepCounterService : Service() {
         }.timeInMillis
 
         val lastGoalDate = userSettingsDataStore.goalReachedShownDate.first()
-        val lastHalfDate = userSettingsDataStore.halfGoalShownDate.first()
 
         if (dailySteps >= goal && lastGoalDate < todayStart) {
-            notificationHelper.showNotification(
-                getString(R.string.goal_reached_title),
-                getString(R.string.goal_reached_msg, goal),
-                NotificationHelper.PROGRESS_CHANNEL_ID,
-                2001
-            )
+            // Ya se maneja en updateStreakLogic con el nuevo sistema
             userSettingsDataStore.setGoalReachedShown(System.currentTimeMillis())
             return
         }
 
-        if (dailySteps >= goal / 2 && lastHalfDate < todayStart && lastGoalDate < todayStart) {
-            notificationHelper.showNotification(
-                getString(R.string.half_goal_title),
-                getString(R.string.half_goal_msg, dailySteps),
-                NotificationHelper.PROGRESS_CHANNEL_ID,
-                2002
+        // Aviso de inactividad (Ej: si son las 2pm y lleva menos del 20% del goal)
+        val now = Calendar.getInstance()
+        if (now.get(Calendar.HOUR_OF_DAY) == 14 && dailySteps < (goal * 0.2)) {
+             notificationHelper.showStreakNotification(
+                getString(R.string.streak_inactivity_title),
+                getString(R.string.streak_inactivity_msg)
             )
-            userSettingsDataStore.setHalfGoalShown(System.currentTimeMillis())
         }
     }
 

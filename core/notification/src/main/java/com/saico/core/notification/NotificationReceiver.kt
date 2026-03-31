@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import com.saico.core.datastore.StepCounterDataStore
 import com.saico.core.datastore.UserSettingsDataStore
+import com.saico.core.domain.usecase.user_profile.UserProfileUseCase
 import com.saico.core.ui.R
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
@@ -27,8 +28,10 @@ class NotificationReceiver : BroadcastReceiver() {
     @Inject
     lateinit var userSettingsDataStore: UserSettingsDataStore
 
+    @Inject
+    lateinit var userProfileUseCase: UserProfileUseCase
+
     override fun onReceive(context: Context, intent: Intent) {
-        // Manejar el descarte de la alarma
         if (intent.action == NotificationHelper.ACTION_DISMISS_ALARM) {
             notificationHelper.cancelNotification(NotificationHelper.ALARM_NOTIFICATION_ID)
             return
@@ -53,6 +56,26 @@ class NotificationReceiver : BroadcastReceiver() {
                 showSummary(context)
                 notificationScheduler.scheduleDailySummaryNotification()
             }
+            "streak_9pm_warning" -> {
+                handleStreakWarning9pm(context)
+                notificationScheduler.scheduleStreak9pmWarning()
+            }
+        }
+    }
+
+    private fun handleStreakWarning9pm(context: Context) {
+        runBlocking {
+            val profile = userProfileUseCase.getUserProfileUseCase().first() ?: return@runBlocking
+            val currentSteps = stepCounterDataStore.currentSteps.first()
+            val goal = profile.dailyStepsGoal
+
+            if (currentSteps < goal && goal > 0) {
+                val remaining = goal - currentSteps
+                notificationHelper.showStreakNotification(
+                    context.getString(R.string.streak_9pm_warning_title),
+                    context.getString(R.string.streak_9pm_warning_msg, remaining)
+                )
+            }
         }
     }
 
@@ -62,13 +85,11 @@ class NotificationReceiver : BroadcastReceiver() {
             if (settings.workoutReminderEnabled) {
                 val today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
                 if (settings.workoutReminderDays.isEmpty() || settings.workoutReminderDays.contains(today)) {
-                    // Lanza la alarma persistente
                     notificationHelper.showAlarmNotification(
                         context.getString(R.string.workout_reminder_title),
                         context.getString(R.string.workout_reminder_msg)
                     )
                 }
-                // Programar para el día siguiente
                 notificationScheduler.scheduleWorkoutReminder(
                     settings.workoutReminderHour,
                     settings.workoutReminderMinute,

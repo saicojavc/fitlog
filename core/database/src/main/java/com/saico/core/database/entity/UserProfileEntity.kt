@@ -22,5 +22,7 @@ class UserProfileEntity(
     val currentStreak: Int = 0,
     val lastStreakDate: Long = 0L,
     val lastStreakShown: Int = 0,
+    val isFrozen: Boolean = false,
+    val graceDaysUsed: Int = 0,
     val weightHistory: List<WeightEntry> = emptyList()
 ) : Parcelable

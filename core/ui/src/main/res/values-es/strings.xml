@@ -273,4 +273,20 @@
     <string name="expantion_progress">>> EXPANSIÓN_CENTRAL_EN_CURSO >></string>
     <string name="reconstructing_data">>> RECONSTRUYENDO_DATOS…</string>
     <string name="stability_levels">>>NIVEL_DE_ESTABILIDAD: ÓPTIMO // CORE_SYNC_ACTIVO </string>
+
+    <!-- Streak Notifications -->
+    <string name="streak_goal_reached_title">CORE SYNC COMPLETO • RACHA ACTUALIZADA</string>
+    <string name="streak_goal_reached_msg">Nivel de protocolo %1$d establecido. Niveles de energía óptimos. ¡Sigue así!</string>
+
+    <string name="streak_inactivity_title">ACTIVIDAD BAJA DETECTADA</string>
+    <string name="streak_inactivity_msg">Tu sincronización central se debilita. Muévete ahora para mantener la integridad del protocolo.</string>
+
+    <string name="streak_9pm_warning_title">NIVELES DE ENERGÍA CRÍTICOS</string>
+    <string name="streak_9pm_warning_msg">Se requieren pasos finales para evitar el colapso de la racha. %1$d pasos restantes.</string>
+
+    <string name="streak_frozen_title">HIBERNACIÓN CENTRAL ACTIVA</string>
+    <string name="streak_frozen_msg">Racha congelada por 24h. Sistema en modo supervivencia. ¡No dejes que colapse!</string>
+
+    <string name="streak_lost_title">COLAPSO CENTRAL</string>
+    <string name="streak_lost_msg">Racha perdida. Protocolo reiniciado a cero. Comienza la reconstrucción hoy.</string>
 </resources>

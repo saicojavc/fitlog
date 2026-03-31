@@ -14,6 +14,8 @@ fun UserProfileEntity.toDomain() = UserProfile(
     currentStreak = currentStreak,
     lastStreakDate = lastStreakDate,
     lastStreakShown = lastStreakShown,
+    isFrozen = isFrozen,
+    graceDaysUsed = graceDaysUsed,
     weightHistory = weightHistory
 )
 
@@ -29,5 +31,7 @@ fun UserProfile.toEntity() = UserProfileEntity(
     currentStreak = currentStreak,
     lastStreakDate = lastStreakDate,
     lastStreakShown = lastStreakShown,
+    isFrozen = isFrozen,
+    graceDaysUsed = graceDaysUsed,
     weightHistory = weightHistory
 )

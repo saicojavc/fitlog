@@ -72,7 +72,6 @@ abstract class FitlogDatabase : RoomDatabase() {
 
         val MIGRATION_8_9 = object : Migration(8, 9) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                // 1. Crear nueva tabla temporal sin 'elevation' y con 'calories'
                 db.execSQL(
                     """
                     CREATE TABLE IF NOT EXISTS ${OUTDOOR_SESSION_TABLE}_new (
@@ -88,19 +87,13 @@ abstract class FitlogDatabase : RoomDatabase() {
                     )
                     """.trimIndent()
                 )
-
-                // 2. Copiar los datos de la tabla vieja a la nueva (poniendo calorías en 0 por defecto)
                 db.execSQL(
                     """
                     INSERT INTO ${OUTDOOR_SESSION_TABLE}_new (id, activityType, steps, averageSpeed, distance, calories, time, date, routePath)
                     SELECT id, activityType, steps, averageSpeed, distance, 0, time, date, routePath FROM $OUTDOOR_SESSION_TABLE
                     """.trimIndent()
                 )
-
-                // 3. Eliminar la tabla vieja
                 db.execSQL("DROP TABLE $OUTDOOR_SESSION_TABLE")
-
-                // 4. Renombrar la tabla nueva
                 db.execSQL("ALTER TABLE ${OUTDOOR_SESSION_TABLE}_new RENAME TO $OUTDOOR_SESSION_TABLE")
             }
         }
@@ -110,6 +103,13 @@ abstract class FitlogDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE $USER_PROFILE_TABLE ADD COLUMN currentStreak INTEGER NOT NULL DEFAULT 0")
                 db.execSQL("ALTER TABLE $USER_PROFILE_TABLE ADD COLUMN lastStreakDate INTEGER NOT NULL DEFAULT 0")
                 db.execSQL("ALTER TABLE $USER_PROFILE_TABLE ADD COLUMN lastStreakShown INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        val MIGRATION_10_11 = object : Migration(10, 11) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE $USER_PROFILE_TABLE ADD COLUMN isFrozen INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE $USER_PROFILE_TABLE ADD COLUMN graceDaysUsed INTEGER NOT NULL DEFAULT 0")
             }
         }
     }

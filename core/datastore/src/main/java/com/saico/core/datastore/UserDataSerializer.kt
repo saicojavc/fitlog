@@ -5,9 +5,9 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.saico.core.model.DarkThemeConfig
@@ -35,17 +35,18 @@ class UserSettingsDataStore @Inject constructor(
         val WORKOUT_REMINDER_MINUTE = intPreferencesKey("workout_reminder_minute")
         val WORKOUT_REMINDER_ENABLED = booleanPreferencesKey("workout_reminder_enabled")
         val WORKOUT_REMINDER_DAYS = stringSetPreferencesKey("workout_reminder_days")
-        
+
         // Notificaciones Flags
         val GOAL_REACHED_SHOWN_DATE = longPreferencesKey("goal_reached_shown_date")
-        val HALF_GOAL_SHOWN_DATE = longPreferencesKey("half_goal_shown_date")
+        val MILESTONE_50_SHOWN_DATE = longPreferencesKey("milestone_50_shown_date")
+        val MILESTONE_90_SHOWN_DATE = longPreferencesKey("milestone_90_shown_date")
     }
 
     val userData: Flow<UserData> = context.userDataStore.data.map { preferences ->
         UserData(
             darkThemeConfig = DarkThemeConfig.valueOf(
-                preferences[PreferencesKeys.DARK_THEME_CONFIG] ?: DarkThemeConfig.FOLLOW_SYSTEM.name
-            ),
+            preferences[PreferencesKeys.DARK_THEME_CONFIG] ?: DarkThemeConfig.FOLLOW_SYSTEM.name
+        ),
             languageConfig = LanguageConfig.valueOf(
                 preferences[PreferencesKeys.LANGUAGE_CONFIG] ?: LanguageConfig.FOLLOW_SYSTEM.name
             ),
@@ -56,8 +57,8 @@ class UserSettingsDataStore @Inject constructor(
             workoutReminderHour = preferences[PreferencesKeys.WORKOUT_REMINDER_HOUR] ?: 18,
             workoutReminderMinute = preferences[PreferencesKeys.WORKOUT_REMINDER_MINUTE] ?: 0,
             workoutReminderEnabled = preferences[PreferencesKeys.WORKOUT_REMINDER_ENABLED] ?: false,
-            workoutReminderDays = preferences[PreferencesKeys.WORKOUT_REMINDER_DAYS]?.map { it.toInt() }?.toSet() ?: emptySet()
-        )
+            workoutReminderDays = preferences[PreferencesKeys.WORKOUT_REMINDER_DAYS]?.map { it.toInt() }
+                ?.toSet() ?: emptySet())
     }
 
     suspend fun setDarkThemeConfig(darkThemeConfig: DarkThemeConfig) {
@@ -104,14 +105,22 @@ class UserSettingsDataStore @Inject constructor(
     }
 
     // Lógica para notificaciones una vez al día
-    val goalReachedShownDate: Flow<Long> = context.userDataStore.data.map { it[PreferencesKeys.GOAL_REACHED_SHOWN_DATE] ?: 0L }
-    val halfGoalShownDate: Flow<Long> = context.userDataStore.data.map { it[PreferencesKeys.HALF_GOAL_SHOWN_DATE] ?: 0L }
+    val goalReachedShownDate: Flow<Long> =
+        context.userDataStore.data.map { it[PreferencesKeys.GOAL_REACHED_SHOWN_DATE] ?: 0L }
+    val milestone50ShownDate: Flow<Long> =
+        context.userDataStore.data.map { it[PreferencesKeys.MILESTONE_50_SHOWN_DATE] ?: 0L }
+    val milestone90ShownDate: Flow<Long> =
+        context.userDataStore.data.map { it[PreferencesKeys.MILESTONE_90_SHOWN_DATE] ?: 0L }
 
     suspend fun setGoalReachedShown(timestamp: Long) {
         context.userDataStore.edit { it[PreferencesKeys.GOAL_REACHED_SHOWN_DATE] = timestamp }
     }
 
-    suspend fun setHalfGoalShown(timestamp: Long) {
-        context.userDataStore.edit { it[PreferencesKeys.HALF_GOAL_SHOWN_DATE] = timestamp }
+    suspend fun setMilestone50Shown(timestamp: Long) {
+        context.userDataStore.edit { it[PreferencesKeys.MILESTONE_50_SHOWN_DATE] = timestamp }
+    }
+
+    suspend fun setMilestone90Shown(timestamp: Long) {
+        context.userDataStore.edit { it[PreferencesKeys.MILESTONE_90_SHOWN_DATE] = timestamp }
     }
 }

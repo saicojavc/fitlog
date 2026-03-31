@@ -24,6 +24,7 @@ class NotificationScheduler @Inject constructor(
         private const val WORKOUT_REMINDER_REQUEST_CODE = 2003
         private const val DAILY_MOTIVATIONAL_REQUEST_CODE = 2001
         private const val DAILY_SUMMARY_REQUEST_CODE = 2002
+        private const val STREAK_WARNING_9PM_REQUEST_CODE = 2004
     }
 
     fun scheduleDailyMotivationalNotification() {
@@ -48,6 +49,12 @@ class NotificationScheduler @Inject constructor(
         scheduleAlarm(calendar.timeInMillis, intent)
     }
 
+    fun scheduleStreak9pmWarning() {
+        val intent = createIntent("streak_9pm_warning", STREAK_WARNING_9PM_REQUEST_CODE)
+        val calendar = getCalendarTime(21, 0)
+        scheduleAlarm(calendar.timeInMillis, intent)
+    }
+
     fun rescheduleAll() {
         runBlocking {
             val userData = userDataStore.userData.first()
@@ -58,6 +65,7 @@ class NotificationScheduler @Inject constructor(
                 userData.workoutReminderEnabled
             )
             scheduleDailySummaryNotification()
+            scheduleStreak9pmWarning()
         }
     }
 
