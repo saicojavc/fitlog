@@ -55,17 +55,29 @@ class GymWorkViewModel @Inject constructor(
         return exercises.sumOf { calculateExerciseCalories(it.sets, it.reps, it.weightLb) }
     }
 
+    fun startSession() {
+        if (_uiState.value.hasStarted) return
+        
+        _uiState.update { it.copy(hasStarted = true, isTimerRunning = true) }
+        startTimer()
+    }
+
     fun toggleTimer() {
         if (_uiState.value.isTimerRunning) {
             timerJob?.cancel()
             _uiState.update { it.copy(isTimerRunning = false) }
         } else {
-            _uiState.update { it.copy(isTimerRunning = true) }
-            timerJob = viewModelScope.launch {
-                while (true) {
-                    delay(1000)
-                    _uiState.update { it.copy(elapsedTime = it.elapsedTime + 1) }
-                }
+            _uiState.update { it.copy(isTimerRunning = true, hasStarted = true) }
+            startTimer()
+        }
+    }
+
+    private fun startTimer() {
+        timerJob?.cancel()
+        timerJob = viewModelScope.launch {
+            while (true) {
+                delay(1000)
+                _uiState.update { it.copy(elapsedTime = it.elapsedTime + 1) }
             }
         }
     }
@@ -164,7 +176,8 @@ class GymWorkViewModel @Inject constructor(
             
             insertGymExerciseUseCase(gymExercise)
             
-            _uiState.update { it.copy(showSessionSavedDialog = true) }
+            _uiState.update { it.copy(showSessionSavedDialog = true, isTimerRunning = false) }
+            timerJob?.cancel()
         }
     }
 

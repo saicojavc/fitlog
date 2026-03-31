@@ -3,6 +3,7 @@ package com.saico.feature.gymwork.state
 data class GymWorkUiState(
     val elapsedTime: Long = 0L,
     val isTimerRunning: Boolean = false,
+    val hasStarted: Boolean = false,
     val exercises: List<GymExerciseItem> = emptyList(),
     val totalCalories: Int = 0,
     val showAddExerciseDialog: Boolean = false,

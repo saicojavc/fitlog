@@ -69,13 +69,14 @@ fun GymWorkScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     // BLOQUEO DE BOTÓN ATRÁS: Si hay una sesión activa (tiempo > 0 o hay ejercicios), no permite salir por accidente.
-    BackHandler(enabled = uiState.isTimerRunning || uiState.exercises.isNotEmpty()) {
+    BackHandler(enabled = uiState.hasStarted || uiState.exercises.isNotEmpty()) {
         // Bloqueado. Debe guardar o vaciar la lista para salir.
     }
 
     Content(
         uiState = uiState,
         navController = navController,
+        onStartSession = viewModel::startSession,
         onToggleTimer = viewModel::toggleTimer,
         onShowAddDialog = viewModel::showAddExerciseDialog,
         onHideAddDialog = viewModel::hideAddExerciseDialog,
@@ -97,6 +98,7 @@ fun GymWorkScreen(
 fun Content(
     uiState: GymWorkUiState,
     navController: NavHostController,
+    onStartSession: () -> Unit,
     onToggleTimer: () -> Unit,
     onShowAddDialog: () -> Unit,
     onHideAddDialog: () -> Unit,
@@ -248,7 +250,7 @@ fun Content(
                 ),
                 navigationIcon = {
                     // Solo mostramos el botón de atrás si NO hay sesión activa
-                    if (!uiState.isTimerRunning && uiState.exercises.isEmpty()) {
+                    if (!uiState.hasStarted && uiState.exercises.isEmpty()) {
                         FitlogIcon(
                             modifier = Modifier.clickable { navController.popBackStack() },
                             imageVector = FitlogIcons.ArrowBack,
@@ -304,6 +306,7 @@ fun Content(
         bottomBar = {
             GymBottomBar(
                 uiState = uiState,
+                onStartSession = onStartSession,
                 onSaveSession = onSaveSession
             )
         }

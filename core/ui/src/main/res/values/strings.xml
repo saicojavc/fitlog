@@ -193,6 +193,7 @@
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
     <string name="save_session">Save Session</string>
+    <string name="start_session">Start Session</string>
     <string name="total_time">Total Time</string>
     <string name="expand">Expand</string>
     <string name="collapse">Collapse</string>
@@ -300,4 +301,17 @@
 
     <string name="streak_lost_title">CORE COLLAPSE</string>
     <string name="streak_lost_msg">Streak lost. Protocol reset to zero. Start reconstruction today.</string>
+
+    <!-- Intelligence Notifications -->
+    <string name="intel_milestone_50_title">[SYNC] CORE AT 50% CAPACITY</string>
+    <string name="intel_milestone_50_msg">Energy core stable. Goal halfway achieved. Initializing secondary protocols.</string>
+
+    <string name="intel_milestone_90_title">[SYNC] FINAL STAGE INITIALIZED</string>
+    <string name="intel_milestone_90_msg">90% synchronization reached. Power levels peaking. Finish the mission!</string>
+
+    <string name="intel_morning_title">[MISSION] DAILY BRIEFING</string>
+    <string name="intel_morning_msg">Status: Optimal. Daily target: %1$d steps. Commencing core maintenance.</string>
+
+    <string name="intel_anomaly_title">[ANOMALY] ACTIVITY DROP DETECTED</string>
+    <string name="intel_anomaly_msg">Metabolic efficiency decreasing. Initialize movement to restore stability.</string>
 </resources>

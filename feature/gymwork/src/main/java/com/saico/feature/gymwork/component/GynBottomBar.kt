@@ -41,6 +41,7 @@ import com.saico.feature.gymwork.state.GymWorkUiState
 @Composable
 fun GymBottomBar(
     uiState: GymWorkUiState,
+    onStartSession: () -> Unit,
     onSaveSession: () -> Unit,
 ) {
     val blueGradient = Brush.horizontalGradient(listOf(Color(0xFF3FB9F6), Color(0xFF216EE0)))
@@ -48,7 +49,6 @@ fun GymBottomBar(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            // 1. Aplicamos el redondeo superior
             .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
             .border(
                 width = 1.dp,
@@ -62,7 +62,6 @@ fun GymBottomBar(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                // 2. SOLUCIÓN: El modificador correcto para el espacio inferior de Android
                 .navigationBarsPadding()
                 .padding(PaddingDim.MEDIUM)
         ) {
@@ -101,13 +100,17 @@ fun GymBottomBar(
                 }
             }
 
-            // Botón "Guardar Sesión" con el nuevo estilo
+            // Botón Dinámico: Iniciar o Guardar (Mismo color azul para ambos)
             Button(
-                onClick = onSaveSession,
+                onClick = { if (uiState.hasStarted) onSaveSession() else onStartSession() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(60.dp)
-                    .shadow(12.dp, CircleShape, spotColor = Color(0xFF3FB9F6)),
+                    .shadow(
+                        elevation = 12.dp,
+                        shape = CircleShape,
+                        spotColor = Color(0xFF3FB9F6)
+                    ),
                 shape = CircleShape,
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                 contentPadding = PaddingValues()
@@ -120,10 +123,17 @@ fun GymBottomBar(
                     contentAlignment = Alignment.Center
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(FitlogIcons.Save, null, tint = Color.White)
+                        Icon(
+                            imageVector = if (uiState.hasStarted) FitlogIcons.Save else FitlogIcons.Play,
+                            contentDescription = null,
+                            tint = Color.White
+                        )
                         Spacer(Modifier.width(8.dp))
                         Text(
-                            text = stringResource(id = R.string.save_session).uppercase(),
+                            text = if (uiState.hasStarted)
+                                stringResource(id = R.string.save_session).uppercase()
+                            else
+                                stringResource(id = R.string.start_session).uppercase(),
                             fontWeight = FontWeight.Black,
                             color = Color.White
                         )
