@@ -18,4 +18,13 @@ interface WgerExerciseDao {
 
     @Query("SELECT COUNT(*) FROM $WGER_EXERCISE_TABLE")
     suspend fun getExerciseCount(): Int
+
+    @Query("SELECT COUNT(*) FROM $WGER_EXERCISE_TABLE WHERE imageUrl IS NOT NULL")
+    suspend fun getExercisesWithImagesCount(): Int
+
+    @Query("SELECT * FROM $WGER_EXERCISE_TABLE WHERE id = :id")
+    suspend fun getExerciseById(id: Int): WgerExerciseEntity?
+
+    @Query("SELECT * FROM $WGER_EXERCISE_TABLE WHERE baseId = :baseId")
+    suspend fun getExerciseByBaseId(baseId: Int): WgerExerciseEntity?
 }

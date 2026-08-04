@@ -8,5 +8,5 @@ import kotlinx.coroutines.flow.Flow
 interface WgerRepository {
     fun getExercises(): Flow<List<WgerExercise>>
     suspend fun preloadExercises()
-    fun getRoutineForDay(day: WorkoutDay): DayRoutine
+    suspend fun getRoutineForDay(day: WorkoutDay): DayRoutine
 }

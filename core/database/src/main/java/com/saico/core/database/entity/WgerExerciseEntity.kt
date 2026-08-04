@@ -7,6 +7,7 @@ import com.saico.core.database.WGER_EXERCISE_TABLE
 @Entity(tableName = WGER_EXERCISE_TABLE)
 data class WgerExerciseEntity(
     @PrimaryKey val id: Int,
+    val baseId: Int?,
     val name: String,
     val category: String,
     val description: String,

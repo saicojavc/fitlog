@@ -38,8 +38,8 @@ fun WgerExerciseCard(
             modifier = Modifier
                 .size(64.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .background(Color.White.copy(alpha = 0.05f)),
-            contentScale = ContentScale.Crop
+                .background(Color.White), // Fondo blanco sólido para mejor contraste
+            contentScale = ContentScale.Fit // Asegura que la imagen se vea completa
         )
         
         Spacer(Modifier.width(16.dp))

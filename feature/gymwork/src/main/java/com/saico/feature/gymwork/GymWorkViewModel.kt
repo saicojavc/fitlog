@@ -45,10 +45,12 @@ class GymWorkViewModel @Inject constructor(
     fun onDaySelected(day: WorkoutDay) {
         if (_uiState.value.isSessionActive) return
         _uiState.update { it.copy(selectedDay = day) }
-        updateRoutineForDay(day)
+        viewModelScope.launch {
+            updateRoutineForDay(day)
+        }
     }
 
-    private fun updateRoutineForDay(day: WorkoutDay) {
+    private suspend fun updateRoutineForDay(day: WorkoutDay) {
         val routine = wgerRepository.getRoutineForDay(day)
         _uiState.update { it.copy(routine = routine) }
     }
@@ -188,6 +190,8 @@ class GymWorkViewModel @Inject constructor(
         sessionTimerJob?.cancel()
         restTimerJob?.cancel()
         _uiState.value = GymWorkUiState()
-        updateRoutineForDay(_uiState.value.selectedDay)
+        viewModelScope.launch {
+            updateRoutineForDay(_uiState.value.selectedDay)
+        }
     }
 }

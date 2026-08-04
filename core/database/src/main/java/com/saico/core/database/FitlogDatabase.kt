@@ -41,6 +41,12 @@ abstract class FitlogDatabase : RoomDatabase() {
     abstract fun wgerExerciseDao(): WgerExerciseDao
 
     companion object {
+        val MIGRATION_10_11 = object : Migration(10, 11) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // We add the baseId column to the wger_exercise table
+                db.execSQL("ALTER TABLE $WGER_EXERCISE_TABLE ADD COLUMN baseId INTEGER")
+            }
+        }
         val MIGRATION_9_10 = object : Migration(9, 10) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL(

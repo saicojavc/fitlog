@@ -42,8 +42,8 @@ fun LiveWorkoutView(
                     .fillMaxWidth()
                     .height(200.dp)
                     .clip(RoundedCornerShape(16.dp))
-                    .background(Color.White.copy(alpha = 0.05f)),
-                contentScale = ContentScale.Fit
+                    .background(Color.White), // Fondo blanco para eliminar opacidad
+                contentScale = ContentScale.Fit // Imagen completa sin recortes
             )
             
             Spacer(Modifier.height(16.dp))
