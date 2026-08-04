@@ -5,7 +5,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.navigation.NavController
-import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun NavigatorHandler(
