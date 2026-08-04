@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.saico.core.ui.navigation.routes.gymwork.GymWorkRoute
 import com.saico.feature.gymwork.GymWorkScreen
+import com.saico.feature.gymwork.routineconfig.RoutineConfigScreen
 
 fun NavGraphBuilder.gymWorkGraph(navController: NavHostController) {
     navigation(
@@ -14,6 +15,9 @@ fun NavGraphBuilder.gymWorkGraph(navController: NavHostController) {
     ){
         composable(route = GymWorkRoute.GymWorkScreenRoute.route){
             GymWorkScreen(navController = navController)
+        }
+        composable(route = GymWorkRoute.RoutineConfigRoute.route){
+            RoutineConfigScreen(navController = navController)
         }
     }
 }

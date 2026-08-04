@@ -9,13 +9,19 @@ data class WgerResponse<T>(
 )
 
 @JsonClass(generateAdapter = true)
-data class WgerExerciseDto(
+data class WgerExerciseInfoDto(
     @Json(name = "id") val id: Int,
-    @Json(name = "exercise_base") val exerciseBase: Int? = null,
     @Json(name = "name") val name: String? = null,
     @Json(name = "description") val description: String? = null,
-    @Json(name = "category") val category: Int? = null,
-    @Json(name = "equipment") val equipment: List<Int>? = null
+    @Json(name = "category") val category: WgerCategoryDto? = null,
+    @Json(name = "images") val images: List<WgerImageInfoDto>? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class WgerImageInfoDto(
+    @Json(name = "id") val id: Int,
+    @Json(name = "image") val image: String,
+    @Json(name = "is_main") val isMain: Boolean = false
 )
 
 @JsonClass(generateAdapter = true)

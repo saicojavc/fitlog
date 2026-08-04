@@ -51,7 +51,7 @@ class GymWorkViewModel @Inject constructor(
     }
 
     private suspend fun updateRoutineForDay(day: WorkoutDay) {
-        val routine = wgerRepository.getRoutineForDay(day)
+        val routine = wgerRepository.getCustomRoutine(day)
         _uiState.update { it.copy(routine = routine) }
     }
 

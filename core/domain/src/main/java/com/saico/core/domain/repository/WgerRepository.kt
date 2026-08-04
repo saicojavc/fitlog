@@ -9,4 +9,7 @@ interface WgerRepository {
     fun getExercises(): Flow<List<WgerExercise>>
     suspend fun preloadExercises()
     suspend fun getRoutineForDay(day: WorkoutDay): DayRoutine
+    suspend fun saveCustomRoutine(routine: DayRoutine)
+    suspend fun getCustomRoutine(day: WorkoutDay): DayRoutine?
+    suspend fun deleteCustomRoutine(day: WorkoutDay)
 }

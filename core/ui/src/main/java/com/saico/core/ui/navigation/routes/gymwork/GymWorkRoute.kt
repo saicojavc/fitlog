@@ -11,6 +11,9 @@ interface GymWorkRoute : Route{
     data object GymWorkScreenRoute : GymWorkRoute{
         override val analyticsTag: String = "gym-work-screen-flow"
         override val route: String = "gym-work/gym-work-screen"
-
+    }
+    data object RoutineConfigRoute : GymWorkRoute{
+        override val analyticsTag: String = "routine-config-flow"
+        override val route: String = "gym-work/routine-config"
     }
 }

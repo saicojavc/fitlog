@@ -28,6 +28,7 @@ import com.saico.core.ui.components.FitlogIcon
 import com.saico.core.ui.components.FitlogText
 import com.saico.core.ui.components.FitlogTopAppBar
 import com.saico.core.ui.icon.FitlogIcons
+import com.saico.core.ui.navigation.routes.gymwork.GymWorkRoute
 import com.saico.core.ui.theme.GradientColors
 import com.saico.feature.gymwork.component.*
 import com.saico.feature.gymwork.state.GymWorkUiState
@@ -93,6 +94,9 @@ fun GymWorkScreen(
         onFinishSession = viewModel::finishSession,
         onSetToggled = viewModel::onSetToggled,
         onSkipRest = viewModel::skipRest,
+        onConfigRoutine = {
+            navController.navigate(GymWorkRoute.RoutineConfigRoute.route)
+        },
         onDismissSuccessDialog = {
             viewModel.resetState()
             navController.popBackStack()
@@ -110,6 +114,7 @@ fun Content(
     onFinishSession: () -> Unit,
     onSetToggled: (Int, Int, String, String) -> Unit,
     onSkipRest: () -> Unit,
+    onConfigRoutine: () -> Unit,
     onDismissSuccessDialog: () -> Unit
 ) {
     if (uiState.showSessionSavedDialog) {
@@ -168,16 +173,16 @@ fun Content(
                 }
 
                 AnimatedContent(
-                    targetState = uiState.isSessionActive,
+                    targetState = uiState.isSessionActive to (uiState.routine != null),
                     label = "SessionTransition"
-                ) { isActive ->
-                    if (isActive) {
-                        LiveWorkoutView(
+                ) { (isActive, hasRoutine) ->
+                    when {
+                        isActive -> LiveWorkoutView(
                             uiState = uiState,
                             onSetToggled = onSetToggled
                         )
-                    } else {
-                        PlanningView(uiState = uiState)
+                        hasRoutine -> PlanningView(uiState = uiState)
+                        else -> NoRoutineView(onConfigClick = onConfigRoutine)
                     }
                 }
             }

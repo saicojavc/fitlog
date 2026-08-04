@@ -1,6 +1,7 @@
 package com.saico.core.database.di
 
 import com.saico.core.database.FitlogDatabase
+import com.saico.core.database.dao.CustomRoutineDao
 import com.saico.core.database.dao.GymExerciseDao
 import com.saico.core.database.dao.OutdoorSessionDao
 import com.saico.core.database.dao.UserProfileDao
@@ -33,4 +34,7 @@ object DaosModule {
 
     @Provides
     fun provideWgerExerciseDao(database: FitlogDatabase): WgerExerciseDao = database.wgerExerciseDao()
+
+    @Provides
+    fun provideCustomRoutineDao(database: FitlogDatabase): CustomRoutineDao = database.customRoutineDao()
 }

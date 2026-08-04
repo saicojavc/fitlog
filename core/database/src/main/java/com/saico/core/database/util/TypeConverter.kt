@@ -3,6 +3,7 @@ package com.saico.core.database.util
 import androidx.room.TypeConverter
 import com.saico.core.model.GymExerciseItem
 import com.saico.core.model.LocationPoint
+import com.saico.core.model.RoutineExercise
 import com.saico.core.model.WeightEntry
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
@@ -23,6 +24,9 @@ class FitlogTypeConverters {
 
     private val locationPointListType = Types.newParameterizedType(List::class.java, LocationPoint::class.java)
     private val locationPointAdapter = moshi.adapter<List<LocationPoint>>(locationPointListType)
+
+    private val routineExerciseListType = Types.newParameterizedType(List::class.java, RoutineExercise::class.java)
+    private val routineExerciseAdapter = moshi.adapter<List<RoutineExercise>>(routineExerciseListType)
 
     @TypeConverter
     fun fromTime(time: Time?): Long? {
@@ -62,5 +66,15 @@ class FitlogTypeConverters {
     @TypeConverter
     fun toLocationPointList(value: String?): List<LocationPoint>? {
         return value?.let { locationPointAdapter.fromJson(it) }
+    }
+
+    @TypeConverter
+    fun fromRoutineExerciseList(value: List<RoutineExercise>?): String? {
+        return routineExerciseAdapter.toJson(value)
+    }
+
+    @TypeConverter
+    fun toRoutineExerciseList(value: String?): List<RoutineExercise>? {
+        return value?.let { routineExerciseAdapter.fromJson(it) }
     }
 }

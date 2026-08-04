@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Pool
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Scale
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Star
@@ -76,6 +77,7 @@ object FitlogIcons {
     val Female: ImageVector = Icons.Default.Female
     val Person: ImageVector = Icons.Default.Person
     val Weight: ImageVector = Icons.Default.FitnessCenter
+    val Search: ImageVector = Icons.Default.Search
     val Height: ImageVector = Icons.Default.Height
     val Home: ImageVector = Icons.Default.Home
     val History: ImageVector = Icons.Default.History

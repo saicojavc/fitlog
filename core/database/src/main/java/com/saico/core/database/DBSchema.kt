@@ -2,7 +2,7 @@ package com.saico.core.database
 
 const val DB_NAME = "data.db"
 
-const val DB_VERSION = 11
+const val DB_VERSION = 12
 
 //Tables
 const val USER_PROFILE_TABLE = "user"
@@ -16,3 +16,5 @@ const val WORKOUT_SESSION_TABLE = "workout_session"
 const val OUTDOOR_SESSION_TABLE = "outdoor_session"
 
 const val WGER_EXERCISE_TABLE = "wger_exercise"
+
+const val CUSTOM_ROUTINE_TABLE = "custom_routine"

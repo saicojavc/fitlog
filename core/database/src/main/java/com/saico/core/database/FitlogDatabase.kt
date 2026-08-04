@@ -5,12 +5,14 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.saico.core.database.dao.CustomRoutineDao
 import com.saico.core.database.dao.GymExerciseDao
 import com.saico.core.database.dao.OutdoorSessionDao
 import com.saico.core.database.dao.UserProfileDao
 import com.saico.core.database.dao.WgerExerciseDao
 import com.saico.core.database.dao.WorkoutDao
 import com.saico.core.database.dao.WorkoutSessionDao
+import com.saico.core.database.entity.CustomRoutineEntity
 import com.saico.core.database.entity.GymExerciseEntity
 import com.saico.core.database.entity.OutdoorSessionEntity
 import com.saico.core.database.entity.UserProfileEntity
@@ -26,7 +28,8 @@ import com.saico.core.database.util.FitlogTypeConverters
         GymExerciseEntity::class,
         WorkoutSessionEntity::class,
         OutdoorSessionEntity::class,
-        WgerExerciseEntity::class
+        WgerExerciseEntity::class,
+        CustomRoutineEntity::class
     ],
     version = DB_VERSION,
     exportSchema = false
@@ -39,8 +42,22 @@ abstract class FitlogDatabase : RoomDatabase() {
     abstract fun workoutSessionDao(): WorkoutSessionDao
     abstract fun outdoorSessionDao(): OutdoorSessionDao
     abstract fun wgerExerciseDao(): WgerExerciseDao
+    abstract fun customRoutineDao(): CustomRoutineDao
 
     companion object {
+        val MIGRATION_11_12 = object : Migration(11, 12) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS $CUSTOM_ROUTINE_TABLE (
+                        dayOfWeek TEXT PRIMARY KEY NOT NULL,
+                        title TEXT NOT NULL,
+                        exercises TEXT NOT NULL
+                    )
+                    """.trimIndent()
+                )
+            }
+        }
         val MIGRATION_10_11 = object : Migration(10, 11) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 // We add the baseId column to the wger_exercise table
