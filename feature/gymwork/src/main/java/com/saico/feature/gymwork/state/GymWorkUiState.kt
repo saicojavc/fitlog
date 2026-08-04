@@ -1,20 +1,18 @@
 package com.saico.feature.gymwork.state
 
-data class GymWorkUiState(
-    val elapsedTime: Long = 0L,
-    val isTimerRunning: Boolean = false,
-    val exercises: List<GymExerciseItem> = emptyList(),
-    val totalCalories: Int = 0,
-    val showAddExerciseDialog: Boolean = false,
-    val editingExercise: GymExerciseItem? = null,
-    val showSessionSavedDialog: Boolean = false
-)
+import com.saico.core.model.DayRoutine
+import com.saico.core.model.ExerciseSetEntry
+import com.saico.core.model.WorkoutDay
 
-data class GymExerciseItem(
-    val id: String = java.util.UUID.randomUUID().toString(),
-    val name: String = "",
-    val sets: Int = 0,
-    val reps: Int = 0,
-    val weightLb: Double = 0.0,
-    val isExpanded: Boolean = false
+data class GymWorkUiState(
+    val selectedDay: WorkoutDay = WorkoutDay.MONDAY,
+    val routine: DayRoutine? = null,
+    val isSessionActive: Boolean = false,
+    val activeExerciseIndex: Int = 0,
+    val completedSetsMap: Map<Int, List<ExerciseSetEntry>> = emptyMap(),
+    val restTimerSeconds: Int = 0,
+    val elapsedTimeSeconds: Long = 0,
+    val totalCalories: Double = 0.0,
+    val isLoading: Boolean = false,
+    val showSessionSavedDialog: Boolean = false
 )

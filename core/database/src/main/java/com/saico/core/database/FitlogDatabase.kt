@@ -8,11 +8,13 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.saico.core.database.dao.GymExerciseDao
 import com.saico.core.database.dao.OutdoorSessionDao
 import com.saico.core.database.dao.UserProfileDao
+import com.saico.core.database.dao.WgerExerciseDao
 import com.saico.core.database.dao.WorkoutDao
 import com.saico.core.database.dao.WorkoutSessionDao
 import com.saico.core.database.entity.GymExerciseEntity
 import com.saico.core.database.entity.OutdoorSessionEntity
 import com.saico.core.database.entity.UserProfileEntity
+import com.saico.core.database.entity.WgerExerciseEntity
 import com.saico.core.database.entity.WorkoutEntity
 import com.saico.core.database.entity.WorkoutSessionEntity
 import com.saico.core.database.util.FitlogTypeConverters
@@ -23,7 +25,8 @@ import com.saico.core.database.util.FitlogTypeConverters
         UserProfileEntity::class,
         GymExerciseEntity::class,
         WorkoutSessionEntity::class,
-        OutdoorSessionEntity::class
+        OutdoorSessionEntity::class,
+        WgerExerciseEntity::class
     ],
     version = DB_VERSION,
     exportSchema = false
@@ -35,8 +38,25 @@ abstract class FitlogDatabase : RoomDatabase() {
     abstract fun gymExerciseDao(): GymExerciseDao
     abstract fun workoutSessionDao(): WorkoutSessionDao
     abstract fun outdoorSessionDao(): OutdoorSessionDao
+    abstract fun wgerExerciseDao(): WgerExerciseDao
 
     companion object {
+        val MIGRATION_9_10 = object : Migration(9, 10) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS $WGER_EXERCISE_TABLE (
+                        id INTEGER PRIMARY KEY NOT NULL,
+                        name TEXT NOT NULL,
+                        category TEXT NOT NULL,
+                        description TEXT NOT NULL,
+                        imageUrl TEXT,
+                        equipment TEXT
+                    )
+                    """.trimIndent()
+                )
+            }
+        }
         val MIGRATION_5_6 = object : Migration(5, 6) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE $USER_PROFILE_TABLE ADD COLUMN weightHistory TEXT NOT NULL DEFAULT '[]'")

@@ -2,10 +2,9 @@ package com.saico.feature.gymwork
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.saico.core.domain.repository.WgerRepository
 import com.saico.core.domain.usecase.gym_exercise.InsertGymExerciseUseCase
-import com.saico.core.model.GymExercise
-import com.saico.core.model.GymExerciseItem as DomainGymExerciseItem
-import com.saico.feature.gymwork.state.GymExerciseItem
+import com.saico.core.model.*
 import com.saico.feature.gymwork.state.GymWorkUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -15,161 +14,180 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
+import java.util.*
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
 @HiltViewModel
 class GymWorkViewModel @Inject constructor(
+    private val wgerRepository: WgerRepository,
     private val insertGymExerciseUseCase: InsertGymExerciseUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(GymWorkUiState())
     val uiState: StateFlow<GymWorkUiState> = _uiState.asStateFlow()
 
-    private var timerJob: Job? = null
+    private var sessionTimerJob: Job? = null
+    private var restTimerJob: Job? = null
+    
+    private var sessionStartTime: Long = 0
+    private var restEndTime: Long = 0
 
     private val LB_TO_KG = 0.453592
-    
-    private val CALORIES_PER_KG_VOL = 0.005 
-    private val CALORIES_BASE_PER_REP = 0.1 
-    private val CALORIES_BASE_PER_SET = 2.0 
 
-    private fun calculateExerciseCalories(sets: Int, reps: Int, weightLb: Double): Int {
-        if (sets <= 0 || reps <= 0) return 0
-        
-        val weightKg = weightLb * LB_TO_KG
-        val totalReps = sets * reps 
-        val volumeKg = totalReps * weightKg
-        
-        val caloriesFromVolume = volumeKg * CALORIES_PER_KG_VOL
-        val caloriesFromReps = totalReps * CALORIES_BASE_PER_REP
-        val caloriesFromSets = sets * CALORIES_BASE_PER_SET
-        
-        return (caloriesFromVolume + caloriesFromReps + caloriesFromSets).roundToInt()
-    }
-
-    private fun recalculateTotalCalories(exercises: List<GymExerciseItem>): Int {
-        return exercises.sumOf { calculateExerciseCalories(it.sets, it.reps, it.weightLb) }
-    }
-
-    fun toggleTimer() {
-        if (_uiState.value.isTimerRunning) {
-            timerJob?.cancel()
-            _uiState.update { it.copy(isTimerRunning = false) }
-        } else {
-            _uiState.update { it.copy(isTimerRunning = true) }
-            timerJob = viewModelScope.launch {
-                while (true) {
-                    delay(1000)
-                    _uiState.update { it.copy(elapsedTime = it.elapsedTime + 1) }
-                }
-            }
-        }
-    }
-
-    fun showAddExerciseDialog() {
-        _uiState.update { it.copy(showAddExerciseDialog = true) }
-    }
-
-    fun hideAddExerciseDialog() {
-        _uiState.update { it.copy(showAddExerciseDialog = false, editingExercise = null) }
-    }
-
-    fun onEditExercise(exercise: GymExerciseItem) {
-        _uiState.update { it.copy(editingExercise = exercise) }
-    }
-
-    fun addExercise(name: String, sets: String, reps: String, weight: String) {
-        val newItem = GymExerciseItem(
-            name = name,
-            sets = sets.toIntOrNull() ?: 0,
-            reps = reps.toIntOrNull() ?: 0,
-            weightLb = weight.toDoubleOrNull() ?: 0.0
-        )
-        _uiState.update { state ->
-            val updatedExercises = state.exercises + newItem
-            state.copy(
-                exercises = updatedExercises,
-                showAddExerciseDialog = false,
-                totalCalories = recalculateTotalCalories(updatedExercises)
-            )
-        }
-    }
-
-    fun updateExercise(id: String, name: String, sets: String, reps: String, weight: String) {
-        _uiState.update { state ->
-            val updatedExercises = state.exercises.map {
-                if (it.id == id) {
-                    it.copy(
-                        name = name,
-                        sets = sets.toIntOrNull() ?: 0,
-                        reps = reps.toIntOrNull() ?: 0,
-                        weightLb = weight.toDoubleOrNull() ?: 0.0
-                    )
-                } else it
-            }
-            state.copy(
-                exercises = updatedExercises,
-                editingExercise = null,
-                totalCalories = recalculateTotalCalories(updatedExercises)
-            )
-        }
-    }
-
-    fun toggleExerciseExpansion(id: String) {
-        _uiState.update { state ->
-            state.copy(
-                exercises = state.exercises.map {
-                    if (it.id == id) it.copy(isExpanded = !it.isExpanded) else it
-                }
-            )
-        }
-    }
-
-    fun removeExercise(id: String) {
-        _uiState.update { state ->
-            val updatedExercises = state.exercises.filter { it.id != id }
-            state.copy(
-                exercises = updatedExercises,
-                totalCalories = recalculateTotalCalories(updatedExercises)
-            )
-        }
-    }
-
-    fun saveSession() {
+    init {
         viewModelScope.launch {
-            val currentState = _uiState.value
-            val calendar = Calendar.getInstance()
-            val dayOfWeek = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()) ?: ""
+            wgerRepository.preloadExercises()
+            updateRoutineForDay(_uiState.value.selectedDay)
+        }
+    }
+
+    fun onDaySelected(day: WorkoutDay) {
+        if (_uiState.value.isSessionActive) return
+        _uiState.update { it.copy(selectedDay = day) }
+        updateRoutineForDay(day)
+    }
+
+    private fun updateRoutineForDay(day: WorkoutDay) {
+        val routine = wgerRepository.getRoutineForDay(day)
+        _uiState.update { it.copy(routine = routine) }
+    }
+
+    fun startSession() {
+        sessionStartTime = System.currentTimeMillis()
+        _uiState.update { state ->
+            val initialSetsMap = state.routine?.exercises?.mapIndexed { index, exercise ->
+                val targetSets = try { exercise.targetSets } catch(e: Exception) { 3 }
+                index to List(targetSets) { setIdx -> ExerciseSetEntry(setIdx) }
+            }?.toMap() ?: emptyMap()
             
+            state.copy(
+                isSessionActive = true,
+                elapsedTimeSeconds = 0,
+                completedSetsMap = initialSetsMap
+            )
+        }
+        startSessionTimer()
+    }
+
+    private fun startSessionTimer() {
+        sessionTimerJob?.cancel()
+        sessionTimerJob = viewModelScope.launch {
+            while (true) {
+                delay(1000)
+                val elapsed = (System.currentTimeMillis() - sessionStartTime) / 1000
+                _uiState.update { it.copy(elapsedTimeSeconds = elapsed) }
+            }
+        }
+    }
+
+    fun onSetToggled(exerciseIndex: Int, setIndex: Int, weight: String, reps: String) {
+        _uiState.update { state ->
+            val currentSets = state.completedSetsMap[exerciseIndex] ?: return@update state
+            val updatedSets = currentSets.map { set ->
+                if (set.setIndex == setIndex) {
+                    val wasCompleted = set.isCompleted
+                    val newCompleted = !wasCompleted
+                    if (newCompleted) {
+                        startRestTimer(state.routine?.exercises?.getOrNull(exerciseIndex)?.restTimeSeconds ?: 90)
+                    }
+                    set.copy(
+                        weightLb = weight.toDoubleOrNull() ?: 0.0,
+                        reps = reps.toIntOrNull() ?: 0,
+                        isCompleted = newCompleted
+                    )
+                } else set
+            }
+            
+            val newMap = state.completedSetsMap.toMutableMap()
+            newMap[exerciseIndex] = updatedSets
+            
+            // Check if all sets of current exercise are completed to auto-advance
+            var nextExerciseIndex = state.activeExerciseIndex
+            if (updatedSets.all { it.isCompleted } && exerciseIndex == state.activeExerciseIndex) {
+                if (state.activeExerciseIndex < (state.routine?.exercises?.size ?: 0) - 1) {
+                    nextExerciseIndex++
+                }
+            }
+
+            state.copy(
+                completedSetsMap = newMap,
+                activeExerciseIndex = nextExerciseIndex,
+                totalCalories = calculateTotalCalories(newMap)
+            )
+        }
+    }
+
+    private fun startRestTimer(seconds: Int) {
+        restEndTime = System.currentTimeMillis() + (seconds * 1000)
+        restTimerJob?.cancel()
+        restTimerJob = viewModelScope.launch {
+            while (System.currentTimeMillis() < restEndTime) {
+                val remaining = ((restEndTime - System.currentTimeMillis()) / 1000).toInt().coerceAtLeast(0)
+                _uiState.update { it.copy(restTimerSeconds = remaining) }
+                delay(500)
+            }
+            _uiState.update { it.copy(restTimerSeconds = 0) }
+            // TODO: Trigger Haptic feedback via UI side effect if possible or just vibration
+        }
+    }
+
+    fun skipRest() {
+        restTimerJob?.cancel()
+        _uiState.update { it.copy(restTimerSeconds = 0) }
+    }
+
+    private fun calculateTotalCalories(setsMap: Map<Int, List<ExerciseSetEntry>>): Double {
+        var total = 0.0
+        setsMap.values.forEach { sets ->
+            val completed = sets.filter { it.isCompleted }
+            completed.forEach { set ->
+                val weightKg = set.weightLb * LB_TO_KG
+                val volumeKg = set.reps * weightKg
+                total += (volumeKg * 0.005) + (set.reps * 0.1) + 2.0
+            }
+        }
+        return total
+    }
+
+    fun finishSession() {
+        viewModelScope.launch {
+            val state = _uiState.value
+            val calendar = Calendar.getInstance()
+            val dayOfWeekStr = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()) ?: ""
+            
+            val domainExercises = state.routine?.exercises?.mapIndexed { index, exercise ->
+                val sets = state.completedSetsMap[index] ?: emptyList()
+                GymExerciseItem(
+                    id = exercise.exerciseId.toString(),
+                    name = exercise.name,
+                    sets = sets.size,
+                    reps = sets.firstOrNull()?.reps ?: 0, // Simplified for old model
+                    weightKg = (sets.firstOrNull()?.weightLb ?: 0.0) * LB_TO_KG
+                )
+            } ?: emptyList()
+
             val gymExercise = GymExercise(
                 id = 0,
-                exercises = currentState.exercises.map { item ->
-                    DomainGymExerciseItem(
-                        id = item.id,
-                        name = item.name,
-                        sets = item.sets,
-                        reps = item.reps,
-                        weightKg = item.weightLb * LB_TO_KG
-                    )
-                },
-                elapsedTime = currentState.elapsedTime,
-                totalCalories = currentState.totalCalories,
-                date = Date().time,
-                dayOfWeek = dayOfWeek
+                exercises = domainExercises,
+                elapsedTime = state.elapsedTimeSeconds,
+                totalCalories = state.totalCalories.roundToInt(),
+                date = System.currentTimeMillis(),
+                dayOfWeek = dayOfWeekStr
             )
             
             insertGymExerciseUseCase(gymExercise)
             
-            _uiState.update { it.copy(showSessionSavedDialog = true) }
+            sessionTimerJob?.cancel()
+            restTimerJob?.cancel()
+            _uiState.update { it.copy(showSessionSavedDialog = true, isSessionActive = false) }
         }
     }
 
-    fun onDialogDismissed() {
-        timerJob?.cancel()
+    fun resetState() {
+        sessionTimerJob?.cancel()
+        restTimerJob?.cancel()
         _uiState.value = GymWorkUiState()
+        updateRoutineForDay(_uiState.value.selectedDay)
     }
 }
