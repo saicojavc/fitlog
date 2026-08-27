@@ -36,7 +36,7 @@ firebaseCommon = "21.0.0"
 
 #config
 compileSdk = "36"
-targetSdk = "35"
+targetSdk = "36"
 minSdk = "23"
 appcompat = "1.6.1"
 material = "1.10.0"
